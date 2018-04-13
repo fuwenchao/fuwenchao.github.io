@@ -11,6 +11,8 @@ Welcome to stest's documentation!
    :caption: Contents:
 
 
+   myfirstrst
+
 
 Indices and tables
 ==================

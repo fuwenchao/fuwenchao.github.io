@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>myfirstrst.rst &#8212; stest  documentation</title>
+    <title>Sphinx使用说明 &#8212; stest  documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../_static/documentation_options.js"></script>
@@ -29,8 +29,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="myfirstrst-rst">
-<h1>Sphinx使用说明<a class="headerlink" href="#myfirstrst-rst" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="sphinx">
+<h1>Sphinx使用说明<a class="headerlink" href="#sphinx" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
 <h2>幻灯片<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
@@ -139,8 +139,8 @@ pygments是python实现的对python代码进行高亮的扩展,他和sphinx协�
 </li>
 <li><p class="first">快速开始：</p>
 <blockquote>
-<div><p>mkdir mydoc &amp;&amp; cd mydoc
-sphinx-quickstart</p>
+<div><p>mkdir mydoc &amp;&amp; cd mydoc</p>
+<p>sphinx-quickstart</p>
 <ul class="simple">
 <li>生成目录如下</li>
 </ul>
@@ -172,6 +172,11 @@ sphinx-quickstart</p>
 <blockquote>
 <div><p>sphinx安装完毕后，就可以将rst转成html了。在cmd下的命令为：</p>
 <p>sphinx-build -b html &lt;srcDir&gt; &lt;dstDir&gt; [filenames]</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sphinx</span><span class="o">-</span><span class="n">build</span> <span class="o">-</span><span class="n">b</span> <span class="n">html</span> <span class="n">source</span> <span class="n">build</span>
+<span class="n">equals</span> <span class="n">to</span>
+<span class="n">make</span> <span class="n">html</span>
+</pre></div>
+</div>
 <p>srcDir是makefile和conf.py所在的目录，
 dstDir则可以随意指定，这里cd到doc的所在的文件夹下，执行：
 sphinx-build -b html doc/ doc_build/
@@ -185,10 +190,18 @@ sphinx-build -b html doc/ doc_build/
 </ul>
 </div></blockquote>
 </div>
+<hr class="docutils" />
 <div class="section" id="id3">
 <h1>拓展阅读<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h1>
 <blockquote>
-<div><a class="reference external" href="https://www.ibm.com/developerworks/cn/opensource/os-sphinx-documentation/">https://www.ibm.com/developerworks/cn/opensource/os-sphinx-documentation/</a></div></blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="https://www.ibm.com/developerworks/cn/opensource/os-sphinx-documentation/">https://www.ibm.com/developerworks/cn/opensource/os-sphinx-documentation/</a></li>
+<li><a class="reference external" href="https://blog.csdn.net/preyta/article/details/73647937">https://blog.csdn.net/preyta/article/details/73647937</a></li>
+<li><a class="reference external" href="http://www.sphinx-doc.org/en/stable/rest.html">http://www.sphinx-doc.org/en/stable/rest.html</a></li>
+<li><a class="reference external" href="https://www.cnblogs.com/zzqcn/p/5096876.html">https://www.cnblogs.com/zzqcn/p/5096876.html</a></li>
+<li><a class="reference external" href="https://zh-sphinx-doc.readthedocs.io/en/latest/tutorial.html">https://zh-sphinx-doc.readthedocs.io/en/latest/tutorial.html</a></li>
+</ul>
+</div></blockquote>
 </div>
 
 
@@ -199,7 +212,7 @@ sphinx-build -b html doc/ doc_build/
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">myfirstrst.rst</a><ul>
+<li><a class="reference internal" href="#">Sphinx使用说明</a><ul>
 <li><a class="reference internal" href="#id1">幻灯片</a></li>
 </ul>
 </li>

@@ -52,9 +52,18 @@ digraph mytest{
     road [label="大数据学习路线图" shape=ellipse style="filled,dashed,setlinewidth(1)"]
 
 
-    main [label="技术栈" URL="www.baidu.com" shape=box3d URL="https://about.me/fu.wenchao"];
+   // main [label="技术栈" URL="www.baidu.com" shape=box3d URL="https://about.me/fu.wenchao" image="https://help.github.com/assets/images/site/favicon.ico"];
 
+    main [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="4">  
+            <TR><TD><IMG src="yeoman.png"/></TD></TR></TABLE>> 
+             URL="https://about.me/fu.wenchao" shape=plaintext ];
 
+/*
+    ZQ [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="4">  
+            <TR><TD><IMG src="zoomquiet-dot-110629_h85.png"/></TD></TR></TABLE>>
+            ,URL="https://plus.google.com/+ZoomQuiet/about"
+            ];
+*/
     
 
 

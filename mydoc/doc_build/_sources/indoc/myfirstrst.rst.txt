@@ -1,4 +1,4 @@
-myfirstrst.rst
+Sphinx使用说明
 ===============
 
 
@@ -121,6 +121,7 @@ myfirstrst.rst
         - 快速开始：
 
             mkdir mydoc && cd mydoc
+
             sphinx-quickstart
 
             - 生成目录如下
@@ -152,12 +153,24 @@ myfirstrst.rst
 
                sphinx-build -b html <srcDir> <dstDir> [filenames]
 
+               .. code:: python
+
+                    sphinx-build -b html source build 
+                    equals to 
+                    make html
+
                srcDir是makefile和conf.py所在的目录，
                dstDir则可以随意指定，这里cd到doc的所在的文件夹下，执行：
                sphinx-build -b html doc/ doc_build/
                执行完成后，就可以在doc_build文件夹下看到rst文件对应的html文件了。
                注意：doc下面可以有子路径，但是doc下必须包含index.rst文件
+--------
+
 
 拓展阅读
 =============
-        https://www.ibm.com/developerworks/cn/opensource/os-sphinx-documentation/
+        - https://www.ibm.com/developerworks/cn/opensource/os-sphinx-documentation/
+        - https://blog.csdn.net/preyta/article/details/73647937
+        - http://www.sphinx-doc.org/en/stable/rest.html
+        - https://www.cnblogs.com/zzqcn/p/5096876.html
+        - https://zh-sphinx-doc.readthedocs.io/en/latest/tutorial.html
