@@ -137,9 +137,11 @@ digraph mytest{
 
     idea [label="idea" shape=note]
 
+    sublime [label="sublime" shape=note URL="https://blog.csdn.net/enjoyyl/article/details/50057491#for-restructuredtext"]
+
     sphinx [label="sphinx" shape=note URL="mydoc/doc_build/indoc/myfirstrst.html"]
-    rst [label="reStructuredText" shape=note]
-    main ->tool -> {git,idea,sphinx,rst}
+    rst [label="reStructuredText快速入门" shape=note URL="https://www.cnblogs.com/seayxu/p/5603876.html"]
+    main ->tool -> {git,idea,sphinx,rst,sublime}
 
 
 
