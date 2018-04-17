@@ -120,15 +120,17 @@ digraph mytest{
     scala ->spark -> {sparkstreaming,sparksql}
     
     /**框架**/
-    frame [label="框架" shape=tab URL="mydoc/doc_build/indoc/myfirstrst.html"];
+    frame [label="框架" shape=tab URL="mydoc/doc_build/tools/sphinx/Sphinx使用说明.html"];
     microserver [label="微服务" shape=tab URL="https://about.me/fu.wenchao"]
     spring [label="spring"];
     springBoot [label="springBoot"];
     springCloud [label="springCloud"]
     Dubbo [label="阿里RPC框架Dubbo"]
+    eureka_envbuild [label="eureka服务注册中心" URL="mydoc/doc_build/microservice/springcloud eureka环境搭建.html"]
 
     frame -> spring
-    main -> frame:se -> microserver -> {springCloud springBoot,Dubbo}
+    main -> frame:se -> microserver -> {springCloud,springBoot,Dubbo}
+    springCloud -> eureka_envbuild
 
     /**工具**/
     tool [label="工具" shape=tab]
