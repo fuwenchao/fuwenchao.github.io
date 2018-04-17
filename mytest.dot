@@ -126,7 +126,7 @@ digraph mytest{
     springBoot [label="springBoot"];
     springCloud [label="springCloud"]
     Dubbo [label="阿里RPC框架Dubbo"]
-    eureka_envbuild [label="eureka服务注册中心" URL="mydoc/doc_build/microservice/springcloud eureka环境搭建.html"]
+    eureka_envbuild [label="eureka服务注册中心" URL="mydoc/doc_build/microservice/springcloud eureka环境搭建.html" shape=note]
 
     frame -> spring
     main -> frame:se -> microserver -> {springCloud,springBoot,Dubbo}
