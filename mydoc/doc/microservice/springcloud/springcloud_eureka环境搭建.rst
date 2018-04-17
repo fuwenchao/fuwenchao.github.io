@@ -1,10 +1,10 @@
 springcloud 服务注册中心高可用环境搭建
 ===============================
 
-注册中心server端
+高可用的注册中心
 ------------------
 
-.. image:: ../../images/springcloud/springcloud_simpleschema.jpg
+.. image:: ../../../images/springcloud/springcloud_simpleschema.jpg
 
 刚开始搭建的时候，由于版本号没有对应，废了一写时间！
 
@@ -371,7 +371,8 @@ TODO
 
 
 区别
--------
+******
+
 第一种方式可以在properties中设置版本号而不用在dependency中加入依赖。
 比如springboot中管理了mysql-connection,需要修改mysql的版本号的时候
 直接dependency中加入mysql-connection，可以不加版本号，在properties中
@@ -385,6 +386,7 @@ TODO
 -----
 
 参考：
+------
 
 * http://dick1305.iteye.com/blog/2412519
 * https://www.cnblogs.com/woshimrf/p/springclout-eureka.html

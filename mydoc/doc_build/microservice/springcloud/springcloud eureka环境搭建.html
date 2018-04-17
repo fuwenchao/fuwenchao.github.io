@@ -1,0 +1,465 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>springcloud 服务注册中心高可用环境搭建 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="springcloud">
+<h1>springcloud 服务注册中心高可用环境搭建<a class="headerlink" href="#springcloud" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>高可用的注册中心<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<img alt="../../_images/springcloud_simpleschema.jpg" src="../../_images/springcloud_simpleschema.jpg" />
+<p>刚开始搭建的时候，由于版本号没有对应，废了一写时间！</p>
+<ul class="simple">
+<li>spring 1.5.x 对应 springcloud 的 d 和 e 版本</li>
+<li>spring 2.0.x 对应 springcloud 的 f 版本</li>
+</ul>
+<p>具体详见官方文档</p>
+<div class="section" id="spring-boot-2-0-0">
+<h3>1. 搭建一个spring boot应用，这里以2.0.0版本为例<a class="headerlink" href="#spring-boot-2-0-0" title="Permalink to this headline">¶</a></h3>
+<p>修改pom.xml</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+   xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+   &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+   &lt;groupId&gt;com.spdb.cdu&lt;/groupId&gt;
+   &lt;artifactId&gt;springcloud&lt;/artifactId&gt;
+   &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+   &lt;packaging&gt;jar&lt;/packaging&gt;
+
+   &lt;name&gt;springcloud&lt;/name&gt;
+   &lt;description&gt;springcloud&lt;/description&gt;
+
+   &lt;parent&gt;
+       &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+       &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+       &lt;version&gt;2.0.0.RELEASE&lt;/version&gt;
+       &lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt;
+   &lt;/parent&gt;
+
+   &lt;properties&gt;
+       &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+       &lt;project.reporting.outputEncoding&gt;UTF-8&lt;/project.reporting.outputEncoding&gt;
+       &lt;java.version&gt;1.8&lt;/java.version&gt;
+       &lt;spring-cloud.version&gt;Finchley.M8&lt;/spring-cloud.version&gt;
+   &lt;/properties&gt;
+
+   &lt;dependencies&gt;
+       &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+       &lt;/dependency&gt;
+       &lt;!-- &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-cloud-starter-gateway&lt;/artifactId&gt;
+       &lt;/dependency&gt; --&gt;
+       &lt;!-- &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+       &lt;/dependency&gt; --&gt;
+       &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-server&lt;/artifactId&gt;
+       &lt;/dependency&gt;
+       &lt;!-- &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-cloud-starter-netflix-hystrix&lt;/artifactId&gt;
+       &lt;/dependency&gt; --&gt;
+       &lt;!-- &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-cloud-starter-netflix-ribbon&lt;/artifactId&gt;
+       &lt;/dependency&gt; --&gt;
+       &lt;!-- &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-cloud-starter-netflix-zuul&lt;/artifactId&gt;
+       &lt;/dependency&gt;
+       &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-cloud-starter-openfeign&lt;/artifactId&gt;
+       &lt;/dependency&gt; --&gt;
+
+       &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+           &lt;scope&gt;test&lt;/scope&gt;
+       &lt;/dependency&gt;
+   &lt;/dependencies&gt;
+
+   &lt;dependencyManagement&gt;
+       &lt;dependencies&gt;
+           &lt;dependency&gt;
+               &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+               &lt;artifactId&gt;spring-cloud-dependencies&lt;/artifactId&gt;
+               &lt;version&gt;${spring-cloud.version}&lt;/version&gt;
+               &lt;type&gt;pom&lt;/type&gt;
+               &lt;scope&gt;import&lt;/scope&gt;
+           &lt;/dependency&gt;
+       &lt;/dependencies&gt;
+   &lt;/dependencyManagement&gt;
+
+   &lt;build&gt;
+       &lt;plugins&gt;
+           &lt;plugin&gt;
+               &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+               &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+           &lt;/plugin&gt;
+       &lt;/plugins&gt;
+   &lt;/build&gt;
+
+   &lt;repositories&gt;
+       &lt;repository&gt;
+           &lt;id&gt;spring-milestones&lt;/id&gt;
+           &lt;name&gt;Spring Milestones&lt;/name&gt;
+           &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+           &lt;snapshots&gt;
+               &lt;enabled&gt;false&lt;/enabled&gt;
+           &lt;/snapshots&gt;
+       &lt;/repository&gt;
+   &lt;/repositories&gt;
+
+
+&lt;/project&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="eurekaserver">
+<h3>2. 使得项目工程具备EurekaServer注册中心功能<a class="headerlink" href="#eurekaserver" title="Permalink to this headline">¶</a></h3>
+<p>修改主函数，类上面增加注解&#64;EnableEurekaServer</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@EnableEurekaServer</span>
+<span class="nd">@SpringBootApplication</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">SpringcloudApplication</span> <span class="p">{</span>
+
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">SpringApplication</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">SpringcloudApplication</span><span class="o">.</span><span class="n">class</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h3>3. 修改配置文件<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>增加两个配置文件
+application-peer1.properties
+application-peer2.properties</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#application-peer1.properties</span>
+<span class="n">server</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">11111</span>
+
+<span class="n">spring</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="n">eureka</span><span class="o">-</span><span class="n">service</span>
+<span class="n">eureka</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">hostname</span> <span class="o">=</span>  <span class="n">peer1</span>
+<span class="n">eureka</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">register</span><span class="o">-</span><span class="k">with</span><span class="o">-</span><span class="n">eureka</span> <span class="o">=</span> <span class="n">true</span>
+<span class="n">eureka</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">fetch</span><span class="o">-</span><span class="n">registry</span> <span class="o">=</span> <span class="n">true</span>
+<span class="n">eureka</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">serviceUrl</span><span class="o">.</span><span class="n">defaultZone</span> <span class="o">=</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">peer2</span><span class="p">:</span><span class="mi">11112</span><span class="o">/</span><span class="n">eureka</span><span class="o">/</span>
+
+
+<span class="c1">#application-peer2.properties</span>
+<span class="n">server</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">11112</span>
+
+<span class="n">spring</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="n">eureka</span><span class="o">-</span><span class="n">service</span>
+<span class="n">eureka</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">hostname</span> <span class="o">=</span>  <span class="n">peer2</span>
+<span class="n">eureka</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">register</span><span class="o">-</span><span class="k">with</span><span class="o">-</span><span class="n">eureka</span> <span class="o">=</span> <span class="n">true</span>
+<span class="n">eureka</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">fetch</span><span class="o">-</span><span class="n">registry</span> <span class="o">=</span> <span class="n">true</span>
+<span class="n">eureka</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">serviceUrl</span><span class="o">.</span><span class="n">defaultZone</span> <span class="o">=</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">peer1</span><span class="p">:</span><span class="mi">11111</span><span class="o">/</span><span class="n">eureka</span><span class="o">/</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="hosts">
+<h3>4. 修改hosts文件<a class="headerlink" href="#hosts" title="Permalink to this headline">¶</a></h3>
+<p>增加如下行</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">127.0.0.1 peer1</div>
+<div class="line">127.0.0.1 peer1</div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id3">
+<h3>5. 启动服务注册中心<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>分别启动两个注册服务中心</p>
+<div class="line-block">
+<div class="line">java -jar springcloud-0.0.1-SNAPSHOT.jar –spring.profiles.active=peer1</div>
+<div class="line">java -jar springcloud-0.0.1-SNAPSHOT.jar –spring.profiles.active=peer2</div>
+</div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id4">
+<h2>高可用的服务提供者<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="springboot-pom-xml">
+<h3>1. 修改原springboot 的 pom.xml文件<a class="headerlink" href="#springboot-pom-xml" title="Permalink to this headline">¶</a></h3>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+   xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+   &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+   &lt;groupId&gt;com.spdb.cdu&lt;/groupId&gt;
+   &lt;artifactId&gt;spring-server1&lt;/artifactId&gt;
+   &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+   &lt;packaging&gt;jar&lt;/packaging&gt;
+
+   &lt;name&gt;spring-server1&lt;/name&gt;
+   &lt;description&gt;springcloud&lt;/description&gt;
+
+   &lt;parent&gt;
+       &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+       &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+       &lt;version&gt;2.0.0.RELEASE&lt;/version&gt;
+       &lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt;
+   &lt;/parent&gt;
+
+   &lt;properties&gt;
+       &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+       &lt;project.reporting.outputEncoding&gt;UTF-8&lt;/project.reporting.outputEncoding&gt;
+       &lt;java.version&gt;1.8&lt;/java.version&gt;
+       &lt;spring-cloud.version&gt;Finchley.M8&lt;/spring-cloud.version&gt;
+   &lt;/properties&gt;
+
+   &lt;dependencies&gt;
+       &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+       &lt;/dependency&gt;
+       &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-server&lt;/artifactId&gt;
+       &lt;/dependency&gt;
+
+       &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+           &lt;scope&gt;test&lt;/scope&gt;
+       &lt;/dependency&gt;
+   &lt;/dependencies&gt;
+
+   &lt;dependencyManagement&gt;
+       &lt;dependencies&gt;
+           &lt;dependency&gt;
+               &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+               &lt;artifactId&gt;spring-cloud-dependencies&lt;/artifactId&gt;
+               &lt;version&gt;${spring-cloud.version}&lt;/version&gt;
+               &lt;type&gt;pom&lt;/type&gt;
+               &lt;scope&gt;import&lt;/scope&gt;
+           &lt;/dependency&gt;
+       &lt;/dependencies&gt;
+   &lt;/dependencyManagement&gt;
+
+   &lt;build&gt;
+       &lt;plugins&gt;
+           &lt;plugin&gt;
+               &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+               &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+           &lt;/plugin&gt;
+       &lt;/plugins&gt;
+   &lt;/build&gt;
+
+   &lt;repositories&gt;
+       &lt;repository&gt;
+           &lt;id&gt;spring-milestones&lt;/id&gt;
+           &lt;name&gt;Spring Milestones&lt;/name&gt;
+           &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+           &lt;snapshots&gt;
+               &lt;enabled&gt;false&lt;/enabled&gt;
+           &lt;/snapshots&gt;
+       &lt;/repository&gt;
+   &lt;/repositories&gt;
+
+
+&lt;/project&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>2. 修改主入口<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>增加 &#64;EnableDiscoveryClient 注解</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@EnableDiscoveryClient</span>
+<span class="nd">@SpringBootApplication</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">SpringServer1Application</span> <span class="p">{</span>
+
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">SpringApplication</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">SpringServer1Application</span><span class="o">.</span><span class="n">class</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="helloworld">
+<h3>3. 发布helloworld服务<a class="headerlink" href="#helloworld" title="Permalink to this headline">¶</a></h3>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@RestController</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">HelloWorldContrller</span> <span class="p">{</span>
+    <span class="nd">@Autowired</span>
+   <span class="n">private</span> <span class="n">DiscoveryClient</span> <span class="n">client</span><span class="p">;</span>
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">&quot;/hellWorld&quot;</span><span class="p">,</span><span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="n">GET</span><span class="p">)</span>
+    <span class="n">public</span> <span class="n">String</span> <span class="n">hellWorld</span><span class="p">(</span><span class="n">String</span> <span class="n">content</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">ServiceInstance</span><span class="o">&gt;</span> <span class="n">instanceLst</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">getInstances</span><span class="p">(</span><span class="s2">&quot;eureka-service&quot;</span><span class="p">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;=====================================&quot;</span><span class="p">);</span>
+        <span class="k">for</span><span class="p">(</span> <span class="n">ServiceInstance</span> <span class="n">s</span><span class="p">:</span><span class="n">instanceLst</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">getPort</span><span class="p">()</span><span class="o">+</span><span class="s2">&quot;:&quot;</span><span class="o">+</span><span class="n">s</span><span class="o">.</span><span class="n">getHost</span><span class="p">());</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="s2">&quot;helloWold &quot;</span> <span class="o">+</span><span class="n">content</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="application-properties">
+<h3>4. 配置application.properties<a class="headerlink" href="#application-properties" title="Permalink to this headline">¶</a></h3>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">server</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">22223</span>
+<span class="n">spring</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="n">eureka</span><span class="o">-</span><span class="n">helloWorld</span>
+<span class="n">eureka</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">serviceUrl</span><span class="o">.</span><span class="n">defaultZone</span> <span class="o">=</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">peer1</span><span class="p">:</span><span class="mi">11111</span><span class="o">/</span><span class="n">eureka</span><span class="p">,</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">peer1</span><span class="p">:</span><span class="mi">11112</span><span class="o">/</span><span class="n">eureka</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h3>5. 启动服务<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">java</span> <span class="o">-</span><span class="n">jar</span> <span class="n">spring</span><span class="o">-</span><span class="n">server1</span><span class="o">-</span><span class="mf">0.0</span><span class="o">.</span><span class="mi">1</span><span class="o">-</span><span class="n">SNAPSHOT</span><span class="o">.</span><span class="n">jar</span> <span class="o">--</span><span class="n">server</span><span class="o">.</span><span class="n">port</span><span class="o">=</span><span class="mi">22223</span>
+<span class="n">java</span> <span class="o">-</span><span class="n">jar</span> <span class="n">spring</span><span class="o">-</span><span class="n">server1</span><span class="o">-</span><span class="mf">0.0</span><span class="o">.</span><span class="mi">1</span><span class="o">-</span><span class="n">SNAPSHOT</span><span class="o">.</span><span class="n">jar</span> <span class="o">--</span><span class="n">server</span><span class="o">.</span><span class="n">port</span><span class="o">=</span><span class="mi">22222</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h3>6. 访问服务<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="line-block">
+<div class="line"><a class="reference external" href="http://localhost:22223/hellWorld?content=123">http://localhost:22223/hellWorld?content=123</a></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="ribbon">
+<h2>构建一个使用ribbon负载均衡访问的客户端服务<a class="headerlink" href="#ribbon" title="Permalink to this headline">¶</a></h2>
+<p>TODO</p>
+</div>
+<div class="section" id="springboot">
+<h2>引入springboot的两种方式<a class="headerlink" href="#springboot" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>pom中继承parent</li>
+<li>pom中dependencyManager中import springBoot依赖</li>
+</ol>
+<div class="section" id="id8">
+<h3>区别<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>第一种方式可以在properties中设置版本号而不用在dependency中加入依赖。
+比如springboot中管理了mysql-connection,需要修改mysql的版本号的时候
+直接dependency中加入mysql-connection，可以不加版本号，在properties中
+加入mysql.version变量。</p>
+<p>但是如果使用dependencyManager的方式引入的话，必须引入mysql的时候加入
+版本号</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id9">
+<h2>参考：<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="http://dick1305.iteye.com/blog/2412519">http://dick1305.iteye.com/blog/2412519</a></li>
+<li><a class="reference external" href="https://www.cnblogs.com/woshimrf/p/springclout-eureka.html">https://www.cnblogs.com/woshimrf/p/springclout-eureka.html</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">springcloud 服务注册中心高可用环境搭建</a><ul>
+<li><a class="reference internal" href="#id1">高可用的注册中心</a><ul>
+<li><a class="reference internal" href="#spring-boot-2-0-0">1. 搭建一个spring boot应用，这里以2.0.0版本为例</a></li>
+<li><a class="reference internal" href="#eurekaserver">2. 使得项目工程具备EurekaServer注册中心功能</a></li>
+<li><a class="reference internal" href="#id2">3. 修改配置文件</a></li>
+<li><a class="reference internal" href="#hosts">4. 修改hosts文件</a></li>
+<li><a class="reference internal" href="#id3">5. 启动服务注册中心</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id4">高可用的服务提供者</a><ul>
+<li><a class="reference internal" href="#springboot-pom-xml">1. 修改原springboot 的 pom.xml文件</a></li>
+<li><a class="reference internal" href="#id5">2. 修改主入口</a></li>
+<li><a class="reference internal" href="#helloworld">3. 发布helloworld服务</a></li>
+<li><a class="reference internal" href="#application-properties">4. 配置application.properties</a></li>
+<li><a class="reference internal" href="#id6">5. 启动服务</a></li>
+<li><a class="reference internal" href="#id7">6. 访问服务</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ribbon">构建一个使用ribbon负载均衡访问的客户端服务</a></li>
+<li><a class="reference internal" href="#springboot">引入springboot的两种方式</a><ul>
+<li><a class="reference internal" href="#id8">区别</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id9">参考：</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springcloud/springcloud eureka环境搭建.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springcloud/springcloud eureka环境搭建.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
