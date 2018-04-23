@@ -22,8 +22,13 @@
 ----------------------------
 搭建步骤详见 服务注册中心高可用环境搭建_
 
+搭建步骤详见 服务注册中心高可用环境搭建2_
 
 
+搭建步骤详见 服务注册中心高可用环境搭建3_
+
+
+搭建步骤详见 服务注册中心高可用环境搭建4_
 
 服务消费者 rest+ribbon
 -------------------------
@@ -251,7 +256,13 @@ application.yml 配置如下
 
 ------
 
-.. _服务注册中心高可用环境搭建: https://fuwenchao.github.io/mydoc/doc_build/microservice/springcloud/springcloud_eureka%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA.html
+.. _服务注册中心高可用环境搭建: https://fuwenchao.github.io/mydoc/doc_build/microservice/springcloud/eureka.html
+
+.. _服务注册中心高可用环境搭建2: eureka.rst
+
+.. _服务注册中心高可用环境搭建3: eureka.html
+
+.. _服务注册中心高可用环境搭建4: ./eureka.html
 
 .. _源代码: https://github.com/fuwenchao/myspringclouddemo
 
