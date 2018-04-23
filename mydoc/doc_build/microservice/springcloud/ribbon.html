@@ -1,0 +1,193 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>服务消费者的负载均衡器 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>服务消费者的负载均衡器<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id2">
+<h2>1. 新建工程<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><blockquote>
+<div>ribbon-service</div></blockquote>
+<p>application.yml如下</p>
+</div></blockquote>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">server</span><span class="p">:</span>
+  <span class="n">port</span><span class="p">:</span> <span class="mi">20000</span>
+<span class="n">spring</span><span class="p">:</span>
+  <span class="n">application</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">ribbon</span><span class="o">-</span><span class="n">service</span>
+<span class="n">eureka</span><span class="p">:</span>
+  <span class="n">client</span><span class="p">:</span>
+    <span class="n">serviceUrl</span><span class="p">:</span>
+      <span class="n">defaultZone</span><span class="p">:</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">8889</span><span class="o">/</span><span class="n">eureka</span><span class="o">/</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="pom-xml">
+<h2>2. pom.xml 如下<a class="headerlink" href="#pom-xml" title="Permalink to this headline">¶</a></h2>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-cloud-starter-eureka&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-cloud-starter-ribbon&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;  &lt;!-- 下一步演示断路器的时候会用到，这里没有用--&gt;
+        &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-cloud-starter-hystrix&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+&lt;!--    &lt;dependency&gt;
+        &lt;groupId&gt;com.netflix.hystrix&lt;/groupId&gt;
+        &lt;artifactId&gt;hystrix-javanica&lt;/artifactId&gt;
+    &lt;/dependency&gt;--&gt;
+&lt;/dependencies&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>3. 向服务中心注册<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>在入口类中增加 &#64;EnableDiscoveryClient</div></blockquote>
+</div>
+<div class="section" id="id4">
+<h2>4. 开启负载均衡<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>在主函数中增加</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Bean</span>
+<span class="nd">@LoadBalanced</span>
+<span class="n">RestTemplate</span> <span class="n">restTemplate</span><span class="p">(){</span>
+    <span class="k">return</span> <span class="n">new</span> <span class="n">RestTemplate</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>并且向程序的ioc注入一个bean: restTemplate;
+并通过&#64;LoadBalanced注解表明这个 restRemplate
+开启负载均衡的功能。</p>
+</div>
+<div class="section" id="id5">
+<h2>5. 调用服务<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="n">String</span> <span class="n">sayHello</span><span class="p">(</span><span class="n">String</span> <span class="n">name</span><span class="p">){</span>
+    <span class="k">return</span> <span class="n">restTemplate</span><span class="o">.</span><span class="n">getForObject</span><span class="p">(</span><span class="s2">&quot;http://EUREKA-CLIENT-SERVICE-PROVIDER/hello/sayhello?name=&quot;</span><span class="o">+</span><span class="n">name</span><span class="p">,</span><span class="n">String</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>注意 EUREKA-CLIENT-SERVICE-PROVIDER 是向服务注册中心注册的服务名，
+如果注册了多个服务，
+会采取某种策略的负载均衡，ribbon默认轮询</p>
+</div>
+<div class="section" id="id6">
+<h2>6. 此时架构图如下<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p>网下找的，端口不一样</p>
+<img alt="../../_images/arch-ribbon.png" src="../../_images/arch-ribbon.png" />
+</div>
+<hr class="docutils" />
+<div class="section" id="id7">
+<h2>7. 具体参考 <a class="reference external" href="https://github.com/fuwenchao/myspringclouddemo">代码</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">服务消费者的负载均衡器</a><ul>
+<li><a class="reference internal" href="#id2">1. 新建工程</a></li>
+<li><a class="reference internal" href="#pom-xml">2. pom.xml 如下</a></li>
+<li><a class="reference internal" href="#id3">3. 向服务中心注册</a></li>
+<li><a class="reference internal" href="#id4">4. 开启负载均衡</a></li>
+<li><a class="reference internal" href="#id5">5. 调用服务</a></li>
+<li><a class="reference internal" href="#id6">6. 此时架构图如下</a></li>
+<li><a class="reference internal" href="#id7">7. 具体参考 代码</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springcloud/ribbon.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springcloud/ribbon.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

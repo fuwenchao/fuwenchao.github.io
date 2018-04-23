@@ -1,0 +1,14 @@
+<map id="mytest" name="mytest">
+<area shape="poly" id="node9" href="https://about.me/fu.wenchao" title="联系我" alt="" coords="160,687,158,681,151,676,140,671,126,669,111,668,96,669,82,671,71,676,64,681,62,687,64,692,71,698,82,702,96,705,111,706,126,705,140,702,151,698,158,692"/>
+<area shape="rect" id="node11" href="https://about.me/fu.wenchao" title="&lt;TABLE&gt;" alt="" coords="41,729,181,844"/>
+<area shape="rect" id="node26" href="mydoc/doc_build/tools/sphinx/Sphinx使用说明.html" title="框架" alt="" coords="339,757,411,787"/>
+<area shape="rect" id="node27" href="https://about.me/fu.wenchao" title="微服务" alt="" coords="635,799,707,828"/>
+<area shape="rect" id="node32" href="mydoc/doc_build/microservice/springcloud/readme.html" title="eureka服务注册中心" alt="" coords="1048,799,1213,828"/>
+<area shape="rect" id="node36" href="https://blog.csdn.net/enjoyyl/article/details/50057491#for-restructuredtext" title="sublime" alt="" coords="631,905,710,935"/>
+<area shape="rect" id="node37" href="mydoc/doc_build/indoc/myfirstrst.html" title="sphinx" alt="" coords="635,959,707,988"/>
+<area shape="rect" id="node38" href="https://www.cnblogs.com/seayxu/p/5603876.html" title="reStructuredText快速入门" alt="" coords="564,1012,777,1041"/>
+<area shape="rect" id="node44" href="https://item.jd.com/11728740.html" title="重构，改善既有代码的设计" alt="" coords="806,1336,1019,1365"/>
+<area shape="rect" id="node45" href="https://item.jd.com/10064006.html" title="代码整洁之道" alt="" coords="854,1389,971,1419"/>
+<area shape="rect" id="node46" href="https://item.jd.com/10875285.html" title="代码大全2" alt="" coords="866,1443,959,1472"/>
+<area shape="rect" id="node48" href="https://item.jd.com/10058902.html" title="effective java" alt="" coords="845,1176,980,1205"/>
+</map>
