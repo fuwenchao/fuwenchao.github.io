@@ -32,7 +32,16 @@
   <div class="section" id="id1">
 <h1>服务消费者的负载均衡器<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id2">
-<h2>1. 新建工程<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<h2>简介<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>讲了服务的注册和发现。在微服务架构中，
+业务都会被拆分成一个独立的服务，服务与服务的通讯是基于http restful的。
+Spring cloud有两种服务调用方式，
+一种是ribbon+restTemplate，
+另一种是feign。
+在这一篇文章首先讲解下基于ribbon+rest</p>
+</div>
+<div class="section" id="id3">
+<h2>1. 新建工程<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div><blockquote>
 <div>ribbon-service</div></blockquote>
@@ -84,13 +93,13 @@
 </pre></div>
 </div>
 </div>
-<div class="section" id="id3">
-<h2>3. 向服务中心注册<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>3. 向服务中心注册<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <blockquote>
 <div>在入口类中增加 &#64;EnableDiscoveryClient</div></blockquote>
 </div>
-<div class="section" id="id4">
-<h2>4. 开启负载均衡<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>4. 开启负载均衡<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <p>在主函数中增加</p>
 <div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Bean</span>
 <span class="nd">@LoadBalanced</span>
@@ -103,8 +112,8 @@
 并通过&#64;LoadBalanced注解表明这个 restRemplate
 开启负载均衡的功能。</p>
 </div>
-<div class="section" id="id5">
-<h2>5. 调用服务<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>5. 调用服务<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="n">String</span> <span class="n">sayHello</span><span class="p">(</span><span class="n">String</span> <span class="n">name</span><span class="p">){</span>
     <span class="k">return</span> <span class="n">restTemplate</span><span class="o">.</span><span class="n">getForObject</span><span class="p">(</span><span class="s2">&quot;http://EUREKA-CLIENT-SERVICE-PROVIDER/hello/sayhello?name=&quot;</span><span class="o">+</span><span class="n">name</span><span class="p">,</span><span class="n">String</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
 <span class="p">}</span>
@@ -114,14 +123,14 @@
 如果注册了多个服务，
 会采取某种策略的负载均衡，ribbon默认轮询</p>
 </div>
-<div class="section" id="id6">
-<h2>6. 此时架构图如下<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h2>6. 此时架构图如下<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <p>网下找的，端口不一样</p>
 <img alt="../../_images/arch-ribbon.png" src="../../_images/arch-ribbon.png" />
 </div>
 <hr class="docutils" />
-<div class="section" id="id7">
-<h2>7. 具体参考 <a class="reference external" href="https://github.com/fuwenchao/myspringclouddemo">代码</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id8">
+<h2>7. 具体参考 <a class="reference external" href="https://github.com/fuwenchao/myspringclouddemo">代码</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -134,13 +143,14 @@
   <h3><a href="../../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">服务消费者的负载均衡器</a><ul>
-<li><a class="reference internal" href="#id2">1. 新建工程</a></li>
+<li><a class="reference internal" href="#id2">简介</a></li>
+<li><a class="reference internal" href="#id3">1. 新建工程</a></li>
 <li><a class="reference internal" href="#pom-xml">2. pom.xml 如下</a></li>
-<li><a class="reference internal" href="#id3">3. 向服务中心注册</a></li>
-<li><a class="reference internal" href="#id4">4. 开启负载均衡</a></li>
-<li><a class="reference internal" href="#id5">5. 调用服务</a></li>
-<li><a class="reference internal" href="#id6">6. 此时架构图如下</a></li>
-<li><a class="reference internal" href="#id7">7. 具体参考 代码</a></li>
+<li><a class="reference internal" href="#id4">3. 向服务中心注册</a></li>
+<li><a class="reference internal" href="#id5">4. 开启负载均衡</a></li>
+<li><a class="reference internal" href="#id6">5. 调用服务</a></li>
+<li><a class="reference internal" href="#id7">6. 此时架构图如下</a></li>
+<li><a class="reference internal" href="#id8">7. 具体参考 代码</a></li>
 </ul>
 </li>
 </ul>

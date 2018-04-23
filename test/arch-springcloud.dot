@@ -1,0 +1,85 @@
+digraph arch_springcloud{
+    /***
+        图片生成命令
+        dot -Tjpeg index.dot -o index.jpg -Nfontname=KaiTi -Tcmapx -o index.map -Efontname=KaiTi -Gfontname=KaiTi
+
+    **/
+        graph [label="copyright @wenchaofu 2018"
+        ,fontsize=12.0,fontcolor=snow
+        ,labeljust="l",labelloc="b",center=1
+        ,ranksep=0.1,center=1,ratio=compress
+        ,rankdir=LR
+        ,bgcolor="#333333"
+        ];
+
+        compound=true;
+
+    node[fontsize=11.0,height=0.3
+        ,style="filled,setlinewidth(0.5)",fillcolor="#333333",color="#000000",fontcolor=snow
+        ,shape=egg
+        ];
+
+    edge [fontsize=9.0,fontcolor=gray
+        ,color=azure
+        ,arrowsize=0.5,arrowhead=vee,arrowtail=none
+        ,style="setlinewidth(0.5)"
+        ];
+
+        /** 服务 **/
+    subgraph cluster_service{
+        label="服务层"
+        bgcolor="#333333"
+
+        a [label="服务集群a" shape=box3d style=dotted]
+
+        b [label="服务集群b" shape=box3d style=dotted]
+
+        c [label="服务集群c" shape=box3d style=dotted]
+
+        d [label="服务集群d" shape=box3d style=dotted]
+
+       
+        #a -> b -> c -> d [label="call" sytle=dotted dir="both"]
+
+        a->b [ dir=both ]
+
+
+
+    }
+
+    subgraph cluster_register{
+        label="注册中心"
+        bgcolor="#333333"
+
+        c_a [label="注册中心A"] 
+        c_b [label="注册中心B"] 
+        c_c [label="注册中心C"] 
+
+        c_a -> c_b -> c_c [label="replicator" dir="both"]
+    }
+
+
+    subgraph cluster_zuul{
+        label="zuul 集群"
+        bgcolor="#333333"
+
+        z_a [label="zuul_a"] 
+        z_b [label="zuul_b"] 
+        z_c [label="zuul_c"] 
+
+       // z_a -> z_b -> z_c [label="replicator" dir=both]
+    }
+
+    client [label="调用客户端" shape=Mdiamond]
+
+
+
+    client -> cluster_zuul ->  cluster_service
+
+
+    {cluster_zuul,cluster_service} -> cluster_register
+
+  
+
+
+}

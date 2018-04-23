@@ -33,6 +33,8 @@
 <h1>路由网关服务<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id2">
 <h2>简介<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>前面的文章我们介绍了，Eureka用于服务的注册于发现，Feign支持服务的调用以及均衡负载，Hystrix处理服务的熔断防止故障扩散，Spring Cloud Config服务集群配置中心，似乎一个微服务框架已经完成了。</p>
+<p>我们还是少考虑了一个问题，外部的应用如何来访问内部各种各样的微服务呢？在微服务架构中，后端服务往往不直接开放给调用端，而是通过一个API网关根据请求的url，路由到相应的服务。当添加API网关后，在第三方调用端和服务提供方之间就创建了一面墙，这面墙直接与调用方通信进行权限控制，后将请求均衡分发给后台服务端。</p>
 <p>在Spring Cloud微服务系统中，一种常见的负载均衡方式是，客户端的
 请求首先经过负载均衡（zuul、Ngnix），再到达服务网关（zuul集群），
 然后再到具体的服。，服务统一注册到高可用的服务注册中心集群，
@@ -41,16 +43,43 @@
 <p>Zuul的主要功能是路由转发和过滤器。路由功能是微服务的一部分，
 比如／api/user转发到到user服务，/api/shop转发到到shop服务。
 zuul默认和Ribbon结合实现了负载均衡的功能。</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">在Spring Cloud体系中， Spring Cloud Zuul就是提供负载均衡、反向代理、权限认证的一个API gateway。</div>
 </div>
+</div></blockquote>
+</div>
+<div class="section" id="api-gateway">
+<h2>为什么需要API Gateway<a class="headerlink" href="#api-gateway" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id3">
-<h2>架构图<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<h3>1. 简化客户端调用复杂度<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>微服务架构模式下后端服务的实例数一般是动态的，对于客户端而言很难发现动态改变的服务实例的访问地址信息。因此在基于微服务的项目中为了简化前端的调用逻辑，通常会引入API Gateway作为轻量级网关，同时API Gateway中也会实现相关的认证逻辑从而简化内部服务之间相互调用的复杂度。</p>
+</div>
+<div class="section" id="id4">
+<h3>2. 数据裁剪以及聚合<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>通常而言不同的客户端对于显示时对于数据的需求是不一致的，比如手机端或者Web端又或者在低延迟的网络环境或者高延迟的网络环境。</p>
+<p>因此为了优化客户端的使用体验，API Gateway可以对通用性的响应数据进行裁剪以适应不同客户端的使用需求。同时还可以将多个API调用逻辑进行聚合，从而减少客户端的请求数，优化客户端用户体验</p>
+</div>
+<div class="section" id="id5">
+<h3>3. 多渠道支持<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>当然我们还可以针对不同的渠道和客户端提供不同的API Gateway,对于该模式的使用由另外一个大家熟知的方式叫Backend for front-end, 在Backend for front-end模式当中，我们可以针对不同的客户端分别创建其BFF</p>
+</div>
+<div class="section" id="id6">
+<h3>4. 遗留系统的微服务化改造<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>对于系统而言进行微服务改造通常是由于原有的系统存在或多或少的问题，比如技术债务，代码质量，可维护性，可扩展性等等。API Gateway的模式同样适用于这一类遗留系统的改造，通过微服务化的改造逐步实现对原有系统中的问题的修复，从而提升对于原有业务响应力的提升。通过引入抽象层，逐步使用新的实现替换旧的实现。</p>
+</div>
+</div>
+<div class="section" id="id7">
+<h2>架构图<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <img alt="../../_images/arch-includezuul.png" src="../../_images/arch-includezuul.png" />
 <p><strong>注意：A服务和B服务是可以相互调用的，作图的时候忘记了。并且配置服务也是注册到服务注册中心的。</strong></p>
 </div>
-<div class="section" id="id4">
-<h2>搭建步骤<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id8">
+<h2>搭建步骤<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 <ul>
 <li><p class="first">新建项目 zuul-service</p>
+</li>
+<li><p class="first">pom.xml 文件中增加 zuul-server依赖</p>
 </li>
 <li><dl class="first docutils">
 <dt>主入口中增加注解开启路由服务</dt>
@@ -89,10 +118,27 @@ zuul默认和Ribbon结合实现了负载均衡的功能。</p>
 </li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>过滤功能<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id9">
+<h2>过滤功能<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <p>zuul 的filter 实现 ZuulFilter ，不仅能够路由，还能过滤，做一些安全验证</p>
 <p>详见 <a class="reference external" href="https://github.com/fuwenchao/myspringclouddemo">代码</a></p>
+</div>
+<div class="section" id="id10">
+<h2>服务化<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<p>也就是上面的例子</p>
+<p>非服务化类似于这样</p>
+<p>application.properties类似于</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spring</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="n">gateway</span><span class="o">-</span><span class="n">service</span><span class="o">-</span><span class="n">zuul</span>
+<span class="n">server</span><span class="o">.</span><span class="n">port</span><span class="o">=</span><span class="mi">8888</span>
+
+<span class="c1">#这里的配置表示，访问/it/** 直接重定向到http://www.ityouknow.com/**</span>
+<span class="n">zuul</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">baidu</span><span class="o">.</span><span class="n">path</span><span class="o">=/</span><span class="n">it</span><span class="o">/**</span>
+<span class="n">zuul</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">baidu</span><span class="o">.</span><span class="n">url</span><span class="o">=</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">ityouknow</span><span class="o">.</span><span class="n">com</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>访问</p>
+<p>在浏览器中访问：<a class="reference external" href="http://localhost:8888/it/spring-cloud">http://localhost:8888/it/spring-cloud</a>，看到页面返回了：<a class="reference external" href="http://www.ityouknow.com/spring-cloud">http://www.ityouknow.com/spring-cloud</a> 页面的信息</p>
+<hr class="docutils" />
 </div>
 </div>
 
@@ -106,9 +152,17 @@ zuul默认和Ribbon结合实现了负载均衡的功能。</p>
   <ul>
 <li><a class="reference internal" href="#">路由网关服务</a><ul>
 <li><a class="reference internal" href="#id2">简介</a></li>
-<li><a class="reference internal" href="#id3">架构图</a></li>
-<li><a class="reference internal" href="#id4">搭建步骤</a></li>
-<li><a class="reference internal" href="#id5">过滤功能</a></li>
+<li><a class="reference internal" href="#api-gateway">为什么需要API Gateway</a><ul>
+<li><a class="reference internal" href="#id3">1. 简化客户端调用复杂度</a></li>
+<li><a class="reference internal" href="#id4">2. 数据裁剪以及聚合</a></li>
+<li><a class="reference internal" href="#id5">3. 多渠道支持</a></li>
+<li><a class="reference internal" href="#id6">4. 遗留系统的微服务化改造</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id7">架构图</a></li>
+<li><a class="reference internal" href="#id8">搭建步骤</a></li>
+<li><a class="reference internal" href="#id9">过滤功能</a></li>
+<li><a class="reference internal" href="#id10">服务化</a></li>
 </ul>
 </li>
 </ul>

@@ -1,5 +1,8 @@
+springcloud 索引
+=====================
+
 项目简介
-===================
+-------------
 
 
 
@@ -16,7 +19,10 @@
 
 
 
+springcloud简介
+--------------------
 
+springcloud介绍_
 
 注册中心 与 服务提供者
 ----------------------------
@@ -53,6 +59,7 @@
 
 消息总线 spring cloud bus
 -------------------------------
+不使用消息总线 每个客户端通过POST方法触发各自的/refresh；查看 refresh_
 
 搭建步骤详见 消息总线_
 
@@ -83,7 +90,7 @@
 
 ------
 
-
+.. _springcloud介绍: springcloud_introduce.html
 
 .. _服务注册中心高可用环境搭建: eureka.html
 
@@ -93,6 +100,8 @@
 
 .. _路由网关服务: zuul.html
 
+.. _refresh: refresh.html
+
 .. _消息总线: bus.html
 
 .. _服务链路追踪: zipkin.html
@@ -100,7 +109,5 @@
 .. _源代码: https://github.com/fuwenchao/myspringclouddemo
 
 
+.. _分布式配置中心: config.html
 
------
-
-.. 分布式配置中心_: config.html

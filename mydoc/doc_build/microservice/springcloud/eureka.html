@@ -31,8 +31,41 @@
             
   <div class="section" id="springcloud">
 <h1>springcloud 服务注册中心高可用环境搭建<a class="headerlink" href="#springcloud" title="Permalink to this headline">¶</a></h1>
+<p>Eureka是Netflix开源的一款提供服务注册和发现的产品，它提供了完整的Service Registry和Service Discovery实现。也是springcloud体系中最重要最核心的组件之一。</p>
 <div class="section" id="id1">
-<h2>高可用的注册中心<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>背景介绍<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h3>服务中心<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>服务中心又称注册中心，管理各种服务功能包括服务的注册、发现、熔断、负载、降级等，比如dubbo admin后台的各种功能。</p>
+<p>有了服务中心调用关系会有什么变化，画几个简图来帮忙理解</p>
+<p>项目A调用项目B</p>
+<p>正常调用项目A请求项目B</p>
+<img alt="../../_images/ab.jpg" src="../../_images/ab.jpg" />
+<p>有了服务中心之后，任何一个服务都不能直接去掉用，都需要通过服务中心来调用</p>
+<img alt="../../_images/a2b.jpg" src="../../_images/a2b.jpg" />
+<p>项目A调用项目B，项目B在调用项目C</p>
+<img alt="../../_images/abc.jpg" src="../../_images/abc.jpg" />
+<p>这时候调用的步骤就会为两步：第一步，项目A首先从服务中心请求项目B服务器，然后项目B在从服务中心请求项目C服务。</p>
+<img alt="../../_images/a2b2c.jpg" src="../../_images/a2b2c.jpg" />
+<p>上面的项目只是两三个相互之间的简单调用，但是如果项目超过20个30个呢，在15年底的时候我司分布式的项目就达到了二十几个，画一张图来描述几十个项目之间的相互调用关系全是线条，任何其中的一个项目改动，就会牵连好几个项目跟着重启，巨麻烦而且容易出错。通过服务中心来获取服务你不需要关注你调用的项目IP地址，由几台服务器组成，每次直接去服务中心获取可以使用的服务去调用既可。</p>
+<p>由于各种服务都注册到了服务中心，就有了去做很多高级功能条件。比如几台服务提供相同服务来做均衡负载；监控服务器调用成功率来做熔断，移除服务列表中的故障点；监控服务调用时间来对不同的服务器设置不同的权重等等。</p>
+</div>
+<div class="section" id="eureka">
+<h3>EUREKA<a class="headerlink" href="#eureka" title="Permalink to this headline">¶</a></h3>
+<p>Eureka由两个组件组成：Eureka服务器和Eureka客户端。Eureka服务器用作服务注册服务器。Eureka客户端是一个java客户端，用来简化与服务器的交互、作为轮询负载均衡器，并提供服务的故障切换支持。Netflix在其生产环境中使用的是另外的客户端，它提供基于流量、资源利用率以及出错状态的加权负载均衡。</p>
+<p>用一张图来认识以下：</p>
+<img alt="../../_images/eureka-architecture-overview.png" src="../../_images/eureka-architecture-overview.png" />
+<p>上图简要描述了Eureka的基本架构，由3个角色组成：</p>
+<p>1、Eureka Server</p>
+<p>提供服务注册和发现</p>
+<p>2、Service Provider 服务提供方</p>
+<p>将自身服务注册到Eureka，从而使服务消费方能够找到</p>
+<p>3、Service Consumer 服务消费方</p>
+<p>从Eureka获取注册服务列表，从而能够消费服务</p>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>高可用的注册中心<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <img alt="../../_images/arch-simple.jpg" src="../../_images/arch-simple.jpg" />
 <p>刚开始搭建的时候，由于版本号没有对应，废了一写时间！</p>
 <ul class="simple">
@@ -162,8 +195,8 @@
 </pre></div>
 </div>
 </div>
-<div class="section" id="id2">
-<h3>3. 修改配置文件<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3>3. 修改配置文件<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <p>增加两个配置文件
 application-peer1.properties
 application-peer2.properties</p>
@@ -198,8 +231,8 @@ application-peer2.properties</p>
 </div>
 </div></blockquote>
 </div>
-<div class="section" id="id3">
-<h3>5. 启动服务注册中心<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h3>5. 启动服务注册中心<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <p>分别启动两个注册服务中心</p>
 <div class="line-block">
 <div class="line">java -jar springcloud-0.0.1-SNAPSHOT.jar –spring.profiles.active=peer1</div>
@@ -208,8 +241,8 @@ application-peer2.properties</p>
 </div>
 </div>
 <hr class="docutils" />
-<div class="section" id="id4">
-<h2>高可用的服务提供者<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h2>高可用的服务提供者<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="springboot-pom-xml">
 <h3>1. 修改原springboot 的 pom.xml文件<a class="headerlink" href="#springboot-pom-xml" title="Permalink to this headline">¶</a></h3>
 <div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
@@ -293,8 +326,8 @@ application-peer2.properties</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="id5">
-<h3>2. 修改主入口<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id7">
+<h3>2. 修改主入口<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <p>增加 &#64;EnableDiscoveryClient 注解</p>
 <div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@EnableDiscoveryClient</span>
 <span class="nd">@SpringBootApplication</span>
@@ -334,15 +367,15 @@ application-peer2.properties</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="id6">
-<h3>5. 启动服务<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id8">
+<h3>5. 启动服务<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">java</span> <span class="o">-</span><span class="n">jar</span> <span class="n">spring</span><span class="o">-</span><span class="n">server1</span><span class="o">-</span><span class="mf">0.0</span><span class="o">.</span><span class="mi">1</span><span class="o">-</span><span class="n">SNAPSHOT</span><span class="o">.</span><span class="n">jar</span> <span class="o">--</span><span class="n">server</span><span class="o">.</span><span class="n">port</span><span class="o">=</span><span class="mi">22223</span>
 <span class="n">java</span> <span class="o">-</span><span class="n">jar</span> <span class="n">spring</span><span class="o">-</span><span class="n">server1</span><span class="o">-</span><span class="mf">0.0</span><span class="o">.</span><span class="mi">1</span><span class="o">-</span><span class="n">SNAPSHOT</span><span class="o">.</span><span class="n">jar</span> <span class="o">--</span><span class="n">server</span><span class="o">.</span><span class="n">port</span><span class="o">=</span><span class="mi">22222</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="id7">
-<h3>6. 访问服务<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id9">
+<h3>6. 访问服务<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><div class="line-block">
 <div class="line"><a class="reference external" href="http://localhost:22223/hellWorld?content=123">http://localhost:22223/hellWorld?content=123</a></div>
@@ -351,32 +384,12 @@ application-peer2.properties</p>
 </div>
 </div>
 <hr class="docutils" />
-<div class="section" id="ribbon">
-<h2>构建一个使用ribbon负载均衡访问的客户端服务<a class="headerlink" href="#ribbon" title="Permalink to this headline">¶</a></h2>
-<p>TODO</p>
-</div>
-<div class="section" id="springboot">
-<h2>引入springboot的两种方式<a class="headerlink" href="#springboot" title="Permalink to this headline">¶</a></h2>
-<ol class="arabic simple">
-<li>pom中继承parent</li>
-<li>pom中dependencyManager中import springBoot依赖</li>
-</ol>
-<div class="section" id="id8">
-<h3>区别<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
-<p>第一种方式可以在properties中设置版本号而不用在dependency中加入依赖。
-比如springboot中管理了mysql-connection,需要修改mysql的版本号的时候
-直接dependency中加入mysql-connection，可以不加版本号，在properties中
-加入mysql.version变量。</p>
-<p>但是如果使用dependencyManager的方式引入的话，必须引入mysql的时候加入
-版本号</p>
-</div>
-</div>
-<hr class="docutils" />
-<div class="section" id="id9">
-<h2>参考：<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id10">
+<h2>参考：<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference external" href="http://dick1305.iteye.com/blog/2412519">http://dick1305.iteye.com/blog/2412519</a></li>
 <li><a class="reference external" href="https://www.cnblogs.com/woshimrf/p/springclout-eureka.html">https://www.cnblogs.com/woshimrf/p/springclout-eureka.html</a></li>
+<li>注册中心Eureka(纯洁的微笑) <a class="reference external" href="http://www.ityouknow.com/springcloud/2017/05/10/springcloud-eureka.html">http://www.ityouknow.com/springcloud/2017/05/10/springcloud-eureka.html</a></li>
 </ul>
 </div>
 </div>
@@ -390,29 +403,29 @@ application-peer2.properties</p>
   <h3><a href="../../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">springcloud 服务注册中心高可用环境搭建</a><ul>
-<li><a class="reference internal" href="#id1">高可用的注册中心</a><ul>
+<li><a class="reference internal" href="#id1">背景介绍</a><ul>
+<li><a class="reference internal" href="#id2">服务中心</a></li>
+<li><a class="reference internal" href="#eureka">EUREKA</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">高可用的注册中心</a><ul>
 <li><a class="reference internal" href="#spring-boot-2-0-0">1. 搭建一个spring boot应用，这里以2.0.0版本为例</a></li>
 <li><a class="reference internal" href="#eurekaserver">2. 使得项目工程具备EurekaServer注册中心功能</a></li>
-<li><a class="reference internal" href="#id2">3. 修改配置文件</a></li>
+<li><a class="reference internal" href="#id4">3. 修改配置文件</a></li>
 <li><a class="reference internal" href="#hosts">4. 修改hosts文件</a></li>
-<li><a class="reference internal" href="#id3">5. 启动服务注册中心</a></li>
+<li><a class="reference internal" href="#id5">5. 启动服务注册中心</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id4">高可用的服务提供者</a><ul>
+<li><a class="reference internal" href="#id6">高可用的服务提供者</a><ul>
 <li><a class="reference internal" href="#springboot-pom-xml">1. 修改原springboot 的 pom.xml文件</a></li>
-<li><a class="reference internal" href="#id5">2. 修改主入口</a></li>
+<li><a class="reference internal" href="#id7">2. 修改主入口</a></li>
 <li><a class="reference internal" href="#helloworld">3. 发布helloworld服务</a></li>
 <li><a class="reference internal" href="#application-properties">4. 配置application.properties</a></li>
-<li><a class="reference internal" href="#id6">5. 启动服务</a></li>
-<li><a class="reference internal" href="#id7">6. 访问服务</a></li>
+<li><a class="reference internal" href="#id8">5. 启动服务</a></li>
+<li><a class="reference internal" href="#id9">6. 访问服务</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#ribbon">构建一个使用ribbon负载均衡访问的客户端服务</a></li>
-<li><a class="reference internal" href="#springboot">引入springboot的两种方式</a><ul>
-<li><a class="reference internal" href="#id8">区别</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id9">参考：</a></li>
+<li><a class="reference internal" href="#id10">参考：</a></li>
 </ul>
 </li>
 </ul>

@@ -41,9 +41,13 @@
 <li>远程 git/svn</li>
 </ul>
 </div></blockquote>
+<p>随着线上项目变的日益庞大，每个项目都散落着各种配置文件，如果采用分布式的开发模式，需要的配置文件随着服务增加而不断增多。某一个基础服务信息变更，都会引起一系列的更新和重启，运维苦不堪言也容易出错。配置中心便是解决此类问题的灵丹妙药。</p>
+<p>市面上开源的配置中心有很多，BAT每家都出过，360的QConf、淘宝的diamond、百度的disconf都是解决这类问题。国外也有很多开源的配置中心Apache Commons Configuration、owner、cfg4j等等。这些开源的软件以及解决方案都很优秀，但是我最钟爱的却是Spring Cloud Config，因为它功能全面强大，可以无缝的和spring体系相结合，够方便够简单颜值高我喜欢。</p>
+<p>Spring Cloud Config是一个解决分布式系统的配置管理方案。它包含了Client和Server两个部分，Server提供配置文件的存储、以接口的形式将配置文件的内容提供出去，Client通过接口获取数据、并依据此数据初始化自己的应用。</p>
+<p>其实就是Server端将所有的配置文件服务化，需要配置文件的服务实例去Config Server获取对应的数据。将所有的配置文件统一整理，避免了配置文件碎片化</p>
 </div>
-<div class="section" id="id2">
-<h2>配置中心搭建 config<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="git">
+<h2>配置中心搭建 使用git<a class="headerlink" href="#git" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="server">
 <h3>server端<a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
@@ -81,6 +85,10 @@
 </ul>
 </div>
 </div>
+<div class="section" id="id2">
+<h2>配置中心的高可用<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>引入注册中心</p>
+</div>
 </div>
 
 
@@ -93,11 +101,12 @@
   <ul>
 <li><a class="reference internal" href="#">config</a><ul>
 <li><a class="reference internal" href="#id1">简介</a></li>
-<li><a class="reference internal" href="#id2">配置中心搭建 config</a><ul>
+<li><a class="reference internal" href="#git">配置中心搭建 使用git</a><ul>
 <li><a class="reference internal" href="#server">server端</a></li>
 <li><a class="reference internal" href="#client">client端</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#id2">配置中心的高可用</a></li>
 </ul>
 </li>
 </ul>

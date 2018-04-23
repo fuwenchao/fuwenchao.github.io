@@ -4,7 +4,7 @@ digraph mytest{
         dot -Tjpeg index.dot -o index.jpg -Nfontname=KaiTi -Tcmapx -o index.map -Efontname=KaiTi -Gfontname=KaiTi
 
     **/
-        graph [label="copyright @wenchaofu 2018"
+    graph [label="copyright @wenchaofu 2018"
         ,fontsize=12.0,fontcolor=snow
         ,labeljust="l",labelloc="b",center=1
         ,ranksep=0.1,center=1,ratio=compress
