@@ -17,21 +17,21 @@ springcloud就是这些微服务的大管家，采用了微服务
 
 
 主要的小弟有：
-Spring Cloud Config
-Spring Cloud Netflix（Eureka、Hystrix、Zuul、Archaius...）
-Spring Cloud Bus
-Spring Cloud for Cloud Foundry
-Spring Cloud Cluster
-Spring Cloud Consul
-Spring Cloud Security
-Spring Cloud Sleuth
-Spring Cloud Data Flow
-Spring Cloud Stream
-Spring Cloud Task
-Spring Cloud Zookeeper
-Spring Cloud Connectors
-Spring Cloud Starters
-Spring Cloud CLI
+- Spring Cloud Config
+- Spring Cloud Netflix（Eureka、Hystrix、Zuul、Archaius...）
+- Spring Cloud Bus
+- Spring Cloud for Cloud Foundry
+- Spring Cloud Cluster
+- Spring Cloud Consul
+- Spring Cloud Security
+- Spring Cloud Sleuth
+- Spring Cloud Data Flow
+- Spring Cloud Stream
+- Spring Cloud Task
+- Spring Cloud Zookeeper
+- Spring Cloud Connectors
+- Spring Cloud Starters
+- Spring Cloud CLI
 
 - 从技术架构上降低了对大型系统构建的要求
 - 高效
