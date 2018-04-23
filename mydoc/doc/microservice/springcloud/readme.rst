@@ -20,20 +20,15 @@
 
 注册中心 与 服务提供者
 ----------------------------
+
 搭建步骤详见 服务注册中心高可用环境搭建_
 
-搭建步骤详见 服务注册中心高可用环境搭建2_
 
-
-搭建步骤详见 服务注册中心高可用环境搭建3_
-
-
-搭建步骤详见 服务注册中心高可用环境搭建4_
 
 服务消费者 rest+ribbon
 -------------------------
 
-客户端负载均衡
+搭建步骤详见 服务消费者的负载均衡器_
 
 
 配置中心服务端 config-server
@@ -51,190 +46,14 @@
 消息总线 spring cloud bus
 -------------------------------
 
-改造 config-client
-
-1. pom.xml 中增加依赖
-
-.. code:: java
-
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-bus-amqp</artifactId>
-        </dependency>
-
-
-2.  controller 类上增加注解
-
-.. code:: java
-
-    @RefreshScope
-
-没有验证在启动类上增加该注解是否管用
-
-
-3. 修改配置文件
-
-bootstrap.yml 配置如下
-
-.. code:: java
-
-    spring:
-      cloud:
-        config:
-          profile: dev
-          label: master
-          name: config-client
-          discovery:
-            enabled: true
-            serviceId: config-server
-        bus:
-          trace:
-            enabled: true
-    eureka:
-      client:
-        serviceUrl:
-          defaultZone: http://localhost:8889/eureka
-
-application.yml 配置如下
-
-.. code:: java
-
-    spring:
-      application:
-        name: config-client
-      rabbitmq:
-        host: localhost
-        port: 5672
-        username: guest
-        password: guest
-    management:
-      security:
-        enabled: false
-    server:
-      port: 9010
-
+搭建步骤详见 消息总线_
 
 
 
 服务链路追踪 sleuth zipkin
 -----------------------------------
 
-- 新建工程 zipkin-server
-
-1. 入口方法增加注解 @EnableZipkinServer
-
-2. pom.xml增加依赖如下
-
-
-.. code:: java
-
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-eureka</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-eureka</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.zipkin.java</groupId>
-            <artifactId>zipkin-server</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.zipkin.java</groupId>
-            <artifactId>zipkin-autoconfigure-ui</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-
-3. 配置文件applicatioin.yml如下
-
-.. code:: java
-
-    server:
-      port: 40000
-
-详见工程
-
-- 新建工程 service-called
-
-1. 配置文件 application.yml如下
-
-.. code:: java
-
-    server:
-      port: 2010
-
-    spring:
-      application:
-        name: service-hello-zipkin
-      zipkin:
-        base-url: http://localhost:40000
-
-    eureka:
-      client:
-        serviceUrl:
-          defaultZone: http://localhost:8889/eureka/
-
-2. pom.xml文件如下
-
-.. code:: java
-
-    <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-zipkin</artifactId>
-            </dependency>
-            
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-eureka</artifactId>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-test</artifactId>
-                <scope>test</scope>
-            </dependency>
-    </dependencies>
-
-3. controller调用eureka-client服务
-
-    详见工程
-
-
-- 使用原工程 eureka-client
-
-    配置步骤同 sercice-called
-
-依次启动 eureka-server -> zipkin-server -> eureka-client -> service-called
-
-查看 zipkin 监控页面 http://localhost:40000
-
-.. image:: ./images/zipkin.png
-
-
-
-
+搭建步骤详见 服务链路追踪_
 
 
 
@@ -256,13 +75,15 @@ application.yml 配置如下
 
 ------
 
-.. _服务注册中心高可用环境搭建: https://fuwenchao.github.io/mydoc/doc_build/microservice/springcloud/eureka.html
 
-.. _服务注册中心高可用环境搭建2: eureka.rst
 
-.. _服务注册中心高可用环境搭建3: eureka.html
+.. _服务注册中心高可用环境搭建: eureka.html
 
-.. _服务注册中心高可用环境搭建4: ./eureka.html
+.. _服务消费者的负载均衡器: ribbon.html
+
+.. _消息总线: bus.html
+
+.. _服务链路追踪: zipkin.html
 
 .. _源代码: https://github.com/fuwenchao/myspringclouddemo
 
