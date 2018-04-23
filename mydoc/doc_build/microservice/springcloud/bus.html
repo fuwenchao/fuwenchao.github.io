@@ -32,25 +32,24 @@
   <div class="section" id="spring-cloud-bus">
 <h1>消息总线 spring cloud bus<a class="headerlink" href="#spring-cloud-bus" title="Permalink to this headline">¶</a></h1>
 <p>改造 config-client</p>
-<ol class="arabic simple">
-<li>pom.xml 中增加依赖</li>
-</ol>
+<div class="section" id="pom-xml">
+<h2>1. pom.xml 中增加依赖<a class="headerlink" href="#pom-xml" title="Permalink to this headline">¶</a></h2>
 <div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
     <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">cloud</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
     <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">cloud</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">bus</span><span class="o">-</span><span class="n">amqp</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
 <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="2">
-<li>controller 类上增加注解</li>
-</ol>
+</div>
+<div class="section" id="controller">
+<h2>2.  controller 类上增加注解<a class="headerlink" href="#controller" title="Permalink to this headline">¶</a></h2>
 <div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@RefreshScope</span>
 </pre></div>
 </div>
 <p>没有验证在启动类上增加该注解是否管用</p>
-<ol class="arabic simple" start="3">
-<li>修改配置文件</li>
-</ol>
+</div>
+<div class="section" id="id1">
+<h2>3. 修改配置文件<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <p>bootstrap.yml 配置如下</p>
 <div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spring</span><span class="p">:</span>
   <span class="n">cloud</span><span class="p">:</span>
@@ -70,7 +69,9 @@
       <span class="n">defaultZone</span><span class="p">:</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">8889</span><span class="o">/</span><span class="n">eureka</span>
 </pre></div>
 </div>
-<p>application.yml 配置如下</p>
+</div>
+<div class="section" id="application-yml">
+<h2>4. application.yml 配置如下<a class="headerlink" href="#application-yml" title="Permalink to this headline">¶</a></h2>
 <div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spring</span><span class="p">:</span>
   <span class="n">application</span><span class="p">:</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">config</span><span class="o">-</span><span class="n">client</span>
@@ -87,13 +88,25 @@
 </pre></div>
 </div>
 </div>
+</div>
 
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">消息总线 spring cloud bus</a><ul>
+<li><a class="reference internal" href="#pom-xml">1. pom.xml 中增加依赖</a></li>
+<li><a class="reference internal" href="#controller">2.  controller 类上增加注解</a></li>
+<li><a class="reference internal" href="#id1">3. 修改配置文件</a></li>
+<li><a class="reference internal" href="#application-yml">4. application.yml 配置如下</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../../index.html">Documentation overview</a><ul>

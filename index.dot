@@ -124,13 +124,11 @@ digraph mytest{
     microserver [label="微服务" shape=tab URL="https://about.me/fu.wenchao"]
     spring [label="spring"];
     springBoot [label="springBoot"];
-    springCloud [label="springCloud"]
+    springCloud [label="springCloud" URL="mydoc/doc_build/microservice/springcloud/readme.html" shape=folder]
     Dubbo [label="阿里RPC框架Dubbo"]
-    eureka_envbuild [label="eureka服务注册中心" URL="mydoc/doc_build/microservice/springcloud/readme.html" shape=note]
 
     frame -> spring
     main -> frame:se -> microserver -> {springCloud,springBoot,Dubbo}
-    springCloud -> eureka_envbuild
 
     /**工具**/
     tool [label="工具" shape=tab]

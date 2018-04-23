@@ -4,6 +4,7 @@
 改造 config-client
 
 1. pom.xml 中增加依赖
+--------------------------
 
 .. code:: java
 
@@ -14,6 +15,7 @@
 
 
 2.  controller 类上增加注解
+--------------------------------
 
 .. code:: java
 
@@ -23,6 +25,7 @@
 
 
 3. 修改配置文件
+---------------------
 
 bootstrap.yml 配置如下
 
@@ -45,7 +48,8 @@ bootstrap.yml 配置如下
         serviceUrl:
           defaultZone: http://localhost:8889/eureka
 
-application.yml 配置如下
+4. application.yml 配置如下
+---------------------------------
 
 .. code:: java
 

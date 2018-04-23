@@ -33,7 +33,10 @@
 <h1>项目简介<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
 <dl class="docutils">
 <dt>简介</dt>
-<dd>概括springcloud各组件功能</dd>
+<dd><ul class="first last simple">
+<li>概括springcloud各组件功能</li>
+</ul>
+</dd>
 <dt>环境信息</dt>
 <dd><ul class="first last simple">
 <li>springboot 1.5.10</li>
@@ -43,7 +46,10 @@
 </dl>
 <p>项目代码</p>
 <blockquote>
-<div><a class="reference external" href="https://github.com/fuwenchao/myspringclouddemo">源代码</a></div></blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="https://github.com/fuwenchao/myspringclouddemo">源代码</a></li>
+</ul>
+</div></blockquote>
 <div class="section" id="id2">
 <h2>注册中心 与 服务提供者<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <p>搭建步骤详见 <a class="reference external" href="eureka.html">服务注册中心高可用环境搭建</a></p>
@@ -52,14 +58,17 @@
 <h2>服务消费者 rest+ribbon<a class="headerlink" href="#rest-ribbon" title="Permalink to this headline">¶</a></h2>
 <p>搭建步骤详见 <a class="reference external" href="ribbon.html">服务消费者的负载均衡器</a></p>
 </div>
-<div class="section" id="config-server">
-<h2>配置中心服务端 config-server<a class="headerlink" href="#config-server" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="config-client">
-<h2>配置中心客户端 config-client<a class="headerlink" href="#config-client" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="hystrix">
+<h2>断路器 hystrix<a class="headerlink" href="#hystrix" title="Permalink to this headline">¶</a></h2>
+<p>搭建步骤详见 <a class="reference external" href="hystrix.html">断路器</a></p>
 </div>
 <div class="section" id="zuul-service">
 <h2>网关服务 zuul-service<a class="headerlink" href="#zuul-service" title="Permalink to this headline">¶</a></h2>
+<p>搭建步骤详见 <a class="reference external" href="zuul.html">路由网关服务</a></p>
+</div>
+<div class="section" id="id3">
+<h2>分布式配置中心<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>搭建步骤 <a class="reference internal" href="#id3">分布式配置中心</a></p>
 </div>
 <div class="section" id="spring-cloud-bus">
 <h2>消息总线 spring cloud bus<a class="headerlink" href="#spring-cloud-bus" title="Permalink to this headline">¶</a></h2>
@@ -69,8 +78,8 @@
 <h2>服务链路追踪 sleuth zipkin<a class="headerlink" href="#sleuth-zipkin" title="Permalink to this headline">¶</a></h2>
 <p>搭建步骤详见 <a class="reference external" href="zipkin.html">服务链路追踪</a></p>
 </div>
-<div class="section" id="id3">
-<h2>启动顺序<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>启动顺序<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
 <li>eureka-server  查看注册中心是否启动 localhost:8889</li>
 <li>eureka-client  查看注册中心是否注册有该服务，访问服务 <a class="reference external" href="http://localhost:2001/hello/sayhello?name=wenchaofu">http://localhost:2001/hello/sayhello?name=wenchaofu</a></li>
@@ -81,6 +90,7 @@
 <li>spring cloud bus 改造config-client 增加依赖 spring-cloud-starter-bus-amqp 。安装好rabbitMq并启动
 修改git 中的配置文件，刷新 <a class="reference external" href="http://localhost:9010/bus/refresh">http://localhost:9010/bus/refresh</a></li>
 </ol>
+<hr class="docutils" />
 <hr class="docutils" />
 </div>
 </div>
@@ -96,12 +106,12 @@
 <li><a class="reference internal" href="#">项目简介</a><ul>
 <li><a class="reference internal" href="#id2">注册中心 与 服务提供者</a></li>
 <li><a class="reference internal" href="#rest-ribbon">服务消费者 rest+ribbon</a></li>
-<li><a class="reference internal" href="#config-server">配置中心服务端 config-server</a></li>
-<li><a class="reference internal" href="#config-client">配置中心客户端 config-client</a></li>
+<li><a class="reference internal" href="#hystrix">断路器 hystrix</a></li>
 <li><a class="reference internal" href="#zuul-service">网关服务 zuul-service</a></li>
+<li><a class="reference internal" href="#id3">分布式配置中心</a></li>
 <li><a class="reference internal" href="#spring-cloud-bus">消息总线 spring cloud bus</a></li>
 <li><a class="reference internal" href="#sleuth-zipkin">服务链路追踪 sleuth zipkin</a></li>
-<li><a class="reference internal" href="#id3">启动顺序</a></li>
+<li><a class="reference internal" href="#id4">启动顺序</a></li>
 </ul>
 </li>
 </ul>

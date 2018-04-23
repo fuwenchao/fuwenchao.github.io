@@ -1,0 +1,161 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>路由网关服务 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>路由网关服务<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id2">
+<h2>简介<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>在Spring Cloud微服务系统中，一种常见的负载均衡方式是，客户端的
+请求首先经过负载均衡（zuul、Ngnix），再到达服务网关（zuul集群），
+然后再到具体的服。，服务统一注册到高可用的服务注册中心集群，
+服务的所有的配置文件由配置服务管理 <a class="reference external" href="config.html">config</a> ，配置服务
+的配置文件放在git仓库，方便开发人员随时改配置。</p>
+<p>Zuul的主要功能是路由转发和过滤器。路由功能是微服务的一部分，
+比如／api/user转发到到user服务，/api/shop转发到到shop服务。
+zuul默认和Ribbon结合实现了负载均衡的功能。</p>
+</div>
+<div class="section" id="id3">
+<h2>架构图<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<img alt="../../_images/arch-includezuul.png" src="../../_images/arch-includezuul.png" />
+<p><strong>注意：A服务和B服务是可以相互调用的，作图的时候忘记了。并且配置服务也是注册到服务注册中心的。</strong></p>
+</div>
+<div class="section" id="id4">
+<h2>搭建步骤<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">新建项目 zuul-service</p>
+</li>
+<li><dl class="first docutils">
+<dt>主入口中增加注解开启路由服务</dt>
+<dd><ul class="first last simple">
+<li>&#64;EnableZuulProxy</li>
+<li>&#64;EnableEurekaClient</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>配置application.yml</dt>
+<dd><div class="code java first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">server</span><span class="p">:</span>
+  <span class="n">port</span><span class="p">:</span> <span class="mi">30000</span>
+<span class="n">spring</span><span class="p">:</span>
+  <span class="n">application</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">zuul</span><span class="o">-</span><span class="n">service</span>
+<span class="n">eureka</span><span class="p">:</span>
+  <span class="n">client</span><span class="p">:</span>
+    <span class="n">serviceUrl</span><span class="p">:</span>
+      <span class="n">defaultZone</span><span class="p">:</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">8889</span><span class="o">/</span><span class="n">eureka</span>
+<span class="n">zuul</span><span class="p">:</span>
+  <span class="n">routes</span><span class="p">:</span>
+    <span class="n">api</span><span class="o">-</span><span class="n">a</span><span class="p">:</span>
+      <span class="n">path</span><span class="p">:</span> <span class="o">/</span><span class="n">api</span><span class="o">-</span><span class="n">a</span><span class="o">/**</span>
+      <span class="n">serviceId</span><span class="p">:</span> <span class="n">ribbon</span><span class="o">-</span><span class="n">service</span>
+    <span class="n">api</span><span class="o">-</span><span class="n">b</span><span class="p">:</span>
+      <span class="n">path</span><span class="p">:</span> <span class="o">/</span><span class="n">api</span><span class="o">-</span><span class="n">b</span><span class="o">/**</span>
+      <span class="n">serviceId</span><span class="p">:</span> <span class="n">ribbon</span><span class="o">-</span><span class="n">service</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+<li><p class="first">此时访问 localhost:30000/api-a/hello/sayhello?name=wenchaofu 可以访问到服务</p>
+</li>
+</ul>
+</div>
+<div class="section" id="id5">
+<h2>过滤功能<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>zuul 的filter 实现 ZuulFilter ，不仅能够路由，还能过滤，做一些安全验证</p>
+<p>详见 <a class="reference external" href="https://github.com/fuwenchao/myspringclouddemo">代码</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">路由网关服务</a><ul>
+<li><a class="reference internal" href="#id2">简介</a></li>
+<li><a class="reference internal" href="#id3">架构图</a></li>
+<li><a class="reference internal" href="#id4">搭建步骤</a></li>
+<li><a class="reference internal" href="#id5">过滤功能</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springcloud/zuul.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springcloud/zuul.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
