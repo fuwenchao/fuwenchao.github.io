@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>springcloud 索引 &#8212; stest  documentation</title>
+    <title>启动顺序 &#8212; stest  documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" src="../../_static/documentation_options.js"></script>
@@ -29,53 +29,18 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="springcloud">
-<h1>springcloud 索引<a class="headerlink" href="#springcloud" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference external" href="project_info.html">项目简介</a></li>
-</ul>
-<hr class="docutils" />
-<ul class="simple">
-<li><a class="reference external" href="springcloud_introduce.html">springcloud简介</a></li>
-</ul>
-<hr class="docutils" />
-<ul class="simple">
-<li><a class="reference external" href="eureka.html">注册中心 与 服务提供者</a></li>
-</ul>
-<hr class="docutils" />
-<ul class="simple">
-<li><a class="reference external" href="ribbon.html">服务消费者 rest ribbon</a></li>
-</ul>
-<hr class="docutils" />
-<ul class="simple">
-<li><a class="reference external" href="hystrix.html">断路器 hystrix</a></li>
-</ul>
-<hr class="docutils" />
-<ul class="simple">
-<li><a class="reference external" href="zuul.html">网关服务 zuul</a></li>
-</ul>
-<hr class="docutils" />
-<ul class="simple">
-<li><a class="reference external" href="config.html">分布式配置中心</a></li>
-</ul>
-<hr class="docutils" />
-<ul class="simple">
-<li><a class="reference external" href="refresh.html">refresh</a></li>
-</ul>
-<hr class="docutils" />
-<ul class="simple">
-<li><a class="reference external" href="bus.html">消息总线 spring cloud bus</a></li>
-</ul>
-<hr class="docutils" />
-<ul class="simple">
-<li><a class="reference external" href="zipkin.html">服务链路追踪 sleuth zipkin</a></li>
-</ul>
-<hr class="docutils" />
-<ul class="simple">
-<li><a class="reference external" href="start-step.html">启动顺序</a></li>
-</ul>
-<hr class="docutils" />
-<hr class="docutils" />
+  <div class="section" id="id1">
+<h1>启动顺序<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<ol class="arabic simple">
+<li>eureka-server  查看注册中心是否启动 localhost:8889</li>
+<li>eureka-client  查看注册中心是否注册有该服务，访问服务 <a class="reference external" href="http://localhost:2001/hello/sayhello?name=wenchaofu">http://localhost:2001/hello/sayhello?name=wenchaofu</a></li>
+<li>ribbon-service 查看注册中心首付注册有该服务，访问服务 <a class="reference external" href="http://localhost:20000/hi?name=wenchao">http://localhost:20000/hi?name=wenchao</a></li>
+<li>zuul-service   查看注册中心首付注册有该服务，访问服务 <a class="reference external" href="http://localhost:30000/api-a/hi?name=forezp&amp;token=22">http://localhost:30000/api-a/hi?name=forezp&amp;token=22</a></li>
+<li>config-server  查看注册中心首付注册有该服务，使用git</li>
+<li>config-service 查看注册中心首付注册有该服务，<a class="reference external" href="http://localhost:9010/hi?name=wenchaofu">http://localhost:9010/hi?name=wenchaofu</a></li>
+<li>spring cloud bus 改造config-client 增加依赖 spring-cloud-starter-bus-amqp 。安装好rabbitMq并启动
+修改git 中的配置文件，刷新 <a class="reference external" href="http://localhost:9010/bus/refresh">http://localhost:9010/bus/refresh</a></li>
+</ol>
 </div>
 
 
@@ -93,7 +58,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../_sources/microservice/springcloud/readme.rst.txt"
+      <li><a href="../../_sources/microservice/springcloud/start-step.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -121,7 +86,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../../_sources/microservice/springcloud/readme.rst.txt"
+      <a href="../../_sources/microservice/springcloud/start-step.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

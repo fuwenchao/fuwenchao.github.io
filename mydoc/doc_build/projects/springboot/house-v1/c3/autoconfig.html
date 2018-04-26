@@ -1,0 +1,227 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>自定义springboot的起步依赖 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="springboot">
+<h1>自定义springboot的起步依赖<a class="headerlink" href="#springboot" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="javaconfig">
+<h2>javaconfig<a class="headerlink" href="#javaconfig" title="Permalink to this headline">¶</a></h2>
+<p><strong>Javaconfig代码说明</strong> HttpClientAutoConfiguration.java</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Configuration</span>
+<span class="nd">@ConditionalOnClass</span><span class="p">({</span><span class="n">HttpClient</span><span class="o">.</span><span class="n">class</span><span class="p">})</span>
+<span class="nd">@EnableConfigurationProperties</span><span class="p">(</span><span class="n">HttpClientProperties</span><span class="o">.</span><span class="n">class</span><span class="p">)</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">HttpClientAutoConfiguration</span> <span class="p">{</span>
+
+        <span class="n">private</span> <span class="n">final</span> <span class="n">HttpClientProperties</span> <span class="n">properties</span><span class="p">;</span>
+
+        <span class="n">public</span> <span class="n">HttpClientAutoConfiguration</span><span class="p">(</span><span class="n">HttpClientProperties</span> <span class="n">properties</span><span class="p">){</span>
+                <span class="n">this</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="n">properties</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="o">/**</span>
+         <span class="o">*</span> <span class="n">httpclient</span> <span class="n">bean</span> <span class="n">的定义</span>
+         <span class="o">*</span> <span class="nd">@return</span>
+         <span class="o">*/</span>
+        <span class="nd">@Bean</span>
+        <span class="nd">@ConditionalOnMissingBean</span><span class="p">(</span><span class="n">HttpClient</span><span class="o">.</span><span class="n">class</span><span class="p">)</span>
+        <span class="n">public</span> <span class="n">HttpClient</span> <span class="n">httpClient</span><span class="p">(){</span>
+                <span class="n">RequestConfig</span> <span class="n">requestConfig</span> <span class="o">=</span> <span class="n">RequestConfig</span><span class="o">.</span><span class="n">custom</span><span class="p">()</span><span class="o">.</span><span class="n">setConnectTimeout</span><span class="p">(</span><span class="n">properties</span><span class="o">.</span><span class="n">getConnectTimeOut</span><span class="p">())</span>
+                                <span class="o">.</span><span class="n">setSocketTimeout</span><span class="p">(</span><span class="n">properties</span><span class="o">.</span><span class="n">getSocketTimeOut</span><span class="p">())</span><span class="o">.</span><span class="n">build</span><span class="p">();</span><span class="o">//</span><span class="n">构建requestConfig</span>
+                <span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientBuilder</span><span class="o">.</span><span class="n">create</span><span class="p">()</span><span class="o">.</span><span class="n">setDefaultRequestConfig</span><span class="p">(</span><span class="n">requestConfig</span><span class="p">)</span><span class="o">.</span><span class="n">setUserAgent</span><span class="p">(</span><span class="n">properties</span><span class="o">.</span><span class="n">getAgent</span><span class="p">())</span>
+                                <span class="o">.</span><span class="n">setMaxConnPerRoute</span><span class="p">(</span><span class="n">properties</span><span class="o">.</span><span class="n">getMaxConnPerRoute</span><span class="p">())</span><span class="o">.</span><span class="n">setConnectionReuseStrategy</span><span class="p">(</span><span class="n">new</span> <span class="n">NoConnectionReuseStrategy</span><span class="p">())</span><span class="o">.</span><span class="n">build</span><span class="p">();</span>
+                <span class="k">return</span> <span class="n">client</span><span class="p">;</span>
+        <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>配置类<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p><strong>HttpClientProperties.java</strong> 代码说明</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;spring.httpclient&quot;</span><span class="p">)</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">HttpClientProperties</span> <span class="p">{</span>
+
+        <span class="n">private</span> <span class="n">Integer</span> <span class="n">connectTimeOut</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">;</span>
+
+        <span class="n">private</span> <span class="n">Integer</span> <span class="n">socketTimeOut</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">;</span>
+
+        <span class="n">private</span> <span class="n">String</span> <span class="n">agent</span> <span class="o">=</span> <span class="s2">&quot;agent&quot;</span><span class="p">;</span>
+        <span class="n">private</span> <span class="n">Integer</span> <span class="n">maxConnPerRoute</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+        <span class="n">private</span> <span class="n">Integer</span> <span class="n">maxConnTotaol</span>   <span class="o">=</span> <span class="mi">50</span><span class="p">;</span>
+        <span class="n">public</span> <span class="n">Integer</span> <span class="n">getConnectTimeOut</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="n">connectTimeOut</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">public</span> <span class="n">void</span> <span class="n">setConnectTimeOut</span><span class="p">(</span><span class="n">Integer</span> <span class="n">connectTimeOut</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">this</span><span class="o">.</span><span class="n">connectTimeOut</span> <span class="o">=</span> <span class="n">connectTimeOut</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">public</span> <span class="n">Integer</span> <span class="n">getSocketTimeOut</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="n">socketTimeOut</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">public</span> <span class="n">void</span> <span class="n">setSocketTimeOut</span><span class="p">(</span><span class="n">Integer</span> <span class="n">socketTimeOut</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">this</span><span class="o">.</span><span class="n">socketTimeOut</span> <span class="o">=</span> <span class="n">socketTimeOut</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">public</span> <span class="n">String</span> <span class="n">getAgent</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="n">agent</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">public</span> <span class="n">void</span> <span class="n">setAgent</span><span class="p">(</span><span class="n">String</span> <span class="n">agent</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">this</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="n">agent</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">public</span> <span class="n">Integer</span> <span class="n">getMaxConnPerRoute</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="n">maxConnPerRoute</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">public</span> <span class="n">void</span> <span class="n">setMaxConnPerRoute</span><span class="p">(</span><span class="n">Integer</span> <span class="n">maxConnPerRoute</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">this</span><span class="o">.</span><span class="n">maxConnPerRoute</span> <span class="o">=</span> <span class="n">maxConnPerRoute</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">public</span> <span class="n">Integer</span> <span class="n">getMaxConnTotaol</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="n">maxConnTotaol</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">public</span> <span class="n">void</span> <span class="n">setMaxConnTotaol</span><span class="p">(</span><span class="n">Integer</span> <span class="n">maxConnTotaol</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">this</span><span class="o">.</span><span class="n">maxConnTotaol</span> <span class="o">=</span> <span class="n">maxConnTotaol</span><span class="p">;</span>
+        <span class="p">}</span>
+
+
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>方式一：javaconfig在主入口的子包下面<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>会去自动扫描该子包下面所有的spring bean到spring IOC容器中</p>
+<p>直接引入即可</p>
+<blockquote>
+<div>&#64;Autowired</div></blockquote>
+</div>
+<div class="section" id="id3">
+<h2>方式二：不在主类的子包中<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h3>1. 注解方式<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p><strong>增加注解</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Target</span><span class="p">(</span><span class="n">ElementType</span><span class="o">.</span><span class="n">TYPE</span><span class="p">)</span>
+<span class="nd">@Retention</span><span class="p">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="n">RUNTIME</span><span class="p">)</span>
+<span class="nd">@Import</span><span class="p">(</span><span class="n">HttpClientAutoConfiguration</span><span class="o">.</span><span class="n">class</span><span class="p">)</span>
+<span class="n">public</span> <span class="nd">@interface</span> <span class="n">EnableHttpClient</span> <span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>在主入口中增加注解</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@SpringBootApplication</span>
+<span class="nd">@EnableHttpClient</span>
+<span class="nd">@EnableAsync</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">HouseApplication</span> <span class="p">{</span>
+
+        <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">SpringApplication</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">HouseApplication</span><span class="o">.</span><span class="n">class</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+        <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>2. 配置方式<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>resource下增加 <em>META-INF/spring.factorie</em> 文件中增加</p>
+<img alt="../../../../_images/spring_factorie.png" src="../../../../_images/spring_factorie.png" />
+</div>
+</div>
+<div class="section" id="use-autoconfig">
+<h2>use autoconfig<a class="headerlink" href="#use-autoconfig" title="Permalink to this headline">¶</a></h2>
+<img alt="../../../../_images/useautoconfig.png" src="../../../../_images/useautoconfig.png" />
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">自定义springboot的起步依赖</a><ul>
+<li><a class="reference internal" href="#javaconfig">javaconfig</a></li>
+<li><a class="reference internal" href="#id1">配置类</a></li>
+<li><a class="reference internal" href="#id2">方式一：javaconfig在主入口的子包下面</a></li>
+<li><a class="reference internal" href="#id3">方式二：不在主类的子包中</a><ul>
+<li><a class="reference internal" href="#id4">1. 注解方式</a></li>
+<li><a class="reference internal" href="#id5">2. 配置方式</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#use-autoconfig">use autoconfig</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../../_sources/projects/springboot/house-v1/c3/autoconfig.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../../_sources/projects/springboot/house-v1/c3/autoconfig.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
