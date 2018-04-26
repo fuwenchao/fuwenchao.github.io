@@ -1,113 +1,88 @@
 springcloud 索引
 =====================
 
-项目简介
+- 项目简介_
 -------------
 
 
-
-简介
-    - 概括springcloud各组件功能
-
-环境信息
-    - springboot 1.5.10
-    - springcloud Edgware.SR2
-
-项目代码
-
-       - 源代码_    
-
-
-
-springcloud简介
+- springcloud简介_
 --------------------
 
-springcloud介绍_
 
-注册中心 与 服务提供者
+- `注册中心 与 服务提供者`_
 ----------------------------
 
-搭建步骤详见 服务注册中心高可用环境搭建_
+
+
+- `服务消费者 rest ribbon`_
+----------------------------------------
 
 
 
-服务消费者 rest+ribbon
--------------------------
-
-搭建步骤详见 服务消费者的负载均衡器_
-
-
-断路器 hystrix
+- `断路器 hystrix`_
 ----------------
 
-搭建步骤详见 断路器_
 
 
 
-网关服务 zuul-service
+- `网关服务 zuul`_
 ----------------------------
-搭建步骤详见 路由网关服务_
 
 
 
-分布式配置中心
+- `分布式配置中心`_
 -------------------
 
-搭建步骤 分布式配置中心_
 
 
+- refresh_
+-----------------
 
-消息总线 spring cloud bus
+
+- `消息总线 spring cloud bus`_
 -------------------------------
-不使用消息总线 每个客户端通过POST方法触发各自的/refresh；查看 refresh_
-
-搭建步骤详见 消息总线_
 
 
 
-服务链路追踪 sleuth zipkin
+
+- `服务链路追踪 sleuth zipkin`_
 -----------------------------------
 
-搭建步骤详见 服务链路追踪_
 
 
 
-
-启动顺序
+- `启动顺序`_
 ---------------
 
-1. eureka-server  查看注册中心是否启动 localhost:8889
-#. eureka-client  查看注册中心是否注册有该服务，访问服务 http://localhost:2001/hello/sayhello?name=wenchaofu
-#. ribbon-service 查看注册中心首付注册有该服务，访问服务 http://localhost:20000/hi?name=wenchao
-#. zuul-service   查看注册中心首付注册有该服务，访问服务 http://localhost:30000/api-a/hi?name=forezp&token=22
-#. config-server  查看注册中心首付注册有该服务，使用git
-#. config-service 查看注册中心首付注册有该服务，http://localhost:9010/hi?name=wenchaofu
-#. spring cloud bus 改造config-client 增加依赖 spring-cloud-starter-bus-amqp 。安装好rabbitMq并启动
-   修改git 中的配置文件，刷新 http://localhost:9010/bus/refresh
+
 
 
 
 
 ------
 
-.. _springcloud介绍: springcloud_introduce.html
+.. _项目简介: project_info.html
 
-.. _服务注册中心高可用环境搭建: eureka.html
+.. _springcloud简介: springcloud_introduce.html
 
-.. _服务消费者的负载均衡器: ribbon.html
+.. _注册中心 与 服务提供者: eureka.html
 
-.. _断路器: hystrix.html
+.. _服务消费者 rest ribbon: ribbon.html
 
-.. _路由网关服务: zuul.html
+.. _断路器 hystrix: hystrix.html
+
+.. _网关服务 zuul: zuul.html
 
 .. _refresh: refresh.html
 
-.. _消息总线: bus.html
+.. _消息总线 spring cloud bus: bus.html
 
-.. _服务链路追踪: zipkin.html
+.. _服务链路追踪 sleuth zipkin: zipkin.html
 
 .. _源代码: https://github.com/fuwenchao/myspringclouddemo
 
 
 .. _分布式配置中心: config.html
+
+.. _启动顺序: start-step.html
 

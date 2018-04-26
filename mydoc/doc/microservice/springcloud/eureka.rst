@@ -239,7 +239,7 @@ application-peer2.properties
 增加如下行
 
  | 127.0.0.1 peer1  
- | 127.0.0.1 peer1  
+ | 127.0.0.1 peer2
 
 
 
@@ -253,6 +253,7 @@ application-peer2.properties
 | java -jar springcloud-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer1
 | java -jar springcloud-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer2 
 
+注意是两个*横杠*
 
 --------------------------
 
