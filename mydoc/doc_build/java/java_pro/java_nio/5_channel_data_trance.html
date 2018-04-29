@@ -1,0 +1,134 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Java NIO 之 通道之间的数据传输 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="java-nio">
+<h1>Java NIO 之 通道之间的数据传输<a class="headerlink" href="#java-nio" title="Permalink to this headline">¶</a></h1>
+<p>在Java NIO中，如果两个通道中有一个是FileChannel，那你可以直接将数据从一个channel
+（译者注：channel中文常译作通道）传输到另外一个channel。</p>
+<div class="section" id="transferfrom">
+<h2>transferFrom()<a class="headerlink" href="#transferfrom" title="Permalink to this headline">¶</a></h2>
+<p>FileChannel的transferFrom()方法可以将数据从源通道传输到FileChannel中（译者注：这个方法在JDK文档中的解释为将字节从给定的可读取字节通道传输到此通道的文件中）。下面是一个简单的例子：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">RandomAccessFile</span> <span class="n">fromFile</span> <span class="o">=</span> <span class="n">new</span> <span class="n">RandomAccessFile</span><span class="p">(</span><span class="s2">&quot;fromFile.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;rw&quot;</span><span class="p">);</span>
+<span class="n">FileChannel</span>      <span class="n">fromChannel</span> <span class="o">=</span> <span class="n">fromFile</span><span class="o">.</span><span class="n">getChannel</span><span class="p">();</span>
+
+<span class="n">RandomAccessFile</span> <span class="n">toFile</span> <span class="o">=</span> <span class="n">new</span> <span class="n">RandomAccessFile</span><span class="p">(</span><span class="s2">&quot;toFile.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;rw&quot;</span><span class="p">);</span>
+<span class="n">FileChannel</span>      <span class="n">toChannel</span> <span class="o">=</span> <span class="n">toFile</span><span class="o">.</span><span class="n">getChannel</span><span class="p">();</span>
+
+<span class="n">long</span> <span class="n">position</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">long</span> <span class="n">count</span> <span class="o">=</span> <span class="n">fromChannel</span><span class="o">.</span><span class="n">size</span><span class="p">();</span>
+
+<span class="n">toChannel</span><span class="o">.</span><span class="n">transferFrom</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">fromChannel</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>方法的输入参数position表示从position处开始向目标文件写入数据，count表示最多传输的字节数。如果源通道的剩余空间小于 count 个字节，则所传输的字节数要小于请求的字节数。
+此外要注意，在SoketChannel的实现中，SocketChannel只会传输此刻准备好的数据（可能不足count字节）。因此，SocketChannel可能不会将请求的所有数据(count个字节)全部传输到FileChannel中。</p>
+</div>
+<div class="section" id="transferto">
+<h2>transferTo()<a class="headerlink" href="#transferto" title="Permalink to this headline">¶</a></h2>
+<p>transferTo()方法将数据从FileChannel传输到其他的channel中。下面是一个简单的例子：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">RandomAccessFile</span> <span class="n">fromFile</span> <span class="o">=</span> <span class="n">new</span> <span class="n">RandomAccessFile</span><span class="p">(</span><span class="s2">&quot;fromFile.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;rw&quot;</span><span class="p">);</span>
+<span class="n">FileChannel</span>      <span class="n">fromChannel</span> <span class="o">=</span> <span class="n">fromFile</span><span class="o">.</span><span class="n">getChannel</span><span class="p">();</span>
+
+<span class="n">RandomAccessFile</span> <span class="n">toFile</span> <span class="o">=</span> <span class="n">new</span> <span class="n">RandomAccessFile</span><span class="p">(</span><span class="s2">&quot;toFile.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;rw&quot;</span><span class="p">);</span>
+<span class="n">FileChannel</span>      <span class="n">toChannel</span> <span class="o">=</span> <span class="n">toFile</span><span class="o">.</span><span class="n">getChannel</span><span class="p">();</span>
+
+<span class="n">long</span> <span class="n">position</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">long</span> <span class="n">count</span> <span class="o">=</span> <span class="n">fromChannel</span><span class="o">.</span><span class="n">size</span><span class="p">();</span>
+
+<span class="n">fromChannel</span><span class="o">.</span><span class="n">transferTo</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">toChannel</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>是不是发现这个例子和前面那个例子特别相似？除了调用方法的FileChannel对象不一样外，其他的都一样。
+上面所说的关于SocketChannel的问题在transferTo()方法中同样存在。SocketChannel会一直传输数据直到目标buffer被填满。</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Java NIO 之 通道之间的数据传输</a><ul>
+<li><a class="reference internal" href="#transferfrom">transferFrom()</a></li>
+<li><a class="reference internal" href="#transferto">transferTo()</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_pro/java_nio/5_channel_data_trance.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_pro/java_nio/5_channel_data_trance.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

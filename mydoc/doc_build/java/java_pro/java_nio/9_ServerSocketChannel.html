@@ -1,0 +1,157 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Java NIO 之 ServerSocketChannel &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="java-nio-serversocketchannel">
+<h1>Java NIO 之 ServerSocketChannel<a class="headerlink" href="#java-nio-serversocketchannel" title="Permalink to this headline">¶</a></h1>
+<p>Java NIO中的 ServerSocketChannel 是一个可以监听新进来的TCP连接的通道,</p>
+<p>就像标准IO中的ServerSocket一样。ServerSocketChannel类在 java.nio.channels包中。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ServerSocketChannel</span> <span class="n">serverSocketChannel</span> <span class="o">=</span> <span class="n">ServerSocketChannel</span><span class="o">.</span><span class="n">open</span><span class="p">();</span>
+
+<span class="n">serverSocketChannel</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">new</span> <span class="n">InetSocketAddress</span><span class="p">(</span><span class="mi">9999</span><span class="p">));</span>
+
+<span class="k">while</span><span class="p">(</span><span class="n">true</span><span class="p">){</span>
+    <span class="n">SocketChannel</span> <span class="n">socketChannel</span> <span class="o">=</span>
+            <span class="n">serverSocketChannel</span><span class="o">.</span><span class="n">accept</span><span class="p">();</span>
+
+    <span class="o">//</span><span class="n">do</span> <span class="n">something</span> <span class="k">with</span> <span class="n">socketChannel</span><span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="section" id="serversocketchannel">
+<h2>打开 ServerSocketChannel<a class="headerlink" href="#serversocketchannel" title="Permalink to this headline">¶</a></h2>
+<p>通过调用 ServerSocketChannel.open() 方法来打开ServerSocketChannel.如：</p>
+<blockquote>
+<div>ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();</div></blockquote>
+</div>
+<div class="section" id="id1">
+<h2>关闭 ServerSocketChannel<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>通过调用ServerSocketChannel.close() 方法来关闭ServerSocketChannel. 如：</p>
+<blockquote>
+<div>serverSocketChannel.close();</div></blockquote>
+</div>
+<div class="section" id="id2">
+<h2>监听新进来的连接<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>通过 ServerSocketChannel.accept() 方法监听新进来的连接。当 accept()方法返回的时候,它返回一个包含新进来的连接的 SocketChannel。因此, accept()方法会一直阻塞到有新连接到达。</p>
+<p>通常不会仅仅只监听一个连接,在while循环中调用 accept()方法. 如下面的例子：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">while</span><span class="p">(</span><span class="n">true</span><span class="p">){</span>
+    <span class="n">SocketChannel</span> <span class="n">socketChannel</span> <span class="o">=</span>
+            <span class="n">serverSocketChannel</span><span class="o">.</span><span class="n">accept</span><span class="p">();</span>
+
+    <span class="o">//</span><span class="n">do</span> <span class="n">something</span> <span class="k">with</span> <span class="n">socketChannel</span><span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>当然,也可以在while循环中使用除了true以外的其它退出准则。</p>
+</div>
+<div class="section" id="id3">
+<h2>非阻塞模式<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>ServerSocketChannel可以设置成非阻塞模式。在非阻塞模式下，accept() 方法会立刻返回，如果还没有新进来的连接,返回的将是null。 因此，需要检查返回的SocketChannel是否是null.如：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ServerSocketChannel</span> <span class="n">serverSocketChannel</span> <span class="o">=</span> <span class="n">ServerSocketChannel</span><span class="o">.</span><span class="n">open</span><span class="p">();</span>
+
+<span class="n">serverSocketChannel</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">new</span> <span class="n">InetSocketAddress</span><span class="p">(</span><span class="mi">9999</span><span class="p">));</span>
+<span class="n">serverSocketChannel</span><span class="o">.</span><span class="n">configureBlocking</span><span class="p">(</span><span class="n">false</span><span class="p">);</span>
+
+<span class="k">while</span><span class="p">(</span><span class="n">true</span><span class="p">){</span>
+    <span class="n">SocketChannel</span> <span class="n">socketChannel</span> <span class="o">=</span>
+            <span class="n">serverSocketChannel</span><span class="o">.</span><span class="n">accept</span><span class="p">();</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">socketChannel</span> <span class="o">!=</span> <span class="n">null</span><span class="p">){</span>
+        <span class="o">//</span><span class="n">do</span> <span class="n">something</span> <span class="k">with</span> <span class="n">socketChannel</span><span class="o">...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Java NIO 之 ServerSocketChannel</a><ul>
+<li><a class="reference internal" href="#serversocketchannel">打开 ServerSocketChannel</a></li>
+<li><a class="reference internal" href="#id1">关闭 ServerSocketChannel</a></li>
+<li><a class="reference internal" href="#id2">监听新进来的连接</a></li>
+<li><a class="reference internal" href="#id3">非阻塞模式</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_pro/java_nio/9_ServerSocketChannel.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_pro/java_nio/9_ServerSocketChannel.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

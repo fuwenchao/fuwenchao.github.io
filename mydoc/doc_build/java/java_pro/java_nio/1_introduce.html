@@ -1,0 +1,153 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>java NIO 概述 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="java-nio">
+<h1>java NIO 概述<a class="headerlink" href="#java-nio" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>Java NIO 由以下几个核心部分组成<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>channels</li>
+<li>buffers</li>
+<li>selectors</li>
+</ul>
+<p>虽然Java NIO 中除此之外还有很多类和组件，
+但在我看来，Channel，Buffer 和 Selector 构成了核心的API。
+其它组件，如Pipe和FileLock，只不过是与三个核心组件共同使用的工具类。</p>
+<p>因此，在概述中我将集中在这三个组件上。其它组件会在单独的章节中讲到。</p>
+</div>
+<div class="section" id="channel-buffer">
+<h2>Channel 和 Buffer<a class="headerlink" href="#channel-buffer" title="Permalink to this headline">¶</a></h2>
+<p>基本上，所有的 IO 在NIO 中都从一个Channel 开始。
+Channel 有点象流。 数据可以从Channel读到Buffer中，
+也可以从Buffer 写到Channel中。这里有个图示：</p>
+<img alt="../../../_images/overview-channels-buffers1.png" src="../../../_images/overview-channels-buffers1.png" />
+<p>Channel和Buffer有好几种类型。</p>
+<p>下面是JAVA NIO中的一些主要Channel的实现：</p>
+<blockquote>
+<div><ul class="simple">
+<li>FileChannel</li>
+<li>DatagramChannel</li>
+<li>SocketChannel</li>
+<li>ServerSocketChannel</li>
+</ul>
+</div></blockquote>
+<p>正如你所看到的，这些通道涵盖了UDP 和 TCP 网络IO，以及文件IO。</p>
+<p>与这些类一起的有一些有趣的接口，但为简单起见，我尽量在概述中不提到它们。本教程其它章节与它们相关的地方我会进行解释。</p>
+<p>以下是Java NIO里关键的Buffer实现：</p>
+<blockquote>
+<div><ul class="simple">
+<li>ByteBuffer</li>
+<li>CharBuffer</li>
+<li>DoubleBuffer</li>
+<li>FloatBuffer</li>
+<li>IntBuffer</li>
+<li>LongBuffer</li>
+<li>ShortBuffer</li>
+</ul>
+</div></blockquote>
+<p>这些Buffer覆盖了你能通过IO发送的基本数据类型：byte, short, int, long, float, double 和 char。</p>
+<p>Java NIO 还有个 MappedByteBuffer，用于表示内存映射文件， 我也不打算在概述中说明。</p>
+</div>
+<div class="section" id="selector">
+<h2>Selector<a class="headerlink" href="#selector" title="Permalink to this headline">¶</a></h2>
+<p>Selector允许单线程处理多个 Channel。如果你的应用打开了多个连接（通道），但每个连接的流量都很低，使用Selector就会很方便。例如，在一个聊天服务器中。</p>
+<p>这是在一个单线程中使用一个Selector处理3个Channel的图示：</p>
+<img alt="../../../_images/overview-selectors.png" src="../../../_images/overview-selectors.png" />
+<p>要使用Selector，得向Selector注册Channel，
+然后调用它的select()方法。
+这个方法会一直阻塞到某个注册的通道有事件就绪。
+一旦这个方法返回，线程就可以处理这些事件，
+事件的例子有如新连接进来，数据接收等。</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">java NIO 概述</a><ul>
+<li><a class="reference internal" href="#id1">Java NIO 由以下几个核心部分组成</a></li>
+<li><a class="reference internal" href="#channel-buffer">Channel 和 Buffer</a></li>
+<li><a class="reference internal" href="#selector">Selector</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_pro/java_nio/1_introduce.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_pro/java_nio/1_introduce.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,292 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Java NIO 之 Selector &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="java-nio-selector">
+<h1>Java NIO 之 Selector<a class="headerlink" href="#java-nio-selector" title="Permalink to this headline">¶</a></h1>
+<p>Selector（选择器）是Java NIO中能够检测一到多个NIO通道，
+并能够知晓通道是否为诸如读写事件做好准备的组件。这样，
+一个单独的线程可以管理多个channel，从而管理多个网络连接。</p>
+<div class="section" id="selector">
+<h2>为什么使用Selector?<a class="headerlink" href="#selector" title="Permalink to this headline">¶</a></h2>
+<p>仅用单个线程来处理多个Channels的好处是，只需要更少的线程来处理通道。事实上，可以只用一个线程处理所有的通道。对于操作系统来说，线程之间上下文切换的开销很大，而且每个线程都要占用系统的一些资源（如内存）。因此，使用的线程越少越好。</p>
+<p>但是，需要记住，现代的操作系统和CPU在多任务方面表现的越来越好，所以多线程的开销随着时间的推移，变得越来越小了。实际上，如果一个CPU有多个内核，不使用多任务可能是在浪费CPU能力。不管怎么说，关于那种设计的讨论应该放在另一篇不同的文章中。在这里，只要知道使用Selector能够处理多个通道就足够了。</p>
+</div>
+<div class="section" id="id1">
+<h2>Selector的创建<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>通过调用Selector.open()方法创建一个Selector，如下：</p>
+<blockquote>
+<div>Selector selector = Selector.open();</div></blockquote>
+</div>
+<div class="section" id="id2">
+<h2>向Selector注册通道<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>为了将Channel和Selector配合使用，必须将channel注册到selector上。通过SelectableChannel.register()方法来实现，如下：</p>
+<blockquote>
+<div>channel.configureBlocking(false);
+SelectionKey key = channel.register(selector,Selectionkey.OP_READ);</div></blockquote>
+<p>与Selector一起使用时，Channel必须处于非阻塞模式下。这意味着不能将FileChannel与Selector一起使用，因为FileChannel不能切换到非阻塞模式。而套接字通道都可以。</p>
+<p>注意register()
+方法的第二个参数。这是一个“interest集合”，意思是在通过Selector监听Channel时对什么事件感兴趣。可以监听四种不同类型的事件：</p>
+<blockquote>
+<div><ul class="simple">
+<li>Connect</li>
+<li>Accept</li>
+<li>Read</li>
+<li>Write</li>
+</ul>
+</div></blockquote>
+<p>通道触发了一个事件意思是该事件已经就绪。所以，某个channel成功连接到另一个服务器称为“连接就绪”。一个server socket channel准备好接收新进入的连接称为“接收就绪”。一个有数据可读的通道可以说是“读就绪”。等待写数据的通道可以说是“写就绪”。</p>
+<p>这四种事件用SelectionKey的四个常量来表示：</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>SelectionKey.OP_CONNECT</li>
+<li>SelectionKey.OP_ACCEPT</li>
+<li>SelectionKey.OP_READ</li>
+<li>SelectionKey.OP_WRITE</li>
+</ol>
+</div></blockquote>
+<p>如果你对不止一种事件感兴趣，那么可以用“位或”操作符将常量连接起来，如下：</p>
+<blockquote>
+<div>int interestSet = SelectionKey.OP_READ | SelectionKey.OP_WRITE;</div></blockquote>
+<p>在下面还会继续提到interest集合。
+SelectionKey</p>
+<p>在上一小节中，当向Selector注册Channel时，register()方法会返回一个SelectionKey对象。这个对象包含了一些你感兴趣的属性：</p>
+<blockquote>
+<div><ul class="simple">
+<li>interest集合</li>
+<li>ready集合</li>
+<li>Channel</li>
+<li>Selector</li>
+<li>附加的对象（可选）</li>
+</ul>
+</div></blockquote>
+<p>下面我会描述这些属性。</p>
+<div class="section" id="interest">
+<h3>interest集合<a class="headerlink" href="#interest" title="Permalink to this headline">¶</a></h3>
+<p>interest集合是你所选择的感兴趣的事件集合。可以通过SelectionKey读写interest集合，像这样：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>int interestSet = selectionKey.interestOps();
+
+boolean isInterestedInAccept  = (interestSet &amp; SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT；
+boolean isInterestedInConnect = interestSet &amp; SelectionKey.OP_CONNECT;
+boolean isInterestedInRead    = interestSet &amp; SelectionKey.OP_READ;
+boolean isInterestedInWrite   = interestSet &amp; SelectionKey.OP_WRITE;
+</pre></div>
+</div>
+<p>可以看到，用“位与”操作interest 集合和给定的SelectionKey常量，可以确定某个确定的事件是否在interest 集合中。</p>
+</div>
+<div class="section" id="ready">
+<h3>ready集合<a class="headerlink" href="#ready" title="Permalink to this headline">¶</a></h3>
+<p>ready 集合是通道已经准备就绪的操作的集合。在一次选择(Selection)之后，你会首先访问这个ready set。Selection将在下一小节进行解释。可以这样访问ready集合：</p>
+<blockquote>
+<div>int readySet = selectionKey.readyOps();</div></blockquote>
+<p>可以用像检测interest集合那样的方法，来检测channel中什么事件或操作已经就绪。但是，也可以使用以下四个方法，它们都会返回一个布尔类型：</p>
+<p>可以用像检测interest集合那样的方法，来检测channel中什么事件或操作已经就绪。但是，也可以使用以下四个方法，它们都会返回一个布尔类型：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">selectionKey</span><span class="o">.</span><span class="n">isAcceptable</span><span class="p">();</span>
+<span class="n">selectionKey</span><span class="o">.</span><span class="n">isConnectable</span><span class="p">();</span>
+<span class="n">selectionKey</span><span class="o">.</span><span class="n">isReadable</span><span class="p">();</span>
+<span class="n">selectionKey</span><span class="o">.</span><span class="n">isWritable</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="channel-selector">
+<h3>Channel + Selector<a class="headerlink" href="#channel-selector" title="Permalink to this headline">¶</a></h3>
+<p>从SelectionKey访问Channel和Selector很简单。如下：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Channel</span>  <span class="n">channel</span>  <span class="o">=</span> <span class="n">selectionKey</span><span class="o">.</span><span class="n">channel</span><span class="p">();</span>
+<span class="n">Selector</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">selectionKey</span><span class="o">.</span><span class="n">selector</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h3>附加的对象<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>可以将一个对象或者更多信息附着到SelectionKey上，这样就能方便的识别某个给定的通道。例如，可以附加 与通道一起使用的Buffer，或是包含聚集数据的某个对象。使用方法如下：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">selectionKey</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">theObject</span><span class="p">);</span>
+<span class="n">Object</span> <span class="n">attachedObj</span> <span class="o">=</span> <span class="n">selectionKey</span><span class="o">.</span><span class="n">attachment</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>还可以在用register()方法向Selector注册Channel的时候附加对象。如：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SelectionKey</span> <span class="n">key</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">selector</span><span class="p">,</span> <span class="n">SelectionKey</span><span class="o">.</span><span class="n">OP_READ</span><span class="p">,</span> <span class="n">theObject</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h3>通过Selector选择通道<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>一旦向Selector注册了一或多个通道，就可以调用几个重载的select()方法。这些方法返回你所感兴趣的事件（如连接、接受、读或写）已经准备就绪的那些通道。换句话说，如果你对“读就绪”的通道感兴趣，select()方法会返回读事件已经就绪的那些通道。</p>
+<p>下面是select()方法：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">int</span> <span class="n">select</span><span class="p">()</span>
+<span class="nb">int</span> <span class="n">select</span><span class="p">(</span><span class="n">long</span> <span class="n">timeout</span><span class="p">)</span>
+<span class="nb">int</span> <span class="n">selectNow</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>select()阻塞到至少有一个通道在你注册的事件上就绪了。</p>
+<p>select(long timeout)和select()一样，除了最长会阻塞timeout毫秒(参数)。</p>
+<p>selectNow()不会阻塞，不管什么通道就绪都立刻返回（译者注：此方法执行非阻塞的选择操作。如果自从前一次选择操作后，没有通道变成可选择的，则此方法直接返回零。</p>
+<p>select()方法返回的int值表示有多少通道已经就绪。亦即，自上次调用select()方法后有多少通道变成就绪状态。如果调用select()方法，因为有一个通道变成就绪状态，返回了1，若再次调用select()方法，如果另一个通道就绪了，它会再次返回1。如果对第一个就绪的channel没有做任何操作，现在就有两个就绪的通道，但在每次select()方法调用之间，只有一个通道就绪了。</p>
+</div>
+<div class="section" id="selectedkeys">
+<h3>selectedKeys()<a class="headerlink" href="#selectedkeys" title="Permalink to this headline">¶</a></h3>
+<p>一旦调用了select()方法，并且返回值表明有一个或更多个通道就绪了，然后可以通过调用selector的selectedKeys()方法，访问“已选择键集（selected key set）”中的 <strong>就绪通道</strong> 。如下所示：</p>
+<blockquote>
+<div>Set selectedKeys = selector.selectedKeys();</div></blockquote>
+<p>当像Selector注册Channel时，Channel.register()方法会返回一个SelectionKey 对象。<strong>这个对象代表了注册到该Selector的通道</strong>。可以通过SelectionKey的selectedKeySet()方法访问这些对象。</p>
+<p>可以遍历这个已选择的键集合来访问就绪的通道。如下：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Set</span> <span class="n">selectedKeys</span> <span class="o">=</span> <span class="n">selector</span><span class="o">.</span><span class="n">selectedKeys</span><span class="p">();</span>
+<span class="n">Iterator</span> <span class="n">keyIterator</span> <span class="o">=</span> <span class="n">selectedKeys</span><span class="o">.</span><span class="n">iterator</span><span class="p">();</span>
+<span class="k">while</span><span class="p">(</span><span class="n">keyIterator</span><span class="o">.</span><span class="n">hasNext</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">SelectionKey</span> <span class="n">key</span> <span class="o">=</span> <span class="n">keyIterator</span><span class="o">.</span><span class="n">next</span><span class="p">();</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">isAcceptable</span><span class="p">())</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="n">a</span> <span class="n">connection</span> <span class="n">was</span> <span class="n">accepted</span> <span class="n">by</span> <span class="n">a</span> <span class="n">ServerSocketChannel</span><span class="o">.</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">isConnectable</span><span class="p">())</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="n">a</span> <span class="n">connection</span> <span class="n">was</span> <span class="n">established</span> <span class="k">with</span> <span class="n">a</span> <span class="n">remote</span> <span class="n">server</span><span class="o">.</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">isReadable</span><span class="p">())</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="n">a</span> <span class="n">channel</span> <span class="ow">is</span> <span class="n">ready</span> <span class="k">for</span> <span class="n">reading</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">isWritable</span><span class="p">())</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="n">a</span> <span class="n">channel</span> <span class="ow">is</span> <span class="n">ready</span> <span class="k">for</span> <span class="n">writing</span>
+    <span class="p">}</span>
+    <span class="n">keyIterator</span><span class="o">.</span><span class="n">remove</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>这个循环遍历已选择键集中的每个键，并检测各个键所对应的通道的就绪事件。</p>
+<p>注意每次迭代末尾的keyIterator.remove()调用。Selector不会自己从已选择键集中移除SelectionKey实例。必须在处理完通道时自己移除。下次该通道变成就绪时，Selector会再次将其放入已选择键集中。</p>
+<p>SelectionKey.channel()方法返回的通道需要转型成你要处理的类型，如ServerSocketChannel或SocketChannel等。</p>
+</div>
+<div class="section" id="wakeup">
+<h3>wakeUp()<a class="headerlink" href="#wakeup" title="Permalink to this headline">¶</a></h3>
+<p>某个线程调用select()方法后阻塞了，即使没有通道已经就绪，也有办法让其从select()方法返回。只要让其它线程在第一个线程调用select()方法的那个对象上调用Selector.wakeup()方法即可。阻塞在select()方法上的线程会立马返回。</p>
+<p>如果有其它线程调用了wakeup()方法，但当前没有线程阻塞在select()方法上，下个调用select()方法的线程会立即“醒来（wake up）”。</p>
+</div>
+<div class="section" id="close">
+<h3>close()<a class="headerlink" href="#close" title="Permalink to this headline">¶</a></h3>
+<p>用完Selector后调用其close()方法会关闭该Selector，且使注册到该Selector上的所有SelectionKey实例无效。通道本身并不会关闭。</p>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>完整的示例<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>这里有一个完整的示例，打开一个Selector，注册一个通道注册到这个Selector上(通道的初始化过程略去),然后持续监控这个Selector的四种事件（接受，连接，读，写）是否就绪。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Selector</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">Selector</span><span class="o">.</span><span class="n">open</span><span class="p">();</span>
+<span class="n">channel</span><span class="o">.</span><span class="n">configureBlocking</span><span class="p">(</span><span class="n">false</span><span class="p">);</span>
+<span class="n">SelectionKey</span> <span class="n">key</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">selector</span><span class="p">,</span> <span class="n">SelectionKey</span><span class="o">.</span><span class="n">OP_READ</span><span class="p">);</span>
+<span class="k">while</span><span class="p">(</span><span class="n">true</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nb">int</span> <span class="n">readyChannels</span> <span class="o">=</span> <span class="n">selector</span><span class="o">.</span><span class="n">select</span><span class="p">();</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">readyChannels</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">continue</span><span class="p">;</span>
+  <span class="n">Set</span> <span class="n">selectedKeys</span> <span class="o">=</span> <span class="n">selector</span><span class="o">.</span><span class="n">selectedKeys</span><span class="p">();</span>
+  <span class="n">Iterator</span> <span class="n">keyIterator</span> <span class="o">=</span> <span class="n">selectedKeys</span><span class="o">.</span><span class="n">iterator</span><span class="p">();</span>
+  <span class="k">while</span><span class="p">(</span><span class="n">keyIterator</span><span class="o">.</span><span class="n">hasNext</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">SelectionKey</span> <span class="n">key</span> <span class="o">=</span> <span class="n">keyIterator</span><span class="o">.</span><span class="n">next</span><span class="p">();</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">isAcceptable</span><span class="p">())</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="n">a</span> <span class="n">connection</span> <span class="n">was</span> <span class="n">accepted</span> <span class="n">by</span> <span class="n">a</span> <span class="n">ServerSocketChannel</span><span class="o">.</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">isConnectable</span><span class="p">())</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="n">a</span> <span class="n">connection</span> <span class="n">was</span> <span class="n">established</span> <span class="k">with</span> <span class="n">a</span> <span class="n">remote</span> <span class="n">server</span><span class="o">.</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">isReadable</span><span class="p">())</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="n">a</span> <span class="n">channel</span> <span class="ow">is</span> <span class="n">ready</span> <span class="k">for</span> <span class="n">reading</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">isWritable</span><span class="p">())</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="n">a</span> <span class="n">channel</span> <span class="ow">is</span> <span class="n">ready</span> <span class="k">for</span> <span class="n">writing</span>
+    <span class="p">}</span>
+    <span class="n">keyIterator</span><span class="o">.</span><span class="n">remove</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Java NIO 之 Selector</a><ul>
+<li><a class="reference internal" href="#selector">为什么使用Selector?</a></li>
+<li><a class="reference internal" href="#id1">Selector的创建</a></li>
+<li><a class="reference internal" href="#id2">向Selector注册通道</a><ul>
+<li><a class="reference internal" href="#interest">interest集合</a></li>
+<li><a class="reference internal" href="#ready">ready集合</a></li>
+<li><a class="reference internal" href="#channel-selector">Channel + Selector</a></li>
+<li><a class="reference internal" href="#id3">附加的对象</a></li>
+<li><a class="reference internal" href="#id4">通过Selector选择通道</a></li>
+<li><a class="reference internal" href="#selectedkeys">selectedKeys()</a></li>
+<li><a class="reference internal" href="#wakeup">wakeUp()</a></li>
+<li><a class="reference internal" href="#close">close()</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">完整的示例</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_pro/java_nio/6_Selector.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_pro/java_nio/6_Selector.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

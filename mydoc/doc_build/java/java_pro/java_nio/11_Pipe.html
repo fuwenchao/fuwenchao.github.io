@@ -1,0 +1,138 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Java NIO 之 Pipe &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="java-nio-pipe">
+<h1>Java NIO 之 Pipe<a class="headerlink" href="#java-nio-pipe" title="Permalink to this headline">¶</a></h1>
+<p>Java NIO 管道是2个线程之间的单向数据连接。Pipe有一个source通道和一个sink通道。数据会被写到sink通道，从source通道读取。</p>
+<p>这里是Pipe原理的图示：</p>
+<img alt="../../../_images/pipe.bmp" src="../../../_images/pipe.bmp" />
+<div class="section" id="id1">
+<h2>创建管道<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>通过Pipe.open()方法打开管道。例如：</p>
+<blockquote>
+<div>Pipe pipe = Pipe.open();</div></blockquote>
+</div>
+<div class="section" id="id2">
+<h2>向管道写数据<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>要向管道写数据，需要访问sink通道。像这样：</p>
+<blockquote>
+<div>Pipe.SinkChannel sinkChannel = pipe.sink();</div></blockquote>
+<p>通过调用SinkChannel的write()方法，将数据写入SinkChannel,像这样：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">newData</span> <span class="o">=</span> <span class="s2">&quot;New String to write to file...&quot;</span> <span class="o">+</span> <span class="n">System</span><span class="o">.</span><span class="n">currentTimeMillis</span><span class="p">();</span>
+<span class="n">ByteBuffer</span> <span class="n">buf</span> <span class="o">=</span> <span class="n">ByteBuffer</span><span class="o">.</span><span class="n">allocate</span><span class="p">(</span><span class="mi">48</span><span class="p">);</span>
+<span class="n">buf</span><span class="o">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="n">buf</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">newData</span><span class="o">.</span><span class="n">getBytes</span><span class="p">());</span>
+
+<span class="n">buf</span><span class="o">.</span><span class="n">flip</span><span class="p">();</span>
+
+<span class="k">while</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">hasRemaining</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">sinkChannel</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>从管道读取数据<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>从读取管道的数据，需要访问source通道，像这样：</p>
+<blockquote>
+<div>Pipe.SourceChannel sourceChannel = pipe.source();</div></blockquote>
+<p>调用source通道的read()方法来读取数据，像这样：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ByteBuffer</span> <span class="n">buf</span> <span class="o">=</span> <span class="n">ByteBuffer</span><span class="o">.</span><span class="n">allocate</span><span class="p">(</span><span class="mi">48</span><span class="p">);</span>
+
+<span class="nb">int</span> <span class="n">bytesRead</span> <span class="o">=</span> <span class="n">sourceChannel</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>read()方法返回的int值会告诉我们多少字节被读进了缓冲区。</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Java NIO 之 Pipe</a><ul>
+<li><a class="reference internal" href="#id1">创建管道</a></li>
+<li><a class="reference internal" href="#id2">向管道写数据</a></li>
+<li><a class="reference internal" href="#id3">从管道读取数据</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_pro/java_nio/11_Pipe.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_pro/java_nio/11_Pipe.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
