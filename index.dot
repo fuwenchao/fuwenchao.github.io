@@ -38,10 +38,11 @@ digraph mytest{
         javareflect [label="java反射"]
         javaannomiate [label="java注解"]
         javaconcurrency [label="java高并发"]
+        javanetwork [label="java 网络编程" URL="mydoc/doc_build/java/java_pro/java_nio/readme.html" shape="folder"]
 
         javaPrimary 
         javaHigh
-        javaHigh -> {javareflect,javaconcurrency,javaannomiate} [label ="50%" color=green style="dotted,setlinewidth(2)"]
+        javaHigh -> {javareflect,javaconcurrency,javaannomiate,javanetwork} [label ="50%" color=green style="dotted,setlinewidth(2)"]
         javaPrimary -> {javajc,javafz,javadt} [label ="30%" color=green style="dashed,setlinewidth(2)"]
  
 
