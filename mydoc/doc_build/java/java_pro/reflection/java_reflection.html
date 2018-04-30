@@ -1,0 +1,295 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>JAVA Reflect 反射专题 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="java-reflect">
+<h1>JAVA Reflect 反射专题<a class="headerlink" href="#java-reflect" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="class">
+<h2>Class 类的使用<a class="headerlink" href="#class" title="Permalink to this headline">¶</a></h2>
+<p>在面向对象的世界里，万事万物皆对象
+静态成员，基础数据类型不是对象</p>
+<p>类是不是对象呢？</p>
+<p>类是对象，类是java.lang.Class的对象</p>
+<p>class Foo{}</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//Foo的实例对象如何表示呢
+Foo foo = new Foo();
+//Foo这个类也是实例对象，Class类的示例对象，如何表示呢
+//任何一个类都是Class类的实例对象，三种表示方式
+Class c1 = Foo.class
+Class c2 = foo.getClass()
+// 官网上说，c1，c2 表示类Foo类的类类型
+//类也是对象，是Class类的实例对象
+//这个对象我们称为该类的类类型
+
+c1 == c2 //ture
+
+Class c3  = Class.forName(&quot;me.wenchaofu.test.Test&quot;)
+</pre></div>
+</div>
+<p>我们可以根据类的类类型，创建该类的实例对象</p>
+<blockquote>
+<div>Foo foo = (Foo)c1.newInstance(); //前提是需要有无参数的构造方法</div></blockquote>
+</div>
+<div class="section" id="java">
+<h2>java类加载机制<a class="headerlink" href="#java" title="Permalink to this headline">¶</a></h2>
+<p>Class.forName(…)
+不仅表示了类的类类型，还代表的动态加载类</p>
+<p><strong>区分编译和运行</strong></p>
+<ul class="simple">
+<li>编译时刻加载类是静态加载类</li>
+<li>运行时刻加载类是动态加载类</li>
+</ul>
+<p><strong>静态</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="k">class</span> <span class="nc">reflection</span> <span class="p">{</span>
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="s2">&quot;word&quot;</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])){</span>
+            <span class="n">Word</span> <span class="n">word</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Word</span><span class="p">();</span>
+            <span class="n">word</span><span class="o">.</span><span class="n">dosomething</span><span class="p">();</span>
+        <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="s2">&quot;excel&quot;</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])){</span>
+            <span class="n">Excel</span> <span class="n">excel</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Excel</span><span class="p">();</span>
+            <span class="n">excel</span><span class="o">.</span><span class="n">dosomething</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>编译失败</p>
+<p><strong>思考</strong>: word 一定用吗？ excel一定用吗？</p>
+<p>Word 和 Excel 一定要先存在，</p>
+<p>new 创建对象 是静态加载类，在编译时刻就需要加载所有可能用到的类</p>
+<p><strong>动态</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>public class DynamicLoad {
+    public static void main(String[] args) {
+        try{
+            //动态加载类，在运行时刻加载类
+            Class c = Class.forName(args[0]);
+            //通过类类型，创建该类对象,但是这里我又不知道传进来的是哪个对象，所有不能像下面这种方法用
+            //Excel excel =(Excel)c.newInstance();
+            //统一标准
+            OfficeAble oa = (OfficeAble)c.newInstance();
+            oa.dosomething();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+}
+</pre></div>
+</div>
+<p>新类实现 OfficeAble 接口就可以了</p>
+</div>
+<div class="section" id="classapi">
+<h2>Class的基本API<a class="headerlink" href="#classapi" title="Permalink to this headline">¶</a></h2>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>public class ClassUtil {
+    public static void printObjectMessage(Object obj){
+        Class&lt;?&gt; c = obj.getClass();
+        String classNameStr = c.getName();
+        System.out.println(&quot;类的名称是&quot; + classNameStr);
+
+        /**
+         * Method 方法对象
+         * getMethods() 获取public方法，包括父类继承而来的
+         * getDeclaredMethods() 获取所有方法
+         */
+        Method[] declaredMethods = c.getDeclaredMethods();
+        for (Method declaredMethod : declaredMethods) {
+            //得到方法返回值类型的类类型
+            Class mc = declaredMethod.getReturnType();
+            System.out.println(&quot;得到方法的返回值类型: &quot; + mc.getName());
+            System.out.print(&quot;得到方法的签名是 --&quot; + declaredMethod.getName());
+            // 获取参数类型 --&gt; 得到参数列表类型的类类型
+            System.out.print(&quot;(&quot;);
+            Class&lt;?&gt;[] parameterTypes = declaredMethod.getParameterTypes();
+            for (Class&lt;?&gt; parameterType : parameterTypes) {
+                System.out.print(parameterType.getName() + &quot;,&quot;);
+            }
+            System.out.println(&quot;)&quot;);
+
+        }
+
+    }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>反射的使用实例<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>如何获取方法</p>
+<p>方法的名称和参数列表唯一确认一个方法</p>
+<p>方法的反射操作</p>
+<blockquote>
+<div>method.invoke(对象，参数列表)</div></blockquote>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>package me.wenchao.javapro.reflection;
+
+import java.lang.reflect.Method;
+
+/**
+ * @Author wenchaofu
+ * @DATE 18:17 2018/4/30
+ * @DESC
+ */
+public class MethodReflectCase {
+
+    public static void main(String[] args) throws NoSuchMethodException {
+        //获取print（int,int)方法
+        A a = new A();
+        Class&lt;? extends A&gt; aClass = a.getClass();
+        try {
+            Method m = aClass.getMethod(&quot;print&quot;, new Class[]{int.class, int.class});
+//            aClass.getMethod(&quot;print&quot;,int.class,int.class)
+            //方法如果没有返回值，返回null，如果有返回具体返回值
+            Object o = m.invoke(a, new Object[]{10, 20});
+        }catch (Exception e){
+            System.out.println(&quot;......&quot;);
+            e.printStackTrace();
+        }
+
+    }
+
+    static class A{
+        public void print(int a , int  b){
+            System.out.println(a+b);
+
+        }
+        public void print(String a ,String b){
+            System.out.println(a+b );
+
+        }
+    }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>通过反射了解集合泛型的本质<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>c1 == c2 记过为ture说明编译之后集合的泛型是去泛型化的</p>
+<p>java中集合的泛型，是防止错误输入的，只在编译阶段有效</p>
+<p>绕过编译就无效了</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>/**
+ * @Author wenchaofu
+ * @DATE 18:33 2018/4/30
+ * @DESC
+ */
+public class GenericReflact {
+    public static void main(String[] args) {
+        List list1 = new ArrayList&lt;&gt;();
+        List list2 = new ArrayList&lt;String&gt;();
+        Class c1 = list1.getClass();
+        Class c2 = list2.getClass();
+        System.out.println(c1 == c2);
+        try{
+            //绕过了编译就绕过了泛型
+            Method add = c2.getMethod(&quot;add&quot;, Object.class);
+            Object invoke = add.invoke(list2, 10);
+
+        }catch (Exception e){
+
+        }
+        System.out.println(list2.size());
+        //这里不能用for String 去遍历，否则抛出异常 String o : list2
+        for (Object o : list2) {
+            System.out.println(&quot;for 遍历&quot; + o);
+        }
+        System.out.println(list2);
+    }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>项目案例<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>参照 tomcat 源码的启动类 Bootstrap.java</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">JAVA Reflect 反射专题</a><ul>
+<li><a class="reference internal" href="#class">Class 类的使用</a></li>
+<li><a class="reference internal" href="#java">java类加载机制</a></li>
+<li><a class="reference internal" href="#classapi">Class的基本API</a></li>
+<li><a class="reference internal" href="#id1">反射的使用实例</a></li>
+<li><a class="reference internal" href="#id2">通过反射了解集合泛型的本质</a></li>
+<li><a class="reference internal" href="#id3">项目案例</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_pro/reflection/java_reflection.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_pro/reflection/java_reflection.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

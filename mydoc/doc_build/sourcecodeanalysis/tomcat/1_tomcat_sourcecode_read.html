@@ -1,0 +1,245 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>tomcat 源码阅读环境搭建 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tomcat">
+<h1>tomcat 源码阅读环境搭建<a class="headerlink" href="#tomcat" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>使用到的工具<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li>tomcat 8.5.30</li>
+<li>idea</li>
+<li>maven</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id2">
+<h2>一：下载软件包<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>同时下载下载软件包和源码包</p>
+<p><strong>下载地址</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//https://tomcat.apache.org/download-80.cgi
+
+$ pwd
+/c/webApp/tomcat
+
+wenchaofu@wenchaofu-PC MINGW64 /c/webApp/tomcat
+$ ll
+total 17948
+drwxr-xr-x 1 wenchaofu 197121        0 四月 29 13:57 apache-tomcat-8.5.30/
+-rw-r--r-- 1 wenchaofu 197121 10126906 四月 29 13:56 apache-tomcat-8.5.30.zip
+drwxr-xr-x 1 wenchaofu 197121        0 四月 29 13:57 apache-tomcat-8.5.30-src/
+-rw-r--r-- 1 wenchaofu 197121  8238356 四月 29 13:57 apache-tomcat-8.5.30-src.zip
+
+wenchaofu@wenchaofu-PC MINGW64 /c/webApp/tomcat
+</pre></div>
+</div>
+</div>
+<div class="section" id="maven">
+<h2>二：生成maven工程<a class="headerlink" href="#maven" title="Permalink to this headline">¶</a></h2>
+<p>然后进入源码文件夹，新建pom.xml文件</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;
+         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;org.apache.tomcat&lt;/groupId&gt;
+    &lt;artifactId&gt;Tomcat8.5&lt;/artifactId&gt;
+    &lt;name&gt;Tomcat8.5&lt;/name&gt;
+    &lt;version&gt;8.5.23&lt;/version&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;junit&lt;/groupId&gt;
+            &lt;artifactId&gt;junit&lt;/artifactId&gt;
+            &lt;version&gt;4.12&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.easymock&lt;/groupId&gt;
+            &lt;artifactId&gt;easymock&lt;/artifactId&gt;
+            &lt;version&gt;3.4&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.apache.ant&lt;/groupId&gt;
+            &lt;artifactId&gt;ant&lt;/artifactId&gt;
+            &lt;version&gt;1.10.1&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;wsdl4j&lt;/groupId&gt;
+            &lt;artifactId&gt;wsdl4j&lt;/artifactId&gt;
+            &lt;version&gt;1.6.2&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;javax.xml&lt;/groupId&gt;
+            &lt;artifactId&gt;jaxrpc&lt;/artifactId&gt;
+            &lt;version&gt;1.1&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.eclipse.jdt&lt;/groupId&gt;
+            &lt;artifactId&gt;org.eclipse.jdt.core&lt;/artifactId&gt;
+            &lt;version&gt;3.13.0&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+    &lt;build&gt;
+        &lt;finalName&gt;Tomcat8.5&lt;/finalName&gt;
+        &lt;sourceDirectory&gt;java&lt;/sourceDirectory&gt;
+        &lt;testSourceDirectory&gt;test&lt;/testSourceDirectory&gt;
+        &lt;resources&gt;
+            &lt;resource&gt;
+                &lt;directory&gt;java&lt;/directory&gt;
+            &lt;/resource&gt;
+        &lt;/resources&gt;
+        &lt;testResources&gt;
+            &lt;testResource&gt;
+                &lt;directory&gt;test&lt;/directory&gt;
+            &lt;/testResource&gt;
+        &lt;/testResources&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                &lt;version&gt;2.3&lt;/version&gt;
+                &lt;configuration&gt;
+                    &lt;encoding&gt;UTF-8&lt;/encoding&gt;
+                    &lt;source&gt;1.8&lt;/source&gt;
+                    &lt;target&gt;1.8&lt;/target&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+
+&lt;/project&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="idea">
+<h2>三：导入项目到IDEA<a class="headerlink" href="#idea" title="Permalink to this headline">¶</a></h2>
+<p>idea –&gt; open –&gt; 代开打开项目</p>
+<p>自动下载依赖包</p>
+<p>导入后直接build项目会报错，如下：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Error</span><span class="p">:(</span><span class="mi">29</span><span class="p">,</span> <span class="mi">36</span><span class="p">)</span> <span class="n">java</span><span class="p">:</span> <span class="n">找不到符号</span>
+  <span class="n">符号</span><span class="p">:</span>   <span class="n">变量</span> <span class="n">CookieFilter</span>
+  <span class="n">位置</span><span class="p">:</span> <span class="n">类</span> <span class="n">util</span><span class="o">.</span><span class="n">TestCookieFilter</span>
+<span class="n">Error</span><span class="p">:(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span> <span class="n">java</span><span class="p">:</span> <span class="n">找不到符号</span>
+  <span class="n">符号</span><span class="p">:</span>   <span class="n">变量</span> <span class="n">CookieFilter</span>
+  <span class="n">位置</span><span class="p">:</span> <span class="n">类</span> <span class="n">util</span><span class="o">.</span><span class="n">TestCookieFilter</span>
+<span class="n">Error</span><span class="p">:(</span><span class="mi">42</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span> <span class="n">java</span><span class="p">:</span> <span class="n">找不到符号</span>
+  <span class="n">符号</span><span class="p">:</span>   <span class="n">变量</span> <span class="n">CookieFilter</span>
+  <span class="n">位置</span><span class="p">:</span> <span class="n">类</span> <span class="n">util</span><span class="o">.</span><span class="n">TestCookieFilter</span>
+</pre></div>
+</div>
+<p>因为我使用的pom包含了test工程，而其中的类TestCookieFilter使用的CookieFilter类找不到，
+解决办法就是把整个TestCookieFilter给注释掉好了，研究源码的who会care单元测试的内容。</p>
+</div>
+<div class="section" id="id3">
+<h2>四：配置启动参数<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p><strong>VM options 增加启动参数</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span><span class="n">Dcatalina</span><span class="o">.</span><span class="n">home</span><span class="o">=</span><span class="s2">&quot;C:\webApp</span><span class="se">\t</span><span class="s2">omcat</span><span class="se">\a</span><span class="s2">pache-tomcat-8.5.30&quot;</span>
+</pre></div>
+</div>
+<p>找到Bootstrap.java,启动main函数</p>
+<p><strong>为什么配置这个参数</strong></p>
+<p>查看Bootstrap.java 的静态代码块</p>
+<p>代码细节不详述，这个静态代码块有个主要的逻辑是JVM加载Bootstrap.class时，会去读取系统设置的catalina.home变量代表的路径作为Tomcat安装路径。如果项目启动时没有设置catalina.home，会把当前路径（即项目所处的路径，对于我们就是tomcat源码文件夹）作为tomcat的安装路径（如果同时没有设置tomcat的工作路径，即catalina.base，那么就会把catalina.base设置为catalina.home，也就是当前路径。home和base的区别，大家可以另行查找文章，都解释的很清楚）。</p>
+<p>显然我们的源码路径肯定不是tomcat的安装路径。因为源码文件夹里没有tomcat启动需要的lib/，以及其他配置（conf/、logs/、temp/、webapps/、work/等，这是与catalina.base相关联的）是否和软件版一致。这就是为什么我们在下载源码的同时需要下载tomcat软件包，就是用来给我们启动源码项目时指定catalina.home（顺带间接指定catalina.base）。</p>
+<p><strong>源码之下，一切皆无秘密！</strong></p>
+<hr class="docutils" />
+<p>参考</p>
+<p><a class="reference external" href="https://blog.csdn.net/qq_27680317/article/details/78380540">https://blog.csdn.net/qq_27680317/article/details/78380540</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">tomcat 源码阅读环境搭建</a><ul>
+<li><a class="reference internal" href="#id1">使用到的工具</a></li>
+<li><a class="reference internal" href="#id2">一：下载软件包</a></li>
+<li><a class="reference internal" href="#maven">二：生成maven工程</a></li>
+<li><a class="reference internal" href="#idea">三：导入项目到IDEA</a></li>
+<li><a class="reference internal" href="#id3">四：配置启动参数</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/sourcecodeanalysis/tomcat/1_tomcat_sourcecode_read.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/sourcecodeanalysis/tomcat/1_tomcat_sourcecode_read.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

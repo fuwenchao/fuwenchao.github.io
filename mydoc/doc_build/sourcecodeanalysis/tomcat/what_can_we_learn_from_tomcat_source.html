@@ -1,0 +1,130 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>从tomcat源码中我们可以学到什么？ &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tomcat">
+<h1>从tomcat源码中我们可以学到什么？<a class="headerlink" href="#tomcat" title="Permalink to this headline">¶</a></h1>
+<p>软件工程师磨炼技艺的方式有许多，而读优秀项目的源码，是这些方式中学习其他人的经验和方法，快速进步的很重要一种方式。古人云：</p>
+<blockquote>
+<div>独学而无友，则必孤陋寡闻！</div></blockquote>
+<p>读优秀的源码，就如同和高手交谈，无形中有胜过若干书的感觉。在代码中，我们能看到高手对于软件的设计，代码的组织，变量和方法的方法的命名，甚至通过多个版本能观察到作者对于项目不同时期的思考，对问题的修订方式，或者注释中流露出的幽默！</p>
+<p>前面的文章中，我们提到过一般项目调试环境的搭建(感兴趣的看这里：怎样调试Tomcat源码)。</p>
+<p>环境搭好之后，一切就绪，剩下的就是深入源码了。我们今天来谈关于源代码的阅读。</p>
+<p>以下是我个人对于源码阅读的一些体会，欢迎朋友们在文末留言交流！</p>
+<p>首先，源码的阅读是以目的为导向的。不同的目的决定了阅读源码的方式的不同。</p>
+<p>例如，为了解决某个使用某个框架中存在的问题，你可能会从问题的出发点，逐步深入到相关的类与方法，而在解决了问题之后，可能就不会有兴趣再把夫关的代码再读下去了。</p>
+<p>而如果是以深入分析某个软件的原理这个点出发，则会对软件的各个部分都有兴趣，从而深入各个模块，分析实现。</p>
+<p>还有些时候，是为了特定的目的，比如为了针对面试中可能遇到的源码问题，会看一下HashMap，ArrayList等JDK源码的实现。</p>
+<p>就我个人而言，这几种情形也都遇到过。当时在使用Spring data jpa的时候，框架的某个特定版本，对于&#64;Column这个注解，如果只指定了length，而没有指定对应的name，这个时候，生成的sql就会有问题。为了解决这个问题读过这部分相关的源码。</p>
+<p>而之前由于从事应用服务器的开发，所以需要了解应用服务器的运行原理，就需要深入下去，去读开源的应用服务器实现，像GlassFish/Jetty/Tomcat这些，当然，看的最多的还是Tomcat。</p>
+<p>还有一次，在开发一个应用服务器监控应用的时候，为了通过MBean Server来获取对应服务器的监控数据，需要attach到相应的JVM上。我们的一个老的版本并没有提供对应的MBean Server的JMXURL，这个时候，观察到JConsole可以通过某个JVM进程，直接attach到这个进程上，并不需要url，为了学习和使用这种实现方式，从OpenJDK中把JConsole的源码找了出来。一读才发了解了，原来是JVM自带的attach机制，通过VirtualMachine连接上去。这JVM的进程，是通过指定的temp.dir中的pid文件来获取的，阅读源码后，让功能的实现更快速清楚。</p>
+<p>以上是从阅读源码的不同目的来看源码的阅读，读源码的方式，到底要怎么读下去呢？</p>
+<p>还是接着上面的目的来说，只关心某个类或实现方式，可以找特定范围内的内容进行阅读即可。而对于想深入了解某一类的软件的运行及实现原理时，就需要按功能主线进行入手，不能眉毛胡子一把抓。</p>
+<p>例如读Tomcat的源码时，启动流程是一条线，部署流程是一条线，请求响应是另一条线。抓住一条线后，进行阅读，但此时不需要特别深入每一个细节，先把主要的点把握住之后，再深入一条线中的某个线段。例如启动的时候其实也会涉及到应用的部署，也会涉及到应用的类加载器，甚至是配置文件的解析，多个配置文件的merge等。</p>
+<p>而请求响应时，又会涉及到参数的解析，对于不同请求后缀的响应处理，请求资源的初始化等。</p>
+<p>点会有很多，在有了大致思路后，再深入各个点，最终各个点会相互促进理解，多个点连成一条线。</p>
+<p>其次，源码的阅读，也是磨炼调试技巧的过程。在阅读源码的过程中，为了从某个功能点来深入一条线的流程，就需要各种加断点，debug，增加log，画图等，各种调试手段的综合使用，更能快速流畅的读源码。</p>
+<p>最后，源码的文档、单测都是很好的下手材料。当拿到一堆代码不知道从何入手时，可以先看看文档，或者直接从单测入手。单测中以更细粒度的功能点组织，可以快速看到某个功能相关的类。</p>
+<p>欢迎留言交流！</p>
+<p>作为一个发展有十多年的，广为使用的成熟的应用容器，tomcat还是有很多值得学习的。我随便抛出一些技术点，</p>
+<p>看看这些问题你是否思考过？</p>
+<ol class="arabic simple">
+<li>如何让一个java程序成为一个类似于daemon这样的进程，在当前终端关闭后不退出，不同平台靠什么来解决这个问题？</li>
+<li>如何处理系统信号？</li>
+<li>如何做监控？是否使用jmx?</li>
+<li>应用是怎么部署的？servlet3有什么不同？</li>
+<li>多个应用之间是怎么相互隔离的？tomcat的classloader机制是怎样的？</li>
+<li>servlet3和servlet3.1 新增的异步和非阻塞特性有什么用？</li>
+<li>怎么预防应用可能导致的内存泄露？</li>
+<li>关闭服务的时候，应该先暂停/关闭什么，后关闭什么？</li>
+<li>tomcat的扩展机制是通过什么方式提供给开发者的？</li>
+<li>BIO/NIO/APR 三种connector实现上的优劣是什么？</li>
+<li>jsp文件是怎么编译和执行的？</li>
+<li>HTTP协议本身就够喝一壶，tomcat7/8里支持的websocket/spdy等新特性本身就挺复杂的tomcat有四五十万行代码</li>
+</ol>
+<p>你没有目的的去看会比较耗费精力，
+最好先了解大致结构，和运行流程，结合自己想要在某个点的实际需求去深入了解。</p>
+<p>实际上，做为一个成功且用户众多的开源项目，读源码可以学习到很多东西，学架构，学设计。学配置与监控等等。比如了解多线程应用怎么写，看看容器的子容器加载就明白不少。想了解classLoader，双亲委托，看看WebappClassloader，看看应用是如果加载类的就会豁然开朗。想学责任链设计模式，看看Filter是怎么解析执行的就掌握了。点有很多，重点在于你希望学到什么，带着你的目的学看，才会关注到你关注的东西。</p>
+<p>参考:</p>
+<p><a class="reference external" href="https://mp.weixin.qq.com/s?__biz=MzI3MTEwODc5Ng==&amp;mid=2650859158&amp;idx=1&amp;sn=ec9a703af3a7e3db4e412e5792fe214d#rd">https://mp.weixin.qq.com/s?__biz=MzI3MTEwODc5Ng==&amp;mid=2650859158&amp;idx=1&amp;sn=ec9a703af3a7e3db4e412e5792fe214d#rd</a></p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/sourcecodeanalysis/tomcat/what_can_we_learn_from_tomcat_source.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/sourcecodeanalysis/tomcat/what_can_we_learn_from_tomcat_source.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

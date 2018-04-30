@@ -34,11 +34,13 @@ digraph mytest{
         javajc [label="java继承"]
         javafz [label="java封装"]
         javadt [label="java多态"]
+
         javaHigh [label="java高级" shape=folder]
-        javareflect [label="java反射"]
+        javareflect [label="java反射" URL="mydoc/doc_build/java/java_pro/reflection/readme.html"]
         javaannomiate [label="java注解"]
         javaconcurrency [label="java高并发"]
         javanetwork [label="java 网络编程" URL="mydoc/doc_build/java/java_pro/java_nio/readme.html" shape="folder"]
+
 
         javaPrimary 
         javaHigh
@@ -68,7 +70,10 @@ digraph mytest{
     
 
 
-
+    sourcecode [label="源码分析" shape=folder]
+    tomcat [label="tomcat源码分析" URL="mydoc/doc_build/sourcecodeanalysis/tomcat/readme.html"]
+    sourcecode -> tomcat
+    main -> sourcecode [label="源码分析"]
 
 
  
