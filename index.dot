@@ -85,10 +85,10 @@ digraph mytest{
     subgraph cluster_designmodel{
         label="设计模式"
 
-        designmodel 【label ="设计模式" shape=tab】
+        designmodel [label ="设计模式" shape=tab URL="mydoc/doc_build/designpattern/readme.html"]
         singleton [label ="单例模式" shape=ellipse]
         protoype [label="原型模式"]
-        proxy [label="代理模式"]   
+        proxy [label="代理模式" ]   
     }
 
     main -> designmodel [lhead=cluster_designmodel label="model"]
