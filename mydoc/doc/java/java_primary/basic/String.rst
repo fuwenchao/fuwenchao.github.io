@@ -11,11 +11,6 @@ String的常用方法
 创建String对象
 ------------------
 
-String s1 = "123"
-
-String s2 = new String();
-
-String s3 = new String("123");
 
 .. image:: ./images/String_equals.png
 
@@ -23,6 +18,12 @@ String s3 = new String("123");
 s1 == s2 ture
 
 s1 == s3 false
+
+
+
+**String str4 = new String("imooc")**
+
+str3 == str4 false
 
 
 String的不可变性

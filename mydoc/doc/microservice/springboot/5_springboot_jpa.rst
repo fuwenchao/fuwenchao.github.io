@@ -57,6 +57,30 @@ JPA是需要Provider来实现其功能的，Hibernate就是JPA Provider中很强
 注意，如果通过jpa在数据库中建表，将jpa.hibernate,ddl-auto改为create，建完表之后，要改为update,要不然每次重启工程会删除表并新建。
 
 
+
+
+        - create： 每次加载hibernate时都会删除上一次的生成的表，然后根据你的model类再重新来生成新表，哪怕两次没有任何改变也要这样执行，这就是导致数据库表数据丢失的一个重要原因。
+        - create-drop ：每次加载hibernate时根据model类生成表，但是sessionFactory一关闭,表就自动删除。
+        - update：最常用的属性，第一次加载hibernate时根据model类会自动建立起表的结构（前提是先建立好数据库），以后加载hibernate时根据 model类自动更新表结构，即使表结构改变了但表中的行仍然存在不会删除以前的行。要注意的是当部署到服务器后，表结构是不会被马上建立起来的，是要等 应用第一次运行起来后才会。
+        - validate ：每次加载hibernate时，验证创建数据库表结构，只会和数据库中的表进行比较，不会创建新表，但是会插入新值。
+
+
+
+
+.. code:: java
+
+    spring.datasource.url=jdbc:mysql://localhost:3306/test
+    spring.datasource.username=root
+    spring.datasource.password=root
+    spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+
+    spring.jpa.properties.hibernate.hbm2ddl.auto=update
+    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5InnoDBDialect
+    spring.jpa.show-sql= true
+
+    - dialect 主要是指定生成表名的存储引擎为InneoDB
+    - show-sql 是否打印出自动生产的SQL，方便调试的时候查看
+
 **创建实体类**
 
 通过@Entity 表明是一个映射的实体类， @Id表明id， @GeneratedValue 字段自动生成

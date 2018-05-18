@@ -426,7 +426,11 @@ mybaties配置
 
     }
 
-看到其他人的另一种写法[然后没看到写mybatis-config.xml]
+看到其他人的另一种写法
+
+[然后没看到写mybatis-config.xml]
+
+[在启动类中添加对mapper包扫描@MapperScan @MapperScan("com.neo.mapper")]
 
 .. code:: java
 
@@ -449,6 +453,7 @@ mybaties配置
         List<Account> findAccountList();
     }
 
+或者直接在Mapper类上面添加注解@Mapper,建议使用@MapperScan，不然每个mapper加个注解也挺麻烦的
 
 **Mapper.xml**
 
@@ -628,3 +633,9 @@ springboot 开启事物很简单，只需要加一行注解就可以了，前提
 参考
 
 https://blog.csdn.net/forezp/article/details/70768477
+
+
+
+`spring boot(六)：如何优雅的使用mybatis`_
+
+.. _`spring boot(六)：如何优雅的使用mybatis`: http://www.cnblogs.com/ityouknow/p/6037431.html
