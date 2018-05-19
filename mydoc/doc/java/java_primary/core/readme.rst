@@ -35,8 +35,10 @@ java 核心36讲
 `15. 内存溢出异常`_
 
 `16. 谈谈 JVM 的垃圾回收`_
+ 
+`17. 内存分配与回收策略`_
 
-`17. java 内存泄漏与内存溢出的异同`_
+`18. java 内存泄漏与内存溢出的异同`_
 
 
 
@@ -125,4 +127,6 @@ java 核心36讲
 
 .. _`16. 谈谈 JVM 的垃圾回收`: b16_gc.html
 
-.. _`17. java 内存泄漏与内存溢出的异同`: b17_memory_out_leak.html
+.. _`18. java 内存泄漏与内存溢出的异同`: b17_memory_out_leak.html
+
+.. _`17. 内存分配与回收策略`: b17_memory_allocation_recyle_policy.html
