@@ -212,6 +212,8 @@ jdk1.8 不报错，在1.7之前的版本中
     OutOfMemroyError: PermGen space
 
 
+在jdk8中，移除了方法区，转而用Metaspace区域替代，所以我们需要使用新的jvm参数：-XX:MaxMetaspaceSize=2M，依然运行如上代码，抛出：java.lang.OutOfMemoryError: Metaspace异常。同理说明运行时常量池是划分在Metaspace区域中。具体关于Metaspace区域的知识，请读者自行搜索。
+
 本机直接内存溢出
 -----------------------
 

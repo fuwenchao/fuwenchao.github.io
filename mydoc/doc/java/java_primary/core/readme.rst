@@ -30,6 +30,12 @@ java 核心36讲
 
 13. 说说你知道的设计模式，请动手实现单例模式，Spring，Mybaties使用了哪些模式
 
+
+
+JVM
+---------
+
+
 `14. Java内存区域`_
 
 `15. 内存溢出异常`_
@@ -39,6 +45,10 @@ java 核心36讲
 `17. 内存分配与回收策略`_
 
 `18. java 内存泄漏与内存溢出的异同`_
+
+`19. Java中基本数据类型和引用数据类型的存放位置`_
+
+`20. JVM中的常量池和运行时常量池有什么区别`_
 
 
 
@@ -130,3 +140,7 @@ java 核心36讲
 .. _`18. java 内存泄漏与内存溢出的异同`: b17_memory_out_leak.html
 
 .. _`17. 内存分配与回收策略`: b17_memory_allocation_recyle_policy.html
+
+.. _`19. Java中基本数据类型和引用数据类型的存放位置`: b19_field_location.html
+
+.. _`20. JVM中的常量池和运行时常量池有什么区别`_: b20_constant_pool_runtime_constant_pool.html
