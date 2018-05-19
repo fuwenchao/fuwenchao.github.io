@@ -12,7 +12,7 @@ java 核心36讲
 
 `4. 强引用，软引用，弱引用，幻想引用有什么区别，他们的使用场景是什么`_
 
-5. 理解java的字符串，String，StringBuilder,StringBuffer有什么区别
+`5. 理解java的字符串，String，StringBuilder,StringBuffer有什么区别`_
 
 6. 谈谈java的反射机制，动态代理是基于什么原理
 
@@ -34,7 +34,9 @@ java 核心36讲
 
 `15. 内存溢出异常`_
 
-16. 谈谈 JVM 的垃圾回收
+`16. 谈谈 JVM 的垃圾回收`_
+
+`17. java 内存泄漏与内存溢出的异同`_
 
 
 
@@ -115,7 +117,12 @@ java 核心36讲
 
 .. _`4. 强引用，软引用，弱引用，幻想引用有什么区别，他们的使用场景是什么`: b04_reference.html
 
+.. _`5. 理解java的字符串，String，StringBuilder,StringBuffer有什么区别`: ../basic/String.html
+
 .. _`14. Java内存区域`: b14_java_memory.html
 
 .. _`15. 内存溢出异常`: b15_oom.html
 
+.. _`16. 谈谈 JVM 的垃圾回收`: b16_gc.html
+
+.. _`17. java 内存泄漏与内存溢出的异同`: b17_memory_out_leak.html

@@ -79,3 +79,72 @@ substring
 append
 
 insert
+
+
+
+
+
+String,StringBuffer,StringBuilder效率与内存占用比较
+-----------------------------------------------------
+
+
+分别使用String，StringBuffer，StringBuilder进行10000次的字符串拼接操作，计算运行时间以及java程序运行时的内存占用。
+
+.. code:: java
+
+	public class StringWasteMemoryTest {
+	    public static void main(String[] args) {
+	        long beforeTime = System.currentTimeMillis();
+	         StringTest();
+	//       StringBufferTest();
+	//       StringBuilderTest();
+	        long afterTime = System.currentTimeMillis();
+	        System.out.println("time: " + (afterTime - beforeTime));
+	        long memory = Runtime.getRuntime().totalMemory()
+	                - Runtime.getRuntime().freeMemory();
+	        System.out.println("memory: " + memory);
+	    }
+
+	    private static void StringTest() {
+
+	        String s = "";
+	        for (int i = 0; i < 10000; i++) {
+	            s += "qwertyuiopasdfghjklzxcvbnmqazwsxedcrfvtgbyhnujmiklopplokmnjiuhbvgytfcxdrzsewaq";
+	        }
+	    }
+
+	    private static void StringBufferTest() {
+
+	        StringBuffer stringBuffer = new StringBuffer("");
+	        for (int i = 0; i < 10000; i++) {
+	            stringBuffer = stringBuffer
+	                    .append("qwertyuiopasdfghjklzxcvbnmqazwsxedcrfvtgbyhnujmiklopplokmnjiuhbvgytfcxdrzsewaq");
+	        }
+	    }
+
+	    private static void StringBuilderTest() {
+
+	        StringBuilder stringBuilder = new StringBuilder("");
+	        for (int i = 0; i < 10000; i++) {
+	            stringBuilder = stringBuilder
+	                    .append("qwertyuiopasdfghjklzxcvbnmqazwsxedcrfvtgbyhnujmiklopplokmnjiuhbvgytfcxdrzsewaq");
+	        }
+	    }
+	}
+
+
+运行结果如下：
+
+::
+
+	String:
+	    time: 6296
+	    memory: 178993040
+
+	StringBuffer:
+	    time: 3
+	    memory: 6834488
+
+	StringBuilder:
+	    time: 4
+	    memory: 6834400
