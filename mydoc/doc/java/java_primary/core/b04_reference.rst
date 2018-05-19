@@ -42,6 +42,8 @@
 
 看到上述示例强引用带来的内存泄漏问题，我们要如何避免？
 
+详见 `内存溢出与内存泄漏的区别`_
+
 
 
 
@@ -391,6 +393,8 @@ https://www.zhihu.com/question/37401125
 .. _WeakReference: https://developer.android.com/reference/java/lang/ref/WeakReference.html
 
 .. _SoftReference: https://developer.android.com/reference/java/lang/ref/WeakReference.html?q=SoftReference
+
+.. _`内存溢出与内存泄漏的区别`: b17_memory_out_leak.html
 
 这篇浅显易懂 http://www.cnblogs.com/skywang12345/p/3154474.html 
 
