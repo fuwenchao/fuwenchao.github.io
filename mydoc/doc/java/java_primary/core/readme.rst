@@ -12,11 +12,11 @@ java 核心36讲
 
 `4. 强引用，软引用，弱引用，幻想引用有什么区别，他们的使用场景是什么`_
 
-`5. 理解java的字符串，String，StringBuilder,StringBuffer有什么区别`_
+5. 谈谈java的反射机制，动态代理是基于什么原理
 
-6. 谈谈java的反射机制，动态代理是基于什么原理
+`6. String 之 理解java的字符串，String，StringBuilder,StringBuffer有什么区别`_
 
-7. int 和 Integer 有什么区别，Integer值得缓存范围是什么
+`7. String 之 new String()究竟创建几个对象?`_
 
 8. 对比Vector，ArrayList ， LindedList有何区别
 
@@ -30,25 +30,29 @@ java 核心36讲
 
 13. 说说你知道的设计模式，请动手实现单例模式，Spring，Mybaties使用了哪些模式
 
+`14. byte的最大值为什么是127`_
 
+`15. 静态方法与非静态方法的区别`_
 
 JVM
 ---------
 
 
-`14. Java内存区域`_
+`1. Java内存区域`_
 
-`15. 内存溢出异常`_
+`2. 内存溢出异常`_
 
-`16. 谈谈 JVM 的垃圾回收`_
+`3. 谈谈 JVM 的垃圾回收`_
  
-`17. 内存分配与回收策略`_
+`4. 内存分配与回收策略`_
 
-`18. java 内存泄漏与内存溢出的异同`_
+`5. java 内存泄漏与内存溢出的异同`_
 
-`19. Java中基本数据类型和引用数据类型的存放位置`_
+`6. Java中基本数据类型和引用数据类型的存放位置`_
 
-`20. JVM中的常量池和运行时常量池有什么区别`_
+`7. JVM中的常量池和运行时常量池有什么区别`_
+
+`8. 探究 Java 虚拟机栈`_
 
 
 
@@ -129,18 +133,27 @@ JVM
 
 .. _`4. 强引用，软引用，弱引用，幻想引用有什么区别，他们的使用场景是什么`: b04_reference.html
 
-.. _`5. 理解java的字符串，String，StringBuilder,StringBuffer有什么区别`: ../basic/String.html
+.. _`6. String 之 理解java的字符串，String，StringBuilder,StringBuffer有什么区别`: b06_String.html
 
-.. _`14. Java内存区域`: b14_java_memory.html
+.. _`14. byte的最大值为什么是127`: b14_byte127.html
 
-.. _`15. 内存溢出异常`: b15_oom.html
+.. _`15. 静态方法与非静态方法的区别`: b15_staticMethod_nonStaticMethod.html
 
-.. _`16. 谈谈 JVM 的垃圾回收`: b16_gc.html
 
-.. _`18. java 内存泄漏与内存溢出的异同`: b17_memory_out_leak.html
 
-.. _`17. 内存分配与回收策略`: b17_memory_allocation_recyle_policy.html
 
-.. _`19. Java中基本数据类型和引用数据类型的存放位置`: b19_field_location.html
+.. _`1. Java内存区域`: j01_java_memory.html
 
-.. _`20. JVM中的常量池和运行时常量池有什么区别`_: b20_constant_pool_runtime_constant_pool.html
+.. _`2. 内存溢出异常`: j02_oom.html
+
+.. _`3. 谈谈 JVM 的垃圾回收`: j03_gc.html
+
+.. _`4. 内存分配与回收策略`: j04_memory_allocation_recyle_policy.html
+
+.. _`5. java 内存泄漏与内存溢出的异同`: j05_memory_out_leak.html
+
+.. _`6. Java中基本数据类型和引用数据类型的存放位置`: j06_field_location.html
+
+.. _`7. JVM中的常量池和运行时常量池有什么区别`_: j07_constant_pool_runtime_constant_pool.html
+
+.. _`8. 探究 Java 虚拟机栈`: j08_java_stack.html

@@ -141,4 +141,4 @@ Cmd代码
 ----
 
 
-.. _`理解java的字符串，String，StringBuilder,StringBuffer有什么区别`: ../basic/String.html
+.. _`理解java的字符串，String，StringBuilder,StringBuffer有什么区别`: b06_String.html

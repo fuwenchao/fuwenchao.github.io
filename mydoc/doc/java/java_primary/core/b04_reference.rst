@@ -394,7 +394,7 @@ https://www.zhihu.com/question/37401125
 
 .. _SoftReference: https://developer.android.com/reference/java/lang/ref/WeakReference.html?q=SoftReference
 
-.. _`内存溢出与内存泄漏的区别`: b17_memory_out_leak.html
+.. _`内存溢出与内存泄漏的区别`: j04_memory_out_leak.html
 
 这篇浅显易懂 http://www.cnblogs.com/skywang12345/p/3154474.html 
 
