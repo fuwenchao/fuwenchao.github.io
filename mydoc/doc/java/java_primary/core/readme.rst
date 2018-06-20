@@ -12,13 +12,13 @@ java 核心36讲
 
 `4. 强引用，软引用，弱引用，幻想引用有什么区别，他们的使用场景是什么`_
 
-5. 谈谈java的反射机制，动态代理是基于什么原理
+`5. 谈谈java的反射机制，动态代理是基于什么原理`_
 
 `6. String 之 理解java的字符串，String，StringBuilder,StringBuffer有什么区别`_
 
 `7. String 之 new String()究竟创建几个对象?`_
 
-8. 对比Vector，ArrayList ， LindedList有何区别
+`8. 对比Vector，ArrayList ， LindedList有何区别`_
 
 9. 对比 HashTable HashMap HashTree ，谈谈你对HashMap的掌握
 
@@ -133,7 +133,11 @@ JVM
 
 .. _`4. 强引用，软引用，弱引用，幻想引用有什么区别，他们的使用场景是什么`: b04_reference.html
 
+.. _`5. 谈谈java的反射机制，动态代理是基于什么原理`: b05_reflection_proxy.html
+
 .. _`6. String 之 理解java的字符串，String，StringBuilder,StringBuffer有什么区别`: b06_String.html
+
+.. _`8. 对比Vector，ArrayList ， LindedList有何区别`: b08_arraylist_linedlist.html
 
 .. _`14. byte的最大值为什么是127`: b14_byte127.html
 
@@ -154,6 +158,6 @@ JVM
 
 .. _`6. Java中基本数据类型和引用数据类型的存放位置`: j06_field_location.html
 
-.. _`7. JVM中的常量池和运行时常量池有什么区别`_: j07_constant_pool_runtime_constant_pool.html
+.. _`7. JVM中的常量池和运行时常量池有什么区别`: j07_constant_pool_runtime_constant_pool.html
 
 .. _`8. 探究 Java 虚拟机栈`: j08_java_stack.html

@@ -4,7 +4,7 @@ digraph mytest{
         dot -Tjpeg index.dot -o index.jpg -Nfontname=KaiTi -Tcmapx -o index.map -Efontname=KaiTi -Gfontname=KaiTi
 
     **/
-    graph [label="copyright @wenchaofu 2018"
+    graph [label="copyright@ wenchaofu 2018"
         ,fontsize=12.0,fontcolor=snow
         ,labeljust="l",labelloc="b",center=1
         ,ranksep=0.1,center=1,ratio=compress
@@ -169,17 +169,27 @@ digraph mytest{
     cleancode [label="代码整洁之道" shape=note URL="https://item.jd.com/10064006.html"]
     dmdq [label="代码大全2" shape=note URL="https://item.jd.com/10875285.html"]
 
-    books ->general -> {refactor,cleancode,dmdq}
+    books ->general
+    general -> {refactor,cleancode} [label="已购"]
+    general -> {dmdq} [label="待购" color =yellow]
 
     java [label="java参考" shape=tab]
     effectivejava [label="effective java" shape=note URL="https://item.jd.com/10058902.html"]
     JVM [label="深入Java虚拟机" shape=note]
     javaconcurrencyinpractive [label="java并发编程实战" shape=note]
+    thinkinjava [label="java编程思想" shape=note]
 
-    books -> java -> {effectivejava,javaconcurrencyinpractive,JVM}
+    books -> java
+    java -> {effectivejava,javaconcurrencyinpractive,JVM,thinkinjava} [ label="待购" color=yellow ]
 
     bigdata [label="大数据参考"]
     books ->bigdata
+
+    economics [label="经济类"]
+    devileconomics [label="魔鬼经济学"]
+    basiceconomics [label="经济学原理"]
+    books -> economics
+    economics -> {devileconomics,basiceconomics} 
 
 
 }

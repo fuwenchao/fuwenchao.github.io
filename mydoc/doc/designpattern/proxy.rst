@@ -47,7 +47,7 @@ CarPorxy.java
 
 注入 Car
 
-两种方式注入
+几种方式注入
 
 - 继承类
 
@@ -56,17 +56,22 @@ CarProxy extends Car
 
 - 继承接口
 
-CarProxy implements MoveAble
-Car car = new Car()
+::
+
+    CarProxy implements MoveAble
+    Car car = new Car()
 
 - 聚合方式
 
 CarProxy.java中
 
-private Car car;
-public CarProxy(Car car){
-    this.car = car
-}
+
+::
+
+    private Car car;
+    public CarProxy(Car car){
+        this.car = car
+    }
 
 
 
