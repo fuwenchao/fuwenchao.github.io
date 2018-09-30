@@ -1,0 +1,233 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>创建一个接收数据的实体： &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <blockquote>
+<div><div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">web</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">com</span><span class="o">.</span><span class="n">fasterxml</span><span class="o">.</span><span class="n">jackson</span><span class="o">.</span><span class="n">core</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">jackson</span><span class="o">-</span><span class="n">databind</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="section" id="id1">
+<h1>创建一个接收数据的实体：<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@JsonIgnoreProperties</span><span class="p">(</span><span class="n">ignoreUnknown</span><span class="o">=</span><span class="n">true</span><span class="p">)</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">User</span> <span class="p">{</span>
+
+    <span class="n">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="n">private</span> <span class="n">String</span> <span class="n">blog</span><span class="p">;</span>
+
+    <span class="n">public</span> <span class="n">String</span> <span class="n">getName</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">name</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="n">void</span> <span class="n">setName</span><span class="p">(</span><span class="n">String</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="n">String</span> <span class="n">getBlog</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">blog</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="n">void</span> <span class="n">setBlog</span><span class="p">(</span><span class="n">String</span> <span class="n">blog</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">blog</span> <span class="o">=</span> <span class="n">blog</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="n">public</span> <span class="n">String</span> <span class="n">toString</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s2">&quot;User [name=&quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;, blog=&quot;</span> <span class="o">+</span> <span class="n">blog</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="githubservice">
+<h1>创建一个请求的　github的service:<a class="headerlink" href="#githubservice" title="Permalink to this headline">¶</a></h1>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Service</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">GitHubLookupService</span> <span class="p">{</span>
+
+    <span class="n">private</span> <span class="n">static</span> <span class="n">final</span> <span class="n">Logger</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">LoggerFactory</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">GitHubLookupService</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
+
+    <span class="n">private</span> <span class="n">final</span> <span class="n">RestTemplate</span> <span class="n">restTemplate</span><span class="p">;</span>
+
+    <span class="n">public</span> <span class="n">GitHubLookupService</span><span class="p">(</span><span class="n">RestTemplateBuilder</span> <span class="n">restTemplateBuilder</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">restTemplate</span> <span class="o">=</span> <span class="n">restTemplateBuilder</span><span class="o">.</span><span class="n">build</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Async</span>
+    <span class="n">public</span> <span class="n">Future</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span> <span class="n">findUser</span><span class="p">(</span><span class="n">String</span> <span class="n">user</span><span class="p">)</span> <span class="n">throws</span> <span class="n">InterruptedException</span> <span class="p">{</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Looking up &quot;</span> <span class="o">+</span> <span class="n">user</span><span class="p">);</span>
+        <span class="n">String</span> <span class="n">url</span> <span class="o">=</span> <span class="n">String</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;https://api.github.com/users/</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">user</span><span class="p">);</span>
+        <span class="n">User</span> <span class="n">results</span> <span class="o">=</span> <span class="n">restTemplate</span><span class="o">.</span><span class="n">getForObject</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">User</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
+        <span class="o">//</span> <span class="n">Artificial</span> <span class="n">delay</span> <span class="n">of</span> <span class="mi">1</span><span class="n">s</span> <span class="k">for</span> <span class="n">demonstration</span> <span class="n">purposes</span>
+        <span class="n">Thread</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1000</span><span class="n">L</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">new</span> <span class="n">AsyncResult</span><span class="o">&lt;&gt;</span><span class="p">(</span><span class="n">results</span><span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>通过，RestTemplate去请求，另外加上类&#64;Async 表明是一个异步任务。</p>
+<p>开启异步任务：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@SpringBootApplication</span>
+<span class="nd">@EnableAsync</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">Application</span> <span class="n">extends</span> <span class="n">AsyncConfigurerSupport</span> <span class="p">{</span>
+
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">SpringApplication</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">Application</span><span class="o">.</span><span class="n">class</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="n">public</span> <span class="n">Executor</span> <span class="n">getAsyncExecutor</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">ThreadPoolTaskExecutor</span> <span class="n">executor</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ThreadPoolTaskExecutor</span><span class="p">();</span>
+        <span class="n">executor</span><span class="o">.</span><span class="n">setCorePoolSize</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+        <span class="n">executor</span><span class="o">.</span><span class="n">setMaxPoolSize</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+        <span class="n">executor</span><span class="o">.</span><span class="n">setQueueCapacity</span><span class="p">(</span><span class="mi">500</span><span class="p">);</span>
+        <span class="n">executor</span><span class="o">.</span><span class="n">setThreadNamePrefix</span><span class="p">(</span><span class="s2">&quot;GithubLookup-&quot;</span><span class="p">);</span>
+        <span class="n">executor</span><span class="o">.</span><span class="n">initialize</span><span class="p">();</span>
+        <span class="k">return</span> <span class="n">executor</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>通过&#64;EnableAsync开启异步任务；并且配置AsyncConfigurerSupport，比如最大的线程池为2.</p>
+</div>
+<div class="section" id="id2">
+<h1>测试<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h1>
+<p>测试代码如下：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>@Component
+public class AppRunner implements CommandLineRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(AppRunner.class);
+
+    private final GitHubLookupService gitHubLookupService;
+
+    public AppRunner(GitHubLookupService gitHubLookupService) {
+        this.gitHubLookupService = gitHubLookupService;
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        // Start the clock
+        long start = System.currentTimeMillis();
+
+        // Kick of multiple, asynchronous lookups
+        Future&lt;User&gt; page1 = gitHubLookupService.findUser(&quot;PivotalSoftware&quot;);
+        Future&lt;User&gt; page2 = gitHubLookupService.findUser(&quot;CloudFoundry&quot;);
+        Future&lt;User&gt; page3 = gitHubLookupService.findUser(&quot;Spring-Projects&quot;);
+
+        // Wait until they are all done
+        while (!(page1.isDone() &amp;&amp; page2.isDone() &amp;&amp; page3.isDone())) {
+            Thread.sleep(10); //10-millisecond pause between each check
+        }
+
+        // Print results, including elapsed time
+        logger.info(&quot;Elapsed time: &quot; + (System.currentTimeMillis() - start));
+        logger.info(&quot;--&gt; &quot; + page1.get());
+        logger.info(&quot;--&gt; &quot; + page2.get());
+        logger.info(&quot;--&gt; &quot; + page3.get());
+    }
+
+}
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">创建一个接收数据的实体：</a></li>
+<li><a class="reference internal" href="#githubservice">创建一个请求的　github的service:</a></li>
+<li><a class="reference internal" href="#id2">测试</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springboot/16_async.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springboot/16_async.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

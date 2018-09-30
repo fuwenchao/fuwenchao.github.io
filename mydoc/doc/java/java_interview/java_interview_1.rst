@@ -35,7 +35,7 @@ java 面试一
 
 **4、float f=3.4;是否正确？*
 
-答:不正确。3.4是双精度数，将双精度型（double）赋值给浮点型（float）属于下转型（down-casting，也称为窄化）会造成精度损失，因此需要强制类型转换float f =(float)3.4; 或者写成float f =3.4f;。
+答:不正确。3.4是双精度数，将双精度型（double）赋值给浮点型（float）属于下转型（down-casting，也称为窄化）会造成精度损失，因此需要强制类型转换float f =(float)3.4; 或者写成float f =3.4f; 小数常量都是double，需要转换。
 
 **5、short s1 = 1; s1 = s1 + 1;有错吗?short s1 = 1; s1 += 1;有错吗？**
 
@@ -161,6 +161,9 @@ Java语言的方法调用只支持参数的值传递。当一个对象实例作�
 
     说明：Java中没有传引用实在是非常的不方便，这一点在Java 8中仍然没有得到改进，正是如此在Java编写的代码中才会出现大量的Wrapper类（将需要通过方法调用修改的引用置于一个Wrapper类中，再将Wrapper对象传入方法），这样的做法只会让代码变得臃肿，尤其是让从C和C++转型为Java程序员的开发者无法容忍。
 
+
+参考： https://blog.csdn.net/zzp_403184692/article/details/8184751
+
 **19、String和StringBuilder、StringBuffer的区别？**
 
 答：Java平台提供了两种类型的字符串：String和StringBuffer/StringBuilder，它们可以储存和操作字符串。其中String是只读字符串，也就意味着String引用的字符串内容是不能被改变的。而StringBuffer/StringBuilder类表示的字符串对象可以直接进行修改。StringBuilder是Java 5中引入的，它和StringBuffer的方法完全相同，区别在于它是在单线程环境下使用的，因为它的所有方面都没有被synchronized修饰，因此它的效率也比StringBuffer要高。
@@ -210,3 +213,127 @@ Java语言的方法调用只支持参数的值传递。当一个对象实例作�
 重载发生在一个类中，同名的方法如果有不同的参数列表（参数类型不同、参数个数不同或者二者都不同）则视为重载；重写发生在子类与父类之间，重写要求子类被重写方法与父类被重写方法有相同的返回类型，比父类被重写方法更好访问，不能比父类被重写方法声明更多的异常（里氏代换原则）。重载对返回类型没有特殊的要求。
 
     面试题：华为的面试题中曾经问过这样一个问题 - "为什么不能根据返回类型来区分重载"，快说出你的答案吧！
+
+
+
+声明抽象方法不可写出大括号
+
+数组是一种对象，不是原生类
+
+只有  public 、 abstract 可以修饰外部接口
+
+
+按引用传参不能改变实际参数的参考地址
+
+类方法中可以用this调用本类的类方法 错误
+
+在类方法中绝对不能调用实例方法 错误  new 之后可以调用
+
+
+引用不是指正，引用本本身是 primitive
+
+
+数组的创建，一维数组，二维数组
+
+
+默认构造方法有和他所在类相同的访问修饰符
+
+main是java的关
+
+package在同一个类中只能出现一次，且需要在第一行（不含注释）
+
+SortedMap 是接口，TreeMap的key不能为null，value可以为null，HashTable都不能为null，HashMap都可以为null。但是可以为空（""）
+
+注意Thread类的启动方式，run() 启动的话为非线程方式启动，start()线程方式启动 
+
+不同列表选择不同发的遍历方式 建议67
+
+
+
+**21. 哪些能继承，哪些能重写**
+
+::
+
+    When you do this, you automatically get all the fields and methods in the base class
+    ---摘自《Thinking in Java》 Reusing class一章。
+    当继承时，会自动得到基类中的所有的域和方法。
+    关于这句话如何解读？
+    1、private修饰的成员能够继承下来吗？
+    2、final修饰的成员能继承下来吗？
+    3、static修饰的成员能继承下来吗？
+
+final 能继承，不能被重写
+
+static能继承，能重写，但是不能用override修饰
+
+private 不能被继承（又有人说能被继承，只是不能被访问而已）
+
+构造函数不可以被继承，因此不能被重写，但可以被重载
+
+**总结： private、构造方法 不能被继承**
+
+`请看详细介绍1`_
+
+`请看详细介绍2`_
+
+.. _`请看详细介绍1`: https://www.cnblogs.com/cbs-writing/p/7088450.html
+.. _`请看详细介绍2`: https://www.zhihu.com/question/51345942/answer/145388196
+
+
+
+**22. JAVA静态方法是否可以被继承？**
+
+结论：java中静态属性和静态方法可以被继承，但是没有被重写(overwrite)而是被隐藏.
+原因：
+
+::
+
+    1). 静态方法和属性是属于类的，调用的时候直接通过类名.方法名完成对，不需要继承机制及可以调用。如果子类里面定义了静态
+        至于是否继承一说，子类是有继承静态方法和属性，但是跟实例方法和属性不太一样，存在"隐藏"的这种情况。
+    2). 多态之所以能够实现依赖于继承、接口和重写、重载（继承和重写最为关键）。有了继承和重写就可以实现父类的引用指向不同子类的对象。
+        重写的功能是："重写"后子类的优先级要高于父类的优先级，但是“隐藏”是没有这个优先级之分的。
+    3). 静态属性、静态方法和非静态的属性都可以被继承和隐藏而不能被重写，因此不能实现多态，不能实现父类的引用可以指向不同子类的对象。
+        非静态方法可以被继承和重写，因此可以实现多态。
+
+
+23。 下面程序为什么输出12，而不是-6，
+
+
+.. code:: java
+
+    public class A {
+    int i = 12;
+    }
+
+    class B extends A {
+    int i = -6;
+    public static void main(String[] args) {
+    A xx = new B();
+    System.out.println(xx.i);
+    }
+    }
+
+方法是动态绑定，变量不会
+
+**24. TreeSet**
+
+加入时（add）排序，修改时不排序
+
+
+**25. Map**
+
+HashMap:
+
+线程不安全，fast-fail 机制，key value 允许为空 ; containsvalue containskey； Iterator 遍历 ; 16
+
+HashTable:
+
+线程安全，key,value 不允许为null， contains ； Enumenation遍历 ; 11 2*old + 1; 对象的hashcode
+
+
+SortedMap 是接口，TreeMap的key不能为null，value可以为null，HashTable都不能为null，HashMap都可以为null。但是可以为空（""）
+
+
+子类方法比父类方法抛出的异常**更窄**；但是构造函数相反；
+
+子类的访问限制比父类需要**更宽**

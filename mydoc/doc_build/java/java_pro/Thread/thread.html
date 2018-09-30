@@ -1,0 +1,364 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>java 多线程 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="java">
+<h1>java 多线程<a class="headerlink" href="#java" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>线程间状态转换<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<img alt="../../../_images/Thread_status.jpg" src="../../../_images/Thread_status.jpg" />
+<ol class="arabic">
+<li><p class="first">新建(new)：新创建了一个线程对象。</p>
+</li>
+<li><p class="first">可运行(runnable)：线程对象创建后，其他线程(比如main线程）调用了该对象的start()方法。该状态的线程位于可运行线程池中，等待被线程调度选中，获取cpu 的使用权 。</p>
+</li>
+<li><p class="first">运行(running)：可运行状态(runnable)的线程获得了cpu 时间片（timeslice） ，执行程序代码。</p>
+</li>
+<li><p class="first">阻塞(block)：阻塞状态是指线程因为某种原因放弃了cpu 使用权，也即让出了cpu timeslice，暂时停止运行。直到线程进入可运行(runnable)状态，才有机会再次获得cpu timeslice 转到运行(running)状态。阻塞的情况分三种：</p>
+<blockquote>
+<div><ul class="simple">
+<li>等待阻塞：运行(running)的线程执行o.wait()方法，JVM会把该线程放入等待队列(waitting queue)中。</li>
+<li>同步阻塞：运行(running)的线程在获取对象的同步锁时，若该同步锁被别的线程占用，则JVM会把该线程放入锁池(lock pool)中。</li>
+<li>其他阻塞：运行(running)的线程执行Thread.sleep(long ms)或t.join()方法，或者发出了I/O请求时，JVM会把该线程置为阻塞状态。当sleep()状态超时、join()等待线程终止或者超时、或者I/O处理完毕时，线程重新转入可运行(runnable)状态。</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">死亡(dead)：线程run()、main() 方法执行结束，或者因异常退出了run()方法，则该线程结束生命周期。死亡的线程不可再次复生。</p>
+</li>
+</ol>
+<p>但是真的就是上面那样的么，去看Thread.java源码的时候没发现点问题？</p>
+<p><a class="reference external" href="ThreadStatus.html">请看这篇博文</a></p>
+</div>
+<div class="section" id="id2">
+<h2>上下文切换<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>对于单核CPU来说（对于多核CPU，此处就理解为一个核），CPU在一个时刻只能运行一个线程，当在运行一个线程的过程中转去运行另外一个线程，这个叫做线程上下文切换（对于进程也是类似）。</p>
+<p>由于可能当前线程的任务并没有执行完毕，所以在切换时需要保存线程的运行状态，以便下次重新切换回来时能够继续切换之前的状态运行。举个简单的例子：比如一个线程A正在读取一个文件的内容，正读到文件的一半，此时需要暂停线程A，转去执行线程B，当再次切换回来执行线程A的时候，我们不希望线程A又从文件的开头来读取。</p>
+<p>因此需要记录线程A的运行状态，那么会记录哪些数据呢？因为下次恢复时需要知道在这之前当前线程已经执行到哪条指令了，所以需要记录程序计数器的值，另外比如说线程正在进行某个计算的时候被挂起了，那么下次继续执行的时候需要知道之前挂起时变量的值时多少，因此需要记录CPU寄存器的状态。所以一般来说，线程上下文切换过程中会记录程序计数器、CPU寄存器状态等数据。</p>
+<p>说简单点的：对于线程的上下文切换实际上就是 存储和恢复CPU状态的过程，它使得线程执行能够从中断点恢复执行。</p>
+<p>虽然多线程可以使得任务执行的效率得到提升，但是由于在线程切换时同样会带来一定的开销代价，并且多个线程会导致系统资源占用的增加，所以在进行多线程编程时要注意这些因素。</p>
+</div>
+<div class="section" id="thread">
+<h2>Thread实现多线程<a class="headerlink" href="#thread" title="Permalink to this headline">¶</a></h2>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="k">class</span> <span class="nc">Test</span> <span class="p">{</span>
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>  <span class="p">{</span>
+        <span class="n">MyThread</span> <span class="n">thread</span> <span class="o">=</span> <span class="n">new</span> <span class="n">MyThread</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">Thread</span><span class="o">.</span><span class="n">currentThread</span><span class="p">()</span><span class="o">.</span><span class="n">getId</span><span class="p">())</span>
+        <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">class</span> <span class="nc">MyThread</span> <span class="n">extends</span> <span class="n">Thread</span><span class="p">{</span>
+    <span class="n">private</span> <span class="n">static</span> <span class="nb">int</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">public</span> <span class="n">MyThread</span><span class="p">(){</span>
+        <span class="n">num</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="nd">@Override</span>
+    <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;主动创建的第&quot;</span><span class="o">+</span><span class="n">num</span><span class="o">+</span><span class="s2">&quot;个线程&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="runnable">
+<h2>Runnable接口实现多线程<a class="headerlink" href="#runnable" title="Permalink to this headline">¶</a></h2>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="k">class</span> <span class="nc">Test</span> <span class="p">{</span>
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>  <span class="p">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;主线程ID：&quot;</span><span class="o">+</span><span class="n">Thread</span><span class="o">.</span><span class="n">currentThread</span><span class="p">()</span><span class="o">.</span><span class="n">getId</span><span class="p">());</span>
+        <span class="n">MyRunnable</span> <span class="n">runnable</span> <span class="o">=</span> <span class="n">new</span> <span class="n">MyRunnable</span><span class="p">();</span>
+        <span class="n">Thread</span> <span class="n">thread</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Thread</span><span class="p">(</span><span class="n">runnable</span><span class="p">);</span>
+        <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">class</span> <span class="nc">MyRunnable</span> <span class="n">implements</span> <span class="n">Runnable</span><span class="p">{</span>
+    <span class="n">public</span> <span class="n">MyRunnable</span><span class="p">()</span> <span class="p">{</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;子线程ID：&quot;</span><span class="o">+</span><span class="n">Thread</span><span class="o">.</span><span class="n">currentThread</span><span class="p">()</span><span class="o">.</span><span class="n">getId</span><span class="p">());</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>通过实现Runnable接口，我们定义了一个子任务，然后将子任务交由Thread去执行。注意，这种方式必须将Runnable作为Thread类的参数，然后通过Thread的start方法来创建一个新线程来执行该子任务。如果调用Runnable的run方法的话，是不会创建新线程的，这根普通的方法调用没有任何区别。</p>
+<p>事实上，查看Thread类的实现源代码会发现Thread类是实现了Runnable接口的。</p>
+<p>在Java中，这2种方式都可以用来创建线程去执行子任务，具体选择哪一种方式要看自己的需求。直接继承Thread类的话，可能比实现Runnable接口看起来更加简洁，但是由于Java只允许单继承，所以如果自定义类需要继承其他类，则只能选择实现Runnable接口。</p>
+</div>
+<div class="section" id="thread-runnable">
+<h2>Thread 和 Runnable 这件的区别<a class="headerlink" href="#thread-runnable" title="Permalink to this headline">¶</a></h2>
+<p>1、实现Runnable的类更具有健壮性，避免了单继承的局限。</p>
+<p>2、Runnable更容易实现资源共享，能多个线程同时处理一个资源。</p>
+<p><strong>案例：</strong></p>
+<p><strong>继承Thread的卖票例子：</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="n">TODO</span> <span class="n">Auto</span><span class="o">-</span><span class="n">generated</span> <span class="n">method</span> <span class="n">stub</span>
+
+            <span class="n">new</span> <span class="n">MyThread</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">();</span>
+            <span class="n">new</span> <span class="n">MyThread</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">();</span>
+
+    <span class="p">}</span>
+
+
+<span class="k">class</span> <span class="nc">MyThread</span> <span class="n">extends</span> <span class="n">Thread</span><span class="p">{</span>
+    <span class="n">private</span> <span class="nb">int</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">(){</span>
+         <span class="k">while</span><span class="p">(</span><span class="n">true</span><span class="p">){</span>
+             <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;Thread ticket = &quot;</span> <span class="o">+</span> <span class="n">ticket</span><span class="o">--</span><span class="p">);</span>
+             <span class="k">if</span><span class="p">(</span><span class="n">ticket</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+                <span class="k">break</span><span class="p">;</span>
+             <span class="p">}</span>
+         <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>输出结果</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Thread</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">Thread</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">Thread</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">Thread</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">Thread</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">Thread</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">Thread</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">Thread</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Thread</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">Thread</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">Thread</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Thread</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>从以上输出结果可以看出，我们创造了2个多线程对象，他们分别实现了买票任务，也就是一共卖了12张票。</p>
+<p><strong>实现Runnable接口的卖票例子：</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="n">TODO</span> <span class="n">Auto</span><span class="o">-</span><span class="n">generated</span> <span class="n">method</span> <span class="n">stub</span>
+        <span class="n">MyThread2</span> <span class="n">m</span><span class="o">=</span><span class="n">new</span> <span class="n">MyThread2</span><span class="p">();</span>
+            <span class="n">new</span> <span class="n">Thread</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">();</span>
+            <span class="n">new</span> <span class="n">Thread</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">();</span>
+
+
+    <span class="p">}</span>
+<span class="k">class</span> <span class="nc">MyThread2</span> <span class="n">implements</span> <span class="n">Runnable</span><span class="p">{</span>
+    <span class="n">private</span> <span class="nb">int</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">(){</span>
+         <span class="k">while</span><span class="p">(</span><span class="n">true</span><span class="p">){</span>
+             <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;Runnable ticket = &quot;</span> <span class="o">+</span> <span class="n">ticket</span><span class="o">--</span><span class="p">);</span>
+             <span class="k">if</span><span class="p">(</span><span class="n">ticket</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+                <span class="k">break</span><span class="p">;</span>
+             <span class="p">}</span>
+         <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>输出结果：</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Runnable</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">Runnable</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">Runnable</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">Runnable</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">Runnable</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Runnable</span> <span class="n">ticket</span> <span class="o">=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>从结果我们可以看到，虽然我们声明了两个线程，但是一共卖了6张票。他们实现了资源共享。PS：在实际开发中，一定要注意命名规范，其次上面实现Runable接口的例子由于同时操作一个资源，会出现线程不安全的情况，如果情况需要，我们需要进行同步操作。</p>
+<p><strong>另一种写法</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">new</span> <span class="n">Thread</span><span class="p">(</span><span class="n">new</span> <span class="n">Runnable</span><span class="p">()</span> <span class="p">{</span>
+
+                  <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">()</span> <span class="p">{</span>
+                       <span class="o">//</span> <span class="k">try</span> <span class="p">{</span>
+                       <span class="o">//</span> <span class="n">Thread</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+                       <span class="o">//</span> <span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+                       <span class="o">//</span> <span class="n">e</span><span class="o">.</span><span class="n">printStackTrace</span><span class="p">();</span>
+                       <span class="o">//</span> <span class="p">}</span>
+                       <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                          <span class="n">ot</span><span class="o">.</span><span class="n">main</span><span class="p">();</span>
+                      <span class="p">}</span>
+                 <span class="p">}</span>
+             <span class="p">})</span><span class="o">.</span><span class="n">start</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="callable">
+<h2>Callable<a class="headerlink" href="#callable" title="Permalink to this headline">¶</a></h2>
+<p>future模式：并发模式的一种，可以有两种形式，即无阻塞和阻塞，分别是isDone和get。其中Future对象用来存放该线程的返回值以及状态</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>ExecutorService e = Executors.newFixedThreadPool(3); //submit方法有多重参数版本，及支持callable也能够支持runnable接口类型. Future future = e.submit(new myCallable());
+future.isDone() //return true,false 无阻塞
+future.get() // return 返回值，阻塞直到该线程运行结束
+</pre></div>
+</div>
+<p>作者：纳达丶无忌
+链接：<a class="reference external" href="https://www.jianshu.com/p/40d4c7aebd66">https://www.jianshu.com/p/40d4c7aebd66</a>
+來源：简书
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
+</div>
+<div class="section" id="yield">
+<h2>yield() 静态方法<a class="headerlink" href="#yield" title="Permalink to this headline">¶</a></h2>
+<p>调用yield方法会让当前线程交出CPU权限，让CPU去执行其他的线程。它跟sleep方法类似，同样不会释放锁。但是yield不能控制具体的交出CPU的时间，另外，yield方法只能让拥有相同优先级的线程有获取CPU执行时间的机会。</p>
+<p>注意，调用yield方法并不会让线程进入阻塞状态，而是让线程重回就绪状态，它只需要等待重新获取CPU执行时间，这一点是和sleep方法不一样的。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="k">class</span> <span class="nc">MyThread</span>  <span class="n">extends</span> <span class="n">Thread</span><span class="p">{</span>
+    <span class="nd">@Override</span>
+    <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">long</span> <span class="n">beginTime</span><span class="o">=</span><span class="n">System</span><span class="o">.</span><span class="n">currentTimeMillis</span><span class="p">();</span>
+        <span class="nb">int</span> <span class="n">count</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">50000000</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+            <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+            <span class="o">//</span><span class="n">Thread</span><span class="o">.</span><span class="k">yield</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="n">long</span> <span class="n">endTime</span><span class="o">=</span><span class="n">System</span><span class="o">.</span><span class="n">currentTimeMillis</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;用时：&quot;</span><span class="o">+</span><span class="p">(</span><span class="n">endTime</span><span class="o">-</span><span class="n">beginTime</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; 毫秒！&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">public</span> <span class="k">class</span> <span class="nc">Run</span> <span class="p">{</span>
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">MyThread</span> <span class="n">t</span><span class="o">=</span> <span class="n">new</span> <span class="n">MyThread</span><span class="p">();</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>执行结果：</p>
+<blockquote>
+<div>用时：3 毫秒！</div></blockquote>
+<p>如果将 //Thread.yield();的注释去掉，执行结果如下：</p>
+<blockquote>
+<div>用时：16080 毫秒！</div></blockquote>
+</div>
+<div class="section" id="join">
+<h2>join()方法<a class="headerlink" href="#join" title="Permalink to this headline">¶</a></h2>
+<p>在很多情况下，主线程创建并启动了线程，如果子线程中药进行大量耗时运算，主线程往往将早于子线程结束之前结束。这时，如果主线程想等待子线程执行完成之后再结束，比如子线程处理一个数据，主线程要取得这个数据中的值，就要用到join()方法了。方法join()的作用是等待线程对象销毁。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="k">class</span> <span class="nc">Thread4</span> <span class="n">extends</span> <span class="n">Thread</span><span class="p">{</span>
+    <span class="n">public</span> <span class="n">Thread4</span><span class="p">(</span><span class="n">String</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">name</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">getName</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="n">i</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="n">throws</span> <span class="n">InterruptedException</span> <span class="p">{</span>
+        <span class="o">//</span> <span class="n">启动子进程</span>
+        <span class="n">new</span> <span class="n">Thread4</span><span class="p">(</span><span class="s2">&quot;new thread&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">();</span>
+        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">5</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">Thread4</span> <span class="n">th</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Thread4</span><span class="p">(</span><span class="s2">&quot;joined thread&quot;</span><span class="p">);</span>
+                <span class="n">th</span><span class="o">.</span><span class="n">start</span><span class="p">();</span>
+                <span class="n">th</span><span class="o">.</span><span class="n">join</span><span class="p">();</span>
+            <span class="p">}</span>
+            <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">Thread</span><span class="o">.</span><span class="n">currentThread</span><span class="p">()</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="n">i</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>线程间通信<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="notify.html">如何在 Java 中正确使用 wait, notify 和 notifyAll – 以生产者消费者模型为例</a></p>
+</div>
+<div class="section" id="id4">
+<h2>其他高级类<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>TODO</p>
+</div>
+<div class="section" id="id5">
+<h2>参考<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://www.zhihu.com/question/56494969">https://www.zhihu.com/question/56494969</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">java 多线程</a><ul>
+<li><a class="reference internal" href="#id1">线程间状态转换</a></li>
+<li><a class="reference internal" href="#id2">上下文切换</a></li>
+<li><a class="reference internal" href="#thread">Thread实现多线程</a></li>
+<li><a class="reference internal" href="#runnable">Runnable接口实现多线程</a></li>
+<li><a class="reference internal" href="#thread-runnable">Thread 和 Runnable 这件的区别</a></li>
+<li><a class="reference internal" href="#callable">Callable</a></li>
+<li><a class="reference internal" href="#yield">yield() 静态方法</a></li>
+<li><a class="reference internal" href="#join">join()方法</a></li>
+<li><a class="reference internal" href="#id3">线程间通信</a></li>
+<li><a class="reference internal" href="#id4">其他高级类</a></li>
+<li><a class="reference internal" href="#id5">参考</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_pro/Thread/thread.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_pro/Thread/thread.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

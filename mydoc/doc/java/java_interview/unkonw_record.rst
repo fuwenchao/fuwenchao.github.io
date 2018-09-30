@@ -35,5 +35,17 @@ java 子类能继承除构造方法外所有的成员变量和方法，包括pri
 
 TreeSet TreeMap 与其他的区别 set HashMap
 
+精度小于int的数值运算的时候都回被自动转换为int后进行计算。 short + short = int byte + byte = int
+
+所以这种写法是错误的
+
+::
+
+    short a = 1;
+    short b = 1;
+    a = a + b;  // 编译错误，需要int型
+    a = (short)(a+b)  // 显式转换
+    a += b     // 隐式转换
+
 
 

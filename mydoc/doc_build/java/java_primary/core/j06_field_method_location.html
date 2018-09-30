@@ -1,0 +1,157 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Java中各种类型（方法，静态方法，成员变量，局部变量等）的存放位置 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="java">
+<h1>Java中各种类型（方法，静态方法，成员变量，局部变量等）的存放位置<a class="headerlink" href="#java" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>变量<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>基本数据类型是放在栈中还是放在堆中，这取决于基本类型声明的位置。</p>
+<p>一：在方法中声明的变量，即使变量是局部变量，每当程序调用方法时，系统都会为该方法建立一个方法栈，其所在方法中声明的变量就放在方法栈中，当方法结束系统会释放方法栈，其对应在该方法中声明的变量随着栈的销毁而结束，这就局部变量只能在方法中有效的原因。
+在方法中声明的变量可以是基本类型的变量，也可以是引用类型的变量。</p>
+<p>（1）当声明是基本类型的变量的时，其变量名及值（变量名及值是两个概念）是放在方法栈中</p>
+<p>（2）当声明的是引用变量时，所声明的变量（该变量实际上是在方法中存储的是内存地址值）是放在方法的栈中，该变量所指向的对象是放在堆类存中的。</p>
+<p>二：在类中声明的变量是成员变量，也叫全局变量，放在堆中的（因为全局变量不会随着某个方法执行结束而销毁）。
+同样在类中声明的变量即可是基本类型的变量 也可是引用类型的变量</p>
+<p>（1）当声明的是基本类型的变量其变量名及其值放在堆内存中的</p>
+<p>（2）引用类型时，其声明的变量仍然会存储一个内存地址值，该内存地址值指向所引用的对象。引用变量名和对应的对象仍然存储在相应的堆中.</p>
+<p>总结：</p>
+<img alt="../../../_images/field_location.png" src="../../../_images/field_location.png" />
+</div>
+<div class="section" id="final">
+<h2>final 修饰的变量 对存储方式有何影响<a class="headerlink" href="#final" title="Permalink to this headline">¶</a></h2>
+<p>首先有一点你要明白，final关键字对于变量的存储区域是没有任何影响的。jvm规范中，类的静态变量存储在方法区，实例变量存储在堆区。也就是说static关键字才对变量的存储区域造成影响。</p>
+<p>final关键字来修饰变量表明了该变量一旦赋值就无法更改。同时编译器必须保证该变量在使用前被初始化赋值。</p>
+<p>例如你的</p>
+<blockquote>
+<div>static final int</div></blockquote>
+<p>c1这个变量，是一个静态变量，静态变量的初始化可以在静态块中进行。而非static变量，可以初始化块中和构造方法中进行。</p>
+<p>如果你在这几个地方没有对final变量进行赋值，编译器便会报错。</p>
+<p>问题：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   //直接声明常量，并为其赋值
+
+   public static final  int a=5 ;
+
+
+
+   //直接声明常量，并为其赋值
+
+   public  final  int c=5 ;
+
+
+
+根据 百度百科 “常量池” 的介绍，通过上面的两种方式 声明常量，该常量会放入常量池中，
+
+
+那么 public final int c 还会放入堆内存吗？
+
+
+public static final int a  还会和普通 静态变量一样 放入方法区吗？
+</pre></div>
+</div>
+<p>public final int c=5 ;这段代码里，c和5不要弄混淆了，c是这个类的一个实例变量，类会在 <strong>实例化</strong> 的时候将这个变量存储在堆区，无论是否有final关键字，它都是在堆区。但是5，是一个字面量，它会存放在常量池，无论你是否加上final关键字，5都会在常量池。这段代码你可以理解为，从常量池中取出5，赋给a。
+就好比假设在一个方法中</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="n">void</span> <span class="n">test</span><span class="p">(){</span>
+        <span class="n">String</span> <span class="n">s1</span> <span class="o">=</span> <span class="s2">&quot;abc&quot;</span><span class="p">;</span>
+        <span class="n">String</span> <span class="n">s2</span> <span class="o">=</span> <span class="s2">&quot;abc&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>很明显，上面的s1==s2是成立的，因为他们都指向了常量池中的abc。但是s1和s2是分配在常量池里的吗？当然不是，他们是分配在方法栈的局部变量表中的两个不同变量，只是指向了一个地址而已。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id2">
+<h2>参考<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://hupy.iteye.com/blog/796265">【收藏】java中静态方法和非静态方法的存储</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Java中各种类型（方法，静态方法，成员变量，局部变量等）的存放位置</a><ul>
+<li><a class="reference internal" href="#id1">变量</a></li>
+<li><a class="reference internal" href="#final">final 修饰的变量 对存储方式有何影响</a></li>
+<li><a class="reference internal" href="#id2">参考</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_primary/core/j06_field_method_location.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_primary/core/j06_field_method_location.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

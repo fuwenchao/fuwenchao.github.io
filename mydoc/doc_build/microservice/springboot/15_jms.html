@@ -1,0 +1,252 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>POM &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>SpringBoot集成JMS</p>
+<div class="section" id="pom">
+<h1>POM<a class="headerlink" href="#pom" title="Permalink to this headline">¶</a></h1>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">mail</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id1">
+<h1>添加配置<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spring</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">host</span><span class="o">=</span><span class="n">smtp</span><span class="o">.</span><span class="mf">163.</span><span class="n">com</span>
+<span class="n">spring</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">username</span><span class="o">=</span><span class="n">miles02</span><span class="nd">@163</span><span class="o">.</span><span class="n">com</span>
+<span class="n">spring</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">password</span><span class="o">=</span>
+<span class="n">spring</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">port</span><span class="o">=</span><span class="mi">25</span>
+<span class="n">spring</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">protocol</span><span class="o">=</span><span class="n">smtp</span>
+<span class="n">spring</span><span class="o">.</span><span class="n">mail</span><span class="o">.</span><span class="n">default</span><span class="o">-</span><span class="n">encoding</span><span class="o">=</span><span class="n">UTF</span><span class="o">-</span><span class="mi">8</span>
+</pre></div>
+</div>
+<p>在password 中填写自己的邮箱密码。</p>
+</div>
+<div class="section" id="id2">
+<h1>测试发邮件<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h1>
+<p>测试代码清单如下：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>package com.forezp;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.mail.internet.MimeMessage;
+import java.io.File;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class SpringbootJmsApplicationTests {
+
+    @Test
+    public void contextLoads() {
+    }
+
+
+    @Autowired
+    private JavaMailSenderImpl mailSender;
+
+    /**
+     * 发送包含简单文本的邮件
+     */
+    @Test
+    public void sendTxtMail() {
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        // 设置收件人，寄件人
+        simpleMailMessage.setTo(new String[] {&quot;miles02@163.com&quot;});
+        simpleMailMessage.setFrom(&quot;miles02@163.com&quot;);
+        simpleMailMessage.setSubject(&quot;Spring Boot Mail 邮件测试【文本】&quot;);
+        simpleMailMessage.setText(&quot;这里是一段简单文本。&quot;);
+        // 发送邮件
+        mailSender.send(simpleMailMessage);
+
+        System.out.println(&quot;邮件已发送&quot;);
+    }
+
+    /**
+     * 发送包含HTML文本的邮件
+     * @throws Exception
+     */
+    @Test
+    public void sendHtmlMail() throws Exception {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+        mimeMessageHelper.setTo(&quot;miles02@163.com&quot;);
+        mimeMessageHelper.setFrom(&quot;miles02@163.com&quot;);
+        mimeMessageHelper.setSubject(&quot;Spring Boot Mail 邮件测试【HTML】&quot;);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(&quot;&lt;html&gt;&lt;head&gt;&lt;/head&gt;&quot;);
+        sb.append(&quot;&lt;body&gt;&lt;h1&gt;spring 邮件测试&lt;/h1&gt;&lt;p&gt;hello!this is spring mail test。&lt;/p&gt;&lt;/body&gt;&quot;);
+        sb.append(&quot;&lt;/html&gt;&quot;);
+
+        // 启用html
+        mimeMessageHelper.setText(sb.toString(), true);
+        // 发送邮件
+        mailSender.send(mimeMessage);
+
+        System.out.println(&quot;邮件已发送&quot;);
+
+    }
+
+    /**
+     * 发送包含内嵌图片的邮件
+     * @throws Exception
+     */
+    @Test
+    public void sendAttachedImageMail() throws Exception {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        // multipart模式
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+        mimeMessageHelper.setTo(&quot;miles02@163.com&quot;);
+        mimeMessageHelper.setFrom(&quot;miles02@163.com&quot;);
+        mimeMessageHelper.setSubject(&quot;Spring Boot Mail 邮件测试【图片】&quot;);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(&quot;&lt;html&gt;&lt;head&gt;&lt;/head&gt;&quot;);
+        sb.append(&quot;&lt;body&gt;&lt;h1&gt;spring 邮件测试&lt;/h1&gt;&lt;p&gt;hello!this is spring mail test。&lt;/p&gt;&quot;);
+        // cid为固定写法，imageId指定一个标识
+        sb.append(&quot;&lt;img src=\&quot;cid:imageId\&quot;/&gt;&lt;/body&gt;&quot;);
+        sb.append(&quot;&lt;/html&gt;&quot;);
+
+        // 启用html
+        mimeMessageHelper.setText(sb.toString(), true);
+
+        // 设置imageId
+        FileSystemResource img = new FileSystemResource(new File(&quot;E:/1.jpg&quot;));
+        mimeMessageHelper.addInline(&quot;imageId&quot;, img);
+
+        // 发送邮件
+        mailSender.send(mimeMessage);
+
+        System.out.println(&quot;邮件已发送&quot;);
+    }
+
+    /**
+     * 发送包含附件的邮件
+     * @throws Exception
+     */
+    @Test
+    public void sendAttendedFileMail() throws Exception {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        // multipart模式
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, &quot;utf-8&quot;);
+        mimeMessageHelper.setTo(&quot;miles02@163.com&quot;);
+        mimeMessageHelper.setFrom(&quot;miles02@163.com&quot;);
+        mimeMessageHelper.setSubject(&quot;Spring Boot Mail 邮件测试【附件】&quot;);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(&quot;&lt;html&gt;&lt;head&gt;&lt;/head&gt;&quot;);
+        sb.append(&quot;&lt;body&gt;&lt;h1&gt;spring 邮件测试&lt;/h1&gt;&lt;p&gt;hello!this is spring mail test。&lt;/p&gt;&lt;/body&gt;&quot;);
+        sb.append(&quot;&lt;/html&gt;&quot;);
+
+        // 启用html
+        mimeMessageHelper.setText(sb.toString(), true);
+        // 设置附件
+        FileSystemResource img = new FileSystemResource(new File(&quot;E:/1.jpg&quot;));
+        mimeMessageHelper.addAttachment(&quot;image.jpg&quot;, img);
+
+        // 发送邮件
+        mailSender.send(mimeMessage);
+
+        System.out.println(&quot;邮件已发送&quot;);
+    }
+}
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">POM</a></li>
+<li><a class="reference internal" href="#id1">添加配置</a></li>
+<li><a class="reference internal" href="#id2">测试发邮件</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springboot/15_jms.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springboot/15_jms.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

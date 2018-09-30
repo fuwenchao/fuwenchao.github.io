@@ -1,0 +1,178 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>线程安全性 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>线程安全性<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>原子性</li>
+</ul>
+<p>提供了互斥访问，同一时刻只能有一个线程对他进行访问</p>
+<ul class="simple">
+<li>可见性</li>
+</ul>
+<p>一个线程对主内存的修改可以及时的被其他线程看到</p>
+<ul class="simple">
+<li>有序性</li>
+</ul>
+<p>指令重排序</p>
+<div class="section" id="id2">
+<h2>原子性<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Atomic包</li>
+</ul>
+<p>AtomicXXX : CAS</p>
+<p>compareAndSwap</p>
+<p>AtomicLong 和 LongAddr 区别！</p>
+<p>LongAddr 高并发下性能更好，但是不稳定</p>
+<ul class="simple">
+<li>锁</li>
+</ul>
+<p>synchronized 依赖JVM。</p>
+<p>不可中断锁，适合竞争不激烈，可读性好</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>修饰代码块：大括号括起来的代码，作用于调用对象
+修饰方法：整个方法，作用于调用对象
+修饰静态方法：整个静态方法，作用于所有对象
+修饰类：括号括起来的部分，作用于所有对象
+</pre></div>
+</div>
+<p>详见代码</p>
+<p>lock 依赖特殊的CPU指令，代码实现 ， ReentrantLock</p>
+<p>可中断锁，多样化同步，竞争激烈时能维持常态</p>
+<p>Atomic 竞争激烈是能维持常态，比Lock性能好，只能同步一个值</p>
+</div>
+<div class="section" id="id3">
+<h2>可见性<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>导致共享变量在线程间不可见的原因</p>
+<ul class="simple">
+<li>线程交叉执行</li>
+<li>重排序结合线程交叉执行</li>
+<li>共享变量更新后的值没有在工作内存于主存间即时更新</li>
+</ul>
+<p>sychronized</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>JMM 关于Synchorized的两条规定：
+    1：线程解锁前，必须把共享变量的的最新值刷新到主存中
+    2： 线程加锁时，将清空工作内存中共享变量的值，从而使用共享变量时需要从主存中重新读取最新值（加锁和解锁是同一把锁）
+</pre></div>
+</div>
+<p>volatile</p>
+<p>通过内存屏障 和 禁止重排序优化 来实现</p>
+<ul class="simple">
+<li>对volatile进行写操作时，会在写操作后加入一条store屏障指令，将本地内存中的共享变量刷新到主内存中</li>
+<li>对volatile进行读操作时，会在读操作前加入一条load屏障指令，从主内存中读取共享变量</li>
+</ul>
+<p>不能保证线程安全，不适合计数场景，但是适合
+状态标记量</p>
+</div>
+<div class="section" id="id4">
+<h2>有序性<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>java内存模型中，允许编译器和处理器对指令进行重排序，重排序不会影响到单线程的执行，但是会影响到多线程的执行</p>
+<p>volatile synchronized lock</p>
+<p>保证有序性</p>
+<p><strong>happens-before原则</strong></p>
+<ul class="simple">
+<li>程序次序规则： 一个线程内，按照代码顺序，书写在前面的操作先行发生于书写在后面的操作（看起来）</li>
+<li>锁定规则：一个unlock操作先行发生于一个锁的lock操作</li>
+<li>volatile变量规则： 对一个变量的写操作先行发生于后面对这个变量的读操作（先写后读）</li>
+<li>传递规则： 传递性</li>
+<li>线程启动原则： Thread对象的start() 方法要先行发生于此线程的每一个动作</li>
+<li>线程中断原则： 对线程interrup()方法的调用先行发生于被中断线程的代码检测到中断事件的发生</li>
+<li><dl class="first docutils">
+<dt>线程终结规则： 线程中所有的操作都先行发生于对线程的终止检查，我们可以通过Thread.join() 方法结束，Thread.isAlive() 的返回</dt>
+<dd>值手段检测到线程已经终止执行</dd>
+</dl>
+</li>
+<li>对象终结规则： 一个对象的初始化完成先行发生于他的finalize() 方法的开始</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">线程安全性</a><ul>
+<li><a class="reference internal" href="#id2">原子性</a></li>
+<li><a class="reference internal" href="#id3">可见性</a></li>
+<li><a class="reference internal" href="#id4">有序性</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_pro/concurrency/02_threadsafe.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_pro/concurrency/02_threadsafe.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

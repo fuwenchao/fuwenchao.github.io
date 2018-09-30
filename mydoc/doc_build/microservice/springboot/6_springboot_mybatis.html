@@ -1,0 +1,694 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>springboot整合mybatis &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="springbootmybatis">
+<h1>springboot整合mybatis<a class="headerlink" href="#springbootmybatis" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>引入依赖<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">mybatis</span><span class="o">.</span><span class="n">spring</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">mybatis</span><span class="o">-</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.3</span><span class="o">.</span><span class="mi">0</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">web</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">mysql</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">mysql</span><span class="o">-</span><span class="n">connector</span><span class="o">-</span><span class="n">java</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">scope</span><span class="o">&gt;</span><span class="n">runtime</span><span class="o">&lt;/</span><span class="n">scope</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">com</span><span class="o">.</span><span class="n">alibaba</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">druid</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.0</span><span class="o">.</span><span class="mi">29</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">test</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">scope</span><span class="o">&gt;</span><span class="n">test</span><span class="o">&lt;/</span><span class="n">scope</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>引入数据源<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>application.properties配置文件中引入数据源：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>spring.druid.driverClassName=com.mysql.jdbc.Driver
+spring.druid.url=jdbc:mysql://127.0.0.1:3306/houses?useUnicode=true&amp;amp;amp;characterEncoding=UTF-8&amp;amp;amp;zeroDateTimeBehavior=convertToNull
+spring.druid.username=root
+spring.druid.password=123456
+#druid\u75311.0.16\u5347\u7ea7\u52301.1.0,\u8fde\u63a5\u6c60\u914d\u7f6e\u8981\u6539\u6210maxActive,minIdle
+spring.druid.maxActive=30
+spring.druid.minIdle=5
+spring.druid.maxWait=10000
+spring.druid.validationQuery=SELECT &#39;x&#39;
+</pre></div>
+</div>
+<p>这样，springboot就可以访问数据了。</p>
+</div>
+<div class="section" id="mybaties">
+<h2>mybaties配置<a class="headerlink" href="#mybaties" title="Permalink to this headline">¶</a></h2>
+<p><strong>mybatis-config.xml</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE configuration
+        PUBLIC &quot;-//mybatis.org//DTD Config 3.0//EN&quot;
+        &quot;http://mybatis.org/dtd/mybatis-3-config.dtd&quot;&gt;
+&lt;configuration&gt;
+    &lt;settings&gt;
+         &lt;!-- 配置关闭缓存  --&gt;
+         &lt;setting name=&quot;cacheEnabled&quot; value=&quot;false&quot;/&gt;
+         &lt;setting name=&quot;mapUnderscoreToCamelCase&quot; value=&quot;true&quot;/&gt;
+         &lt;setting name=&quot;useGeneratedKeys&quot; value=&quot;true&quot;/&gt;
+         &lt;setting name=&quot;defaultExecutorType&quot; value=&quot;REUSE&quot;/&gt;
+         &lt;!-- 事务超时时间 --&gt;
+         &lt;setting name=&quot;defaultStatementTimeout&quot; value=&quot;600&quot;/&gt;
+    &lt;/settings&gt;
+
+
+    &lt;typeAliases&gt;
+       &lt;typeAlias type=&quot;com.mooc.house.common.model.User&quot; alias=&quot;user&quot; /&gt;
+        &lt;typeAlias type=&quot;com.mooc.house.common.model.Agency&quot;      alias=&quot;agency&quot;/&gt;
+       &lt;typeAlias type=&quot;com.mooc.house.common.model.House&quot; alias=&quot;house&quot; /&gt;
+       &lt;typeAlias type=&quot;com.mooc.house.common.model.City&quot; alias=&quot;city&quot; /&gt;
+       &lt;typeAlias type=&quot;com.mooc.house.common.model.Comment&quot;     alias=&quot;comment&quot;/&gt;
+       &lt;typeAlias type=&quot;com.mooc.house.common.model.Community&quot; alias=&quot;community&quot; /&gt;
+       &lt;typeAlias type=&quot;com.mooc.house.common.model.HouseUser&quot; alias=&quot;houseUser&quot; /&gt;
+       &lt;typeAlias type=&quot;com.mooc.house.common.model.Blog&quot;        alias=&quot;blog&quot;/&gt;
+       &lt;typeAlias type=&quot;com.mooc.house.common.model.User&quot;        alias=&quot;user&quot;/&gt;
+       &lt;typeAlias type=&quot;com.mooc.house.common.model.UserMsg&quot;     alias=&quot;userMsg&quot;/&gt;
+       &lt;typeAlias type=&quot;com.mooc.house.common.model.HouseUser&quot;     alias=&quot;houseUser&quot;/&gt;
+
+    &lt;/typeAliases&gt;
+
+    &lt;mappers&gt;
+       &lt;mapper resource=&quot;mapper/user.xml&quot; /&gt;
+       &lt;mapper resource=&quot;mapper/blog.xml&quot;/&gt;
+       &lt;mapper resource=&quot;mapper/house.xml&quot; /&gt;
+       &lt;mapper resource=&quot;mapper/comment.xml&quot;/&gt;
+       &lt;mapper resource=&quot;mapper/agency.xml&quot; /&gt;
+    &lt;/mappers&gt;
+
+&lt;/configuration&gt;
+</pre></div>
+</div>
+<p>在application.properties中指定该配置文件</p>
+<blockquote>
+<div>mybatis.config-location=classpath:/mybatis/mybatis-config.xml</div></blockquote>
+</div>
+<div class="section" id="id3">
+<h2>具体实现<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>详见代码 house_v1</p>
+<p><strong>model</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>package com.mooc.house.common.model;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
+public class House {
+
+  private Long id;
+  private Integer type;
+  private Integer price;
+  private String  name;
+  private String images;
+  private Integer area;
+  private Integer beds;
+  private Integer baths;
+  private Double  rating;
+
+  private Integer roundRating = 0;
+  private String  remarks;
+  private String  properties;
+  private String  floorPlan;
+  private String  tags;
+  private Date    createTime;
+  private Integer cityId;
+  private Integer    communityId;
+  private String     address;
+
+  private String     firstImg;
+
+  private List&lt;String&gt; imageList = Lists.newArrayList();
+
+
+  private List&lt;String&gt; floorPlanList = Lists.newArrayList();
+  private List&lt;String&gt; featureList   = Lists.newArrayList();
+
+  private List&lt;MultipartFile&gt; houseFiles;
+
+  private List&lt;MultipartFile&gt; floorPlanFiles;
+
+
+  private String priceStr;
+
+  private String typeStr;
+
+
+  private Long userId;
+
+  private boolean bookmarked;
+
+  private Integer state;
+
+  private List&lt;Long&gt; ids;
+
+  private String  sort = &quot;time_desc&quot;;//price_desc,price_asc,time_desc
+
+  public Long getId() {
+    return id;
+  }
+  public void setId(Long id) {
+    this.id = id;
+  }
+  public Integer getType() {
+    return type;
+  }
+  public void setType(Integer type) {
+    this.type = type;
+    if (type.equals(1)) {
+      this.typeStr = &quot;For Sale&quot;;
+    }else {
+      this.typeStr = &quot;For Rent&quot;;
+    }
+  }
+  public Integer getPrice() {
+    return price;
+  }
+  public void setPrice(Integer price) {
+    this.price = price;
+    this.priceStr = this.price + &quot;万&quot;;
+  }
+
+  public Integer getArea() {
+    return area;
+  }
+  public void setArea(Integer area) {
+    this.area = area;
+  }
+  public Integer getBaths() {
+    return baths;
+  }
+  public void setBaths(Integer baths) {
+    this.baths = baths;
+  }
+  public String getRemarks() {
+    return remarks;
+  }
+  public void setRemarks(String remarks) {
+    this.remarks = remarks;
+  }
+  public String getProperties() {
+    return properties;
+  }
+  public void setProperties(String properties) {
+    this.properties = properties;
+    this.featureList = Splitter.on(&quot;,&quot;).splitToList(properties);
+  }
+  public String getFloorPlan() {
+    return floorPlan;
+  }
+  public void setFloorPlan(String floorPlan) {
+    this.floorPlan = floorPlan;
+    if (!Strings.isNullOrEmpty(floorPlan)) {
+      this.floorPlanList = Splitter.on(&quot;,&quot;).splitToList(floorPlan);
+    }
+
+  }
+  public boolean isBookmarked() {
+    return bookmarked;
+  }
+  public void setBookmarked(boolean bookmarked) {
+    this.bookmarked = bookmarked;
+  }
+  public String getTags() {
+    return tags;
+  }
+  public List&lt;Long&gt; getIds() {
+    return ids;
+  }
+  public void setIds(List&lt;Long&gt; ids) {
+    this.ids = ids;
+  }
+  public void setTags(String tags) {
+    this.tags = tags;
+  }
+  public List&lt;String&gt; getImageList() {
+    return imageList;
+  }
+  public void setImageList(List&lt;String&gt; imageList) {
+    this.imageList = imageList;
+  }
+  public String getSort() {
+    return sort;
+  }
+  public void setSort(String sort) {
+    this.sort = sort;
+  }
+  public Integer getState() {
+    return state;
+  }
+
+  public String getFirstImg() {
+    return firstImg;
+  }
+  public void setFirstImg(String firstImg) {
+    this.firstImg = firstImg;
+  }
+
+  public void setState(Integer state) {
+    this.state = state;
+  }
+  public Date getCreateTime() {
+    return createTime;
+  }
+  public String getImages() {
+    return images;
+  }
+
+  public void setImages(String images) {
+    this.images = images;
+    if (!Strings.isNullOrEmpty(images)) {
+       List&lt;String&gt; list =  Splitter.on(&quot;,&quot;).splitToList(images);
+       if (list.size() &gt; 0) {
+          this.firstImg = list.get(0);
+          this.imageList = list;
+       }
+    }
+  }
+
+  public List&lt;MultipartFile&gt; getFloorPlanFiles() {
+    return floorPlanFiles;
+  }
+  public void setFloorPlanFiles(List&lt;MultipartFile&gt; floorPlanFiles) {
+    this.floorPlanFiles = floorPlanFiles;
+  }
+  public Long getUserId() {
+    return userId;
+  }
+  public void setUserId(Long userId) {
+    this.userId = userId;
+  }
+  public void setCreateTime(Date createTime) {
+    this.createTime = createTime;
+  }
+  public Integer getCityId() {
+    return cityId;
+  }
+  public void setCityId(Integer cityId) {
+    this.cityId = cityId;
+  }
+  public Integer getCommunityId() {
+    return communityId;
+  }
+  public void setCommunityId(Integer communityId) {
+    this.communityId = communityId;
+  }
+  public String getName() {
+    return name;
+  }
+  public void setName(String name) {
+    this.name = name;
+  }
+  public String getPriceStr() {
+    return priceStr;
+  }
+  public void setPriceStr(String priceStr) {
+    this.priceStr = priceStr;
+  }
+  public String getTypeStr() {
+    return typeStr;
+  }
+  public void setTypeStr(String typeStr) {
+    this.typeStr = typeStr;
+  }
+  public Integer getBeds() {
+    return beds;
+  }
+  public void setBeds(Integer beds) {
+    this.beds = beds;
+  }
+  public String getAddress() {
+    return address;
+  }
+  public void setAddress(String address) {
+    this.address = address;
+  }
+  public List&lt;String&gt; getFloorPlanList() {
+    return floorPlanList;
+  }
+  public void setFloorPlanList(List&lt;String&gt; floorPlanList) {
+    this.floorPlanList = floorPlanList;
+  }
+  public List&lt;String&gt; getFeatureList() {
+    return featureList;
+  }
+  public void setFeatureList(List&lt;String&gt; featureList) {
+    this.featureList = featureList;
+    this.properties = Joiner.on(&quot;,&quot;).join(featureList);
+  }
+  public Double getRating() {
+    return rating;
+  }
+  public void setRating(Double rating) {
+    this.rating = rating;
+    this.roundRating = (int) Math.round(rating);
+  }
+  public Integer getRoundRating() {
+    return roundRating;
+  }
+  public void setRoundRating(Integer roundRating) {
+    this.roundRating = roundRating;
+  }
+  public List&lt;MultipartFile&gt; getHouseFiles() {
+    return houseFiles;
+  }
+  public void setHouseFiles(List&lt;MultipartFile&gt; houseFiles) {
+    this.houseFiles = houseFiles;
+  }
+
+  @Override
+  public String toString() {
+    return &quot;House [id=&quot; + id + &quot;, type=&quot; + type + &quot;, price=&quot; + price + &quot;, name=&quot; + name
+        + &quot;, images=&quot; + images + &quot;, area=&quot; + area + &quot;, beds=&quot; + beds + &quot;, baths=&quot; + baths
+        + &quot;, rating=&quot; + rating + &quot;, roundRating=&quot; + roundRating + &quot;, remarks=&quot; + remarks
+        + &quot;, properties=&quot; + properties + &quot;, floorPlan=&quot; + floorPlan + &quot;, tags=&quot; + tags + &quot;, createTime=&quot; + createTime + &quot;, cityId=&quot; + cityId
+        + &quot;, communityId=&quot; + communityId + &quot;, address=&quot; + address + &quot;, firstImg=&quot; + firstImg
+        + &quot;, floorPlanList=&quot; + floorPlanList + &quot;, featureList=&quot; + featureList + &quot;, houseFiles=&quot;
+        + houseFiles + &quot;, floorPlanFiles=&quot; + floorPlanFiles + &quot;, priceStr=&quot; + priceStr
+        + &quot;, typeStr=&quot; + typeStr + &quot;, userId=&quot; + userId  + &quot;, bookmarked=&quot;
+        + bookmarked + &quot;, state=&quot; + state + &quot;, ids=&quot; + ids + &quot;, sort=&quot; + sort + &quot;]&quot;;
+  }
+
+}
+</pre></div>
+</div>
+<p><strong>Mapper接口</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">package</span> <span class="n">com</span><span class="o">.</span><span class="n">mooc</span><span class="o">.</span><span class="n">house</span><span class="o">.</span><span class="n">biz</span><span class="o">.</span><span class="n">mapper</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">org.apache.ibatis.annotations.Mapper</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.ibatis.annotations.Param</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">com.mooc.house.common.model.Blog</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">com.mooc.house.common.page.PageParams</span><span class="p">;</span>
+
+<span class="nd">@Mapper</span>
+<span class="n">public</span> <span class="n">interface</span> <span class="n">BlogMapper</span> <span class="p">{</span>
+
+  <span class="n">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Blog</span><span class="o">&gt;</span> <span class="n">selectBlog</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s2">&quot;blog&quot;</span><span class="p">)</span><span class="n">Blog</span> <span class="n">query</span><span class="p">,</span> <span class="nd">@Param</span><span class="p">(</span><span class="s2">&quot;pageParams&quot;</span><span class="p">)</span><span class="n">PageParams</span> <span class="n">params</span><span class="p">);</span>
+
+  <span class="n">public</span> <span class="n">Long</span> <span class="n">selectBlogCount</span><span class="p">(</span><span class="n">Blog</span> <span class="n">query</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>看到其他人的另一种写法</p>
+<p>[然后没看到写mybatis-config.xml]</p>
+<p>[在启动类中添加对mapper包扫描&#64;MapperScan &#64;MapperScan(“com.neo.mapper”)]</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="n">public</span> <span class="n">interface</span> <span class="n">AccountMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Insert</span><span class="p">(</span><span class="s2">&quot;insert into account(name, money) values(#</span><span class="si">{name}</span><span class="s2">, #</span><span class="si">{money}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="nb">int</span> <span class="n">add</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="n">String</span> <span class="n">name</span><span class="p">,</span> <span class="nd">@Param</span><span class="p">(</span><span class="s2">&quot;money&quot;</span><span class="p">)</span> <span class="n">double</span> <span class="n">money</span><span class="p">);</span>
+
+    <span class="nd">@Update</span><span class="p">(</span><span class="s2">&quot;update account set name = #</span><span class="si">{name}</span><span class="s2">, money = #</span><span class="si">{money}</span><span class="s2"> where id = #</span><span class="si">{id}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">int</span> <span class="n">update</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="n">String</span> <span class="n">name</span><span class="p">,</span> <span class="nd">@Param</span><span class="p">(</span><span class="s2">&quot;money&quot;</span><span class="p">)</span> <span class="n">double</span> <span class="n">money</span><span class="p">,</span> <span class="nd">@Param</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="nb">int</span>  <span class="nb">id</span><span class="p">);</span>
+
+    <span class="nd">@Delete</span><span class="p">(</span><span class="s2">&quot;delete from account where id = #</span><span class="si">{id}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">int</span> <span class="n">delete</span><span class="p">(</span><span class="nb">int</span> <span class="nb">id</span><span class="p">);</span>
+
+    <span class="nd">@Select</span><span class="p">(</span><span class="s2">&quot;select id, name as name, money as money from account where id = #</span><span class="si">{id}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">Account</span> <span class="n">findAccount</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="nb">int</span> <span class="nb">id</span><span class="p">);</span>
+
+    <span class="nd">@Select</span><span class="p">(</span><span class="s2">&quot;select id, name as name, money as money from account&quot;</span><span class="p">)</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Account</span><span class="o">&gt;</span> <span class="n">findAccountList</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>或者直接在Mapper类上面添加注解&#64;Mapper,建议使用&#64;MapperScan，不然每个mapper加个注解也挺麻烦的</p>
+<p><strong>Mapper.xml</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;!DOCTYPE mapper PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot; &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;
+&lt;mapper namespace=&quot;com.mooc.house.biz.mapper.BlogMapper&quot;&gt;
+
+     &lt;sql id=&quot;blogField&quot;&gt;
+         id,tags ,content,create_time,title
+     &lt;/sql&gt;
+
+     &lt;select id=&quot;selectBlog&quot; resultType=&quot;blog&quot;&gt;
+       select &lt;include refid=&quot;blogField&quot;/&gt;
+       from   blog a
+       &lt;where&gt;
+         &lt;if test=&quot;blog.id != null   and blog.id != 0&quot;&gt;
+             and id   = #{blog.id}
+         &lt;/if&gt;
+      &lt;/where&gt;
+       order by a.create_time desc
+       &lt;if test=&#39;pageParams.offset != null and pageParams.limit != null&#39;&gt;
+            limit #{pageParams.offset}, #{pageParams.limit}
+       &lt;/if&gt;
+       &lt;if test=&#39;pageParams.offset == null and pageParams.limit != null&#39;&gt;
+            limit #{pageParams.limit}
+       &lt;/if&gt;
+    &lt;/select&gt;
+
+    &lt;select id=&quot;selectBlogCount&quot; resultType=&quot;long&quot;&gt;
+       select count(id)
+       from   blog a
+       &lt;where&gt;
+         &lt;if test=&quot;id != null   and id != 0&quot;&gt;
+             and id   = #{id}
+         &lt;/if&gt;
+      &lt;/where&gt;
+       order by a.create_time desc
+    &lt;/select&gt;
+
+
+
+&lt;/mapper&gt;
+</pre></div>
+</div>
+<p><strong>Service</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>@Service
+public class BlogService {
+
+  @Autowired
+  private BlogMapper blogMapper;
+
+  public PageData&lt;Blog&gt; queryBlog(Blog query, PageParams params) {
+    List&lt;Blog&gt; blogs =  blogMapper.selectBlog(query,params);
+    populate(blogs);
+    Long  count =  blogMapper.selectBlogCount(query);
+    return PageData.&lt;Blog&gt;buildPage(blogs, count, params.getPageSize(), params.getPageNum());
+  }
+
+  private void populate(List&lt;Blog&gt; blogs) {
+    if (!blogs.isEmpty()) {
+      blogs.stream().forEach(item -&gt; {
+        String stripped =  Jsoup.parse(item.getContent()).text();
+        item.setDigest(stripped.substring(0, Math.min(stripped.length(),40)));
+        String tags = item.getTags();
+        item.getTagList().addAll(Lists.newArrayList(Splitter.on(&quot;,&quot;).split(tags)));
+      });
+    }
+  }
+
+  public Blog queryOneBlog(int id) {
+    Blog query = new Blog();
+    query.setId(id);
+    List&lt;Blog&gt; blogs = blogMapper.selectBlog(query, new PageParams(1, 1));
+    if (!blogs.isEmpty()) {
+      return blogs.get(0);
+    }
+    return null;
+  }
+
+
+
+}
+</pre></div>
+</div>
+<p><strong>开启声明式事务</strong></p>
+<p>类似于</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Service</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">AccountService2</span> <span class="p">{</span>
+
+    <span class="nd">@Autowired</span>
+    <span class="n">AccountMapper2</span> <span class="n">accountMapper2</span><span class="p">;</span>
+
+    <span class="nd">@Transactional</span>
+    <span class="n">public</span> <span class="n">void</span> <span class="n">transfer</span><span class="p">()</span> <span class="n">throws</span> <span class="n">RuntimeException</span><span class="p">{</span>
+        <span class="n">accountMapper2</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="o">//</span><span class="n">用户1减10块</span> <span class="n">用户2加10块</span>
+        <span class="nb">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">0</span><span class="p">;</span>
+        <span class="n">accountMapper2</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">110</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>&#64;Transactional，声明事务，并设计一个转账方法，用户1减10块，用户2加10块。在用户1减10 ，之后，抛出异常，即用户2加10块钱不能执行，当加注解&#64;Transactional之后，两个人的钱都没有增减。当不加&#64;Transactional，用户1减了10，用户2没有增加，即没有操作用户2 的数据。可见&#64;Transactional注解开启了事物。</p>
+<p>springboot 开启事物很简单，只需要加一行注解就可以了，前提你用的是jdbctemplate, jpa, mybatis，这种常见的orm。</p>
+<p><strong>Controller</strong></p>
+<p>构建restful API</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">package</span> <span class="n">com</span><span class="o">.</span><span class="n">mooc</span><span class="o">.</span><span class="n">house</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">controller</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">org.springframework.beans.factory.annotation.Autowired</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.stereotype.Controller</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.ui.ModelMap</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.RequestMapping</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.RequestMethod</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">com.mooc.house.biz.service.BlogService</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">com.mooc.house.biz.service.CommentService</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">com.mooc.house.biz.service.RecommendService</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">com.mooc.house.common.constants.CommonConstants</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">com.mooc.house.common.model.Blog</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">com.mooc.house.common.model.Comment</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">com.mooc.house.common.model.House</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">com.mooc.house.common.page.PageData</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">com.mooc.house.common.page.PageParams</span><span class="p">;</span>
+
+<span class="nd">@Controller</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">BlogController</span> <span class="p">{</span>
+
+  <span class="nd">@Autowired</span>
+  <span class="n">private</span> <span class="n">BlogService</span> <span class="n">blogService</span><span class="p">;</span>
+
+  <span class="nd">@Autowired</span>
+  <span class="n">private</span> <span class="n">CommentService</span> <span class="n">commentService</span><span class="p">;</span>
+
+  <span class="nd">@Autowired</span>
+  <span class="n">private</span> <span class="n">RecommendService</span> <span class="n">recommendService</span><span class="p">;</span>
+
+  <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">&quot;blog/list&quot;</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="p">{</span><span class="n">RequestMethod</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span><span class="n">RequestMethod</span><span class="o">.</span><span class="n">GET</span><span class="p">})</span>
+  <span class="n">public</span> <span class="n">String</span> <span class="nb">list</span><span class="p">(</span><span class="n">Integer</span> <span class="n">pageSize</span><span class="p">,</span><span class="n">Integer</span> <span class="n">pageNum</span><span class="p">,</span><span class="n">Blog</span> <span class="n">query</span><span class="p">,</span><span class="n">ModelMap</span> <span class="n">modelMap</span><span class="p">){</span>
+    <span class="n">PageData</span><span class="o">&lt;</span><span class="n">Blog</span><span class="o">&gt;</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">blogService</span><span class="o">.</span><span class="n">queryBlog</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="n">PageParams</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">pageSize</span><span class="p">,</span> <span class="n">pageNum</span><span class="p">));</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">House</span><span class="o">&gt;</span> <span class="n">houses</span> <span class="o">=</span>  <span class="n">recommendService</span><span class="o">.</span><span class="n">getHotHouse</span><span class="p">(</span><span class="n">CommonConstants</span><span class="o">.</span><span class="n">RECOM_SIZE</span><span class="p">);</span>
+    <span class="n">modelMap</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;recomHouses&quot;</span><span class="p">,</span> <span class="n">houses</span><span class="p">);</span>
+    <span class="n">modelMap</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;ps&quot;</span><span class="p">,</span> <span class="n">ps</span><span class="p">);</span>
+    <span class="k">return</span> <span class="s2">&quot;/blog/listing&quot;</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">&quot;blog/detail&quot;</span><span class="p">,</span><span class="n">method</span><span class="o">=</span><span class="p">{</span><span class="n">RequestMethod</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span><span class="n">RequestMethod</span><span class="o">.</span><span class="n">GET</span><span class="p">})</span>
+  <span class="n">public</span> <span class="n">String</span> <span class="n">blogDetail</span><span class="p">(</span><span class="nb">int</span> <span class="nb">id</span><span class="p">,</span><span class="n">ModelMap</span> <span class="n">modelMap</span><span class="p">){</span>
+    <span class="n">Blog</span> <span class="n">blog</span> <span class="o">=</span> <span class="n">blogService</span><span class="o">.</span><span class="n">queryOneBlog</span><span class="p">(</span><span class="nb">id</span><span class="p">);</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Comment</span><span class="o">&gt;</span> <span class="n">comments</span> <span class="o">=</span> <span class="n">commentService</span><span class="o">.</span><span class="n">getBlogComments</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span><span class="mi">8</span><span class="p">);</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">House</span><span class="o">&gt;</span> <span class="n">houses</span> <span class="o">=</span>  <span class="n">recommendService</span><span class="o">.</span><span class="n">getHotHouse</span><span class="p">(</span><span class="n">CommonConstants</span><span class="o">.</span><span class="n">RECOM_SIZE</span><span class="p">);</span>
+    <span class="n">modelMap</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;recomHouses&quot;</span><span class="p">,</span> <span class="n">houses</span><span class="p">);</span>
+    <span class="n">modelMap</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;blog&quot;</span><span class="p">,</span> <span class="n">blog</span><span class="p">);</span>
+    <span class="n">modelMap</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s2">&quot;commentList&quot;</span><span class="p">,</span> <span class="n">comments</span><span class="p">);</span>
+    <span class="k">return</span> <span class="s2">&quot;/blog/detail&quot;</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>参考</p>
+<p><a class="reference external" href="https://blog.csdn.net/forezp/article/details/70768477">https://blog.csdn.net/forezp/article/details/70768477</a></p>
+<p><a class="reference external" href="http://www.cnblogs.com/ityouknow/p/6037431.html">spring boot(六)：如何优雅的使用mybatis</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">springboot整合mybatis</a><ul>
+<li><a class="reference internal" href="#id1">引入依赖</a></li>
+<li><a class="reference internal" href="#id2">引入数据源</a></li>
+<li><a class="reference internal" href="#mybaties">mybaties配置</a></li>
+<li><a class="reference internal" href="#id3">具体实现</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springboot/6_springboot_mybatis.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springboot/6_springboot_mybatis.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

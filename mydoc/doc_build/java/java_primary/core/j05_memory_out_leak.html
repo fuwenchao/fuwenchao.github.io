@@ -1,0 +1,196 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Java 内存溢出与内存泄漏异同 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="java">
+<h1>Java 内存溢出与内存泄漏异同<a class="headerlink" href="#java" title="Permalink to this headline">¶</a></h1>
+<p><strong>Java内存泄漏</strong> 就是没有及时清理内存垃圾，导致系统无法再给你提供内存资源（内存资源耗尽）；就是该被释放的对象没有释放.</p>
+<p><strong>Java内存溢出</strong> 就是你要求分配的内存超出了系统能给你的，系统不能满足需求，于是产生溢出。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>内存溢出类似数组越届，超出你能存储的数据的上限
+内存泄漏，就是内存使用完毕后，不能释放回收重新使用
+</pre></div>
+</div>
+<p>1.Java内存泄露是说程序逻辑问题,造成申请的内存无法释放.这样的话无论多少内存,早晚都会被占用光的.
+最简单的例子就是死循环了.由于程序判断错误导经常发生此事</p>
+<p>2.Java内存泄漏是指在堆上分配的内存没有被释放，从而失去对其控制。这样会造成程序能使用的内存越来越少，导致系统运行速度减慢，严重情况会使程序当掉。</p>
+<p>3.关于内存溢出有点出入。比如说你申请了一个integer,但给它存了long才能存下的数，那就是内存溢出。
+举个现实中的例子：</p>
+<p>比如有一个桶，装满了水.你丢个苹果进去。桶的水正常。如果你放个大石头。水就出溢出，内存溢出也就是这个原理。</p>
+<p>区别：内存溢出，提供的内存不够；Java内存泄漏，无法再提供内存资源</p>
+<p>可能大家会问内存泄露与溢出是考JAVA哪方面？考这个有什么用？</p>
+<p>我个人觉的是考大家对JAVA是怎么管理内存这一块的知识?对下是对Java是如何管理内存的解释</p>
+<div class="section" id="id1">
+<h2>Java是如何管理内存<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>为了判断Java中是否有内存泄露，我们首先必须了解Java是如何管理内存的。Java的内存管理就是对象的分配和释放问题。在Java中，内存 的分配是由程序完成的，而内存的释放是由垃圾收集器(GarbageCollection，GC)完成的，程序员不需要通过调用函数来释放内存，但它只能 回收无用并且不再被其它对象引用的那些对象所占用的空间。</p>
+<p>Java的内存垃圾回收机制是从程序的主要运行对象开始检查引用链，当遍历一遍后发现没有被引用的孤立对象就作为垃圾回收。GC为了能够正确释放对 象，必须监控每一个对象的运行状态，包括对象的申请、引用、被引用、赋值等，GC都需要进行监控。监视对象状态是为了更加准确地、及时地释放对象，而释放 对象的根本原则就是该对象不再被引用。</p>
+<p>在Java中，这些无用的对象都由GC负责回收，因此程序员不需要考虑这部分的内存泄露。虽然，我们有几个函数可以访问GC，例如运行GC的函数 System.gc()，但是根据Java语言规范定义，该函数不保证JVM的垃圾收集器一定会执行。因为不同的JVM实现者可能使用不同的算法管理 GC。通常GC的线程的优先级别较低。JVM调用GC的策略也有很多种，有的是内存使用到达一定程度时，GC才开始工作，也有定时执行的，有的是平缓执行 GC，有的是中断式执行GC。但通常来说，我们不需要关心这些。</p>
+<blockquote>
+<div><p>JVM初始分配的内存由-Xms指定，默认是物理内存的1/64；</p>
+<p>JVM最大分配的内存由-Xmx指定，默认是物理内存的1/4。</p>
+</div></blockquote>
+<p>JVM内存的最大值跟操作系统有很大的关系。32位处理器虽然可控内存空间有4GB，但是具体的操作系统会给一个限制，这个限制一般是2GB-3GB（一般来说Windows系统下为1.5G-2G，Linux系统下为2G-3G），而64bit以上的处理器就不会有限制了。</p>
+<p>注意：如果Xms超过了Xmx值，或者堆最大值和非堆最大值的总和超过了物理内存或者操作系统的最大限制都会引起服务器启动不起来。</p>
+</div>
+<div class="section" id="id2">
+<h2>相关问题<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Q: Java中会存在内存泄漏吗？</p>
+<blockquote>
+<div>A:  Java中也存在内存泄露。当被分配的对象可达但已无用（未对作废数据内存单元的引用置null）即会引起。</div></blockquote>
+<p>如：Java代码</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>Vector v=new Vector(10);
+for (int i=1;i&lt;100; i ) {
+    Object o=new Object();
+    v.add(o);
+    o=null;
+}
+/ 此时，所有的Object对象都没有被释放，因为变量v引用这些对象。
+// 对象加入到Vector后，还必须从Vector中删除，最简单释放方法就是将Vector对象设置为null。
+</pre></div>
+</div>
+<p>Q: 如何检测内存泄露？</p>
+<blockquote>
+<div>A: 可以通过一些性能监测分析工具，如 JProfiler、Optimizeit Profiler。</div></blockquote>
+</div>
+<div class="section" id="id3">
+<h2>如何避免内存泄露、溢出？<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">尽早释放无用对象的引用。</p>
+<blockquote>
+<div><p>好的办法是使用临时变量的时候，让引用变量在退出活动域后自动设置为null，暗示垃圾收集器来收集该对象，防止发生内存泄露。</p>
+</div></blockquote>
+</li>
+<li><p class="first">程序进行字符串处理时，尽量避免使用String，而应使用StringBuffer。</p>
+<blockquote>
+<div><p>因为每一个String对象都会独立占用内存一块区域,详见 <a class="reference external" href="b06_String.html">理解java的字符串，String，StringBuilder,StringBuffer有什么区别</a></p>
+</div></blockquote>
+</li>
+<li><p class="first">尽量少用静态变量。</p>
+<blockquote>
+<div><p>因为静态变量是全局的，GC不会回收。</p>
+</div></blockquote>
+</li>
+<li><p class="first">避免集中创建对象尤其是大对象，如果可以的话尽量使用流操作。</p>
+<blockquote>
+<div><p>JVM会突然需要大量内存，这时会触发GC优化系统内存环境；</p>
+</div></blockquote>
+</li>
+<li><p class="first">尽量运用对象池技术以提高系统性能。</p>
+<blockquote>
+<div><p>生命周期长的对象拥有生命周期短的对象时容易引发内存泄漏，例如大集合对象拥有大数据量的业务对象的时候，可以考虑分块进行处理，然后解决一块释放一块的策略。</p>
+</div></blockquote>
+</li>
+<li><p class="first">不要在经常调用的方法中创建对象，尤其是忌讳在循环中创建对象。</p>
+<blockquote>
+<div><p>可以适当的使用hashtable，vector 创建一组对象容器，然后从容器中去取那些对象，而不用每次new之后又丢弃。</p>
+</div></blockquote>
+</li>
+</ol>
+</div>
+<div class="section" id="id4">
+<h2>内存溢出的解决方案？<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>一 是从代码层面进行优化完善，尽量避免该情况发生；</p>
+<p>二 是调整优化服务器配置：</p>
+<ol class="arabic simple">
+<li>设置-Xms、-Xmx相等；</li>
+<li>设置NewSize、MaxNewSize相等；</li>
+<li>设置Heap size, PermGen space:</li>
+</ol>
+<p>Tomcat 的配置示例：修改%TOMCAT_HOME%/bin/catalina.bat or catalina.sh</p>
+<p>在“echo “Using CATALINA_BASE: $CATALINA_BASE””上面加入以下行：</p>
+<p>Cmd代码</p>
+<blockquote>
+<div>set JAVA_OPTS=-Xms800m -Xmx800m -XX:PermSize=128M -XX:MaxNewSize=256m -XX:MaxPermSize=256m</div></blockquote>
+<hr class="docutils" />
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Java 内存溢出与内存泄漏异同</a><ul>
+<li><a class="reference internal" href="#id1">Java是如何管理内存</a></li>
+<li><a class="reference internal" href="#id2">相关问题</a></li>
+<li><a class="reference internal" href="#id3">如何避免内存泄露、溢出？</a></li>
+<li><a class="reference internal" href="#id4">内存溢出的解决方案？</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_primary/core/j05_memory_out_leak.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_primary/core/j05_memory_out_leak.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,393 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ArrayList 、LinkedList和Vector比较 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="arraylist-linkedlistvector">
+<h1>ArrayList 、LinkedList和Vector比较<a class="headerlink" href="#arraylist-linkedlistvector" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="list">
+<h2>List回顾<a class="headerlink" href="#list" title="Permalink to this headline">¶</a></h2>
+<p>序列（List），有序的Collection，正如它的名字一样，是一个有序的元素列表。确切的讲，列表通常允许满足 e1.equals(e2) 的元素对 e1 和 e2，并且如果列表本身允许 null 元素的话，通常它们允许多个 null 元素。实现List的有：ArrayList、LinkedList、Vector、Stack等。值得一提的是，Vector在JDK1.1的时候就有了，而List在JDK1.2的时候出现，待会我们会聊到ArrayList和Vector的区别。</p>
+</div>
+<div class="section" id="arraylist-vs-vector">
+<h2>ArrayList vs. Vector<a class="headerlink" href="#arraylist-vs-vector" title="Permalink to this headline">¶</a></h2>
+<p>ArrayList是一个可调整大小的数组实现的序列。随着元素增加，其大小会动态的增加。此类在Iterator或ListIterator迭代中，调用容器自身的remove和add方法进行修改，会抛出ConcurrentModificationException并发修改异常。</p>
+<p>注意，此实现不是同步的。如果多个线程同时访问一个 ArrayList 实例，而其中至少一个线程从结构上修改了列表，那么它必须 保持外部同步。
+（结构上的修改是指任何添加或删除一个或多个元素的操作，或者显式调整底层数组的大小；仅仅设置元素的值不是结构上的修改。）这一般通过对自然封装该列表的对象进行同步操作来完成。如果不存在这样的对象，则应该使用 Collections.synchronizedList 方法将该列表“包装”起来。这最好在创建时完成，以防止意外对列表进行不同步的访问：</p>
+<blockquote>
+<div>List list = Collections.synchronizedList(new ArrayList(…));</div></blockquote>
+<p>下面演示下相关ArrayList例子。</p>
+<p>ArrayList基本方法代码：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@SuppressWarnings</span><span class="p">({</span> <span class="s2">&quot;rawtypes&quot;</span><span class="p">,</span> <span class="s2">&quot;unchecked&quot;</span> <span class="p">})</span>
+<span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">listMethods</span><span class="p">()</span>
+<span class="p">{</span>
+
+    <span class="n">List</span> <span class="n">a1</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List01&quot;</span><span class="p">);</span>
+    <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List03&quot;</span><span class="p">);</span>
+    <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List04&quot;</span><span class="p">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;原来集合：</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">a1</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+
+    <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s2">&quot;List02&quot;</span><span class="p">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;指定角标1插入：</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">a1</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+
+    <span class="n">a1</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;指定角标2删除：</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">a1</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+
+    <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;指定角标2查询：</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">a1</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+
+    <span class="n">Iterator</span> <span class="n">i1</span> <span class="o">=</span> <span class="n">a1</span><span class="o">.</span><span class="n">iterator</span><span class="p">();</span>
+    <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;用迭代器查询全部元素：&quot;</span><span class="p">);</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">i1</span><span class="o">.</span><span class="n">hasNext</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">i1</span><span class="o">.</span><span class="n">next</span><span class="p">()</span><span class="o">+</span><span class="s2">&quot;,&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>原来集合：
+    [List01, List03, List04]
+指定角标1插入：
+    [List01, List02, List03, List04]
+指定角标2删除：
+    [List01, List02, List04]
+指定角标2查询：
+    List04
+用迭代器查询全部元素：
+List01,List02,List04
+</pre></div>
+</div>
+<p>在上面我们可以根据角标来增加(add)、删除(remove)、获取(get)列表里面元素。ArrayList提供了Iterator迭代器来遍历序列。值得注意的是，迭代器的就相当于一个指针指向角标，next()方法就相当于指针往后移一位。所以切记，用迭代器中一次循环用一次next()。</p>
+<p>下面演示下在ConcurrentModificationException的出现，及处理方案。泥瓦匠用Iterator演示这个异常的出现：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">iteratorTest</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">List</span> <span class="n">a1</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List01&quot;</span><span class="p">);</span>
+    <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List02&quot;</span><span class="p">);</span>
+    <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List04&quot;</span><span class="p">);</span>
+    <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List05&quot;</span><span class="p">);</span>
+
+    <span class="n">Iterator</span> <span class="n">i1</span> <span class="o">=</span> <span class="n">a1</span><span class="o">.</span><span class="n">iterator</span><span class="p">();</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">i1</span><span class="o">.</span><span class="n">hasNext</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="n">Object</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">i1</span><span class="o">.</span><span class="n">next</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;List02&quot;</span><span class="p">))</span>
+        <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List03&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;集合：</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">a1</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>怎么解决的，先看清楚这个问题。问题描述很清楚，在创建迭代器之后，除非通过迭代器自身的 remove 或 add 方法从结构上对列表进行修改，否则在任何时间以任何方式对列表进行修改，迭代器都会抛出 ConcurrentModificationException。</p>
+<p>因此我们应该这样修改代码，用ListIterator迭代器提供方法，：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@SuppressWarnings</span><span class="p">({</span> <span class="s2">&quot;unchecked&quot;</span><span class="p">,</span> <span class="s2">&quot;rawtypes&quot;</span> <span class="p">})</span>
+<span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">listIterator</span><span class="p">()</span>
+<span class="p">{</span>
+
+    <span class="n">List</span> <span class="n">a1</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List01&quot;</span><span class="p">);</span>
+    <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List&quot;</span><span class="p">);</span>
+    <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List03&quot;</span><span class="p">);</span>
+    <span class="n">a1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List04&quot;</span><span class="p">);</span>
+
+    <span class="n">ListIterator</span> <span class="n">l1</span> <span class="o">=</span> <span class="n">a1</span><span class="o">.</span><span class="n">listIterator</span><span class="p">();</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">l1</span><span class="o">.</span><span class="n">hasNext</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="n">Object</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">l1</span><span class="o">.</span><span class="n">next</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="s2">&quot;List&quot;</span><span class="p">))</span>
+        <span class="p">{</span>
+            <span class="n">l1</span><span class="o">.</span><span class="n">remove</span><span class="p">();</span>
+            <span class="n">l1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;List02&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;集合：</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">+</span><span class="n">a1</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>运行下，我们可以看到：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>集合：
+    [List01, List02, List03, List04]
+</pre></div>
+</div>
+<p>这样，我们成功解决了这个并发修改异常。把其中‘List’元素删除，新增了一个‘List02’的元素。</p>
+<p><strong>Vector</strong> 非常类似ArrayList。早在JDK1.1的时候就出现了，以前没有所谓的List接口，现在此类被改进为实现List接口。但与新的Collection不同的是，Vector是同步的。泥瓦匠想说的是Vector，在像查询的性能上会比ArrayList开销大。下面演示下Vector的基本例子：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@SuppressWarnings</span><span class="p">({</span> <span class="s2">&quot;unchecked&quot;</span><span class="p">,</span> <span class="s2">&quot;rawtypes&quot;</span> <span class="p">})</span>
+<span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">vectorMethods</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">Vector</span> <span class="n">v1</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Vector</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="n">v1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Vector001&quot;</span><span class="p">);</span>
+    <span class="n">v1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Vector002&quot;</span><span class="p">);</span>
+    <span class="n">v1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Vector003&quot;</span><span class="p">);</span>
+    <span class="n">v1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Vector004&quot;</span><span class="p">);</span>
+    <span class="n">v1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Vector005&quot;</span><span class="p">);</span>
+
+    <span class="n">Enumeration</span> <span class="n">e1</span> <span class="o">=</span><span class="n">v1</span><span class="o">.</span><span class="n">elements</span><span class="p">();</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">e1</span><span class="o">.</span><span class="n">hasMoreElements</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="n">Object</span> <span class="nb">object</span> <span class="o">=</span> <span class="n">e1</span><span class="o">.</span><span class="n">nextElement</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="nb">object</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>从方法上看几乎没差别，同样注意的是：此接口的功能与 Iterator 接口的功能是重复的。此外，Iterator 接口添加了一个可选的移除操作，并使用较短的方法名。新的实现应该优先考虑使用 Iterator 接口而不是 Enumeration 接口。</p>
+</div>
+<div class="section" id="linkedlistarraylist">
+<h2>LinkedList及其与ArrayList性能比<a class="headerlink" href="#linkedlistarraylist" title="Permalink to this headline">¶</a></h2>
+<p>LinkedList与ArrayList一样实现List接口，LinkedList是List接口链表的实现。基于链表实现的方式使得LinkedList在插入和删除时更优于ArrayList，而随机访问则比ArrayList逊色些。LinkedList实现所有可选的列表操作，并允许所有的元素包括null。除了实现 List 接口外，LinkedList 类还为在列表的开头及结尾 get、remove 和 insert 元素提供了统一的命名方法。这些操作允许将链接列表用作堆栈、队列或双端队列。</p>
+<p>LinkedList和ArrayList的方法时间复杂度总结如下图所示。</p>
+<img alt="../../../_images/b08_list_time.png" src="../../../_images/b08_list_time.png" />
+<p>表中，添加add()指添加元素的方法，remove()是指除去（int index）角标。ArrayList具有O（N）的任意指数时间复杂度的添加/删除，但O（1）的操作列表的末尾。链表的O（n）的任意指数时间复杂度的添加/删除，但O（1）操作端/列表的开始。</p>
+<p>用代码验证下这个结论：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">testPerBtwnArlAndLkl</span><span class="p">(){</span>
+
+        <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">arrayList</span>   <span class="o">=</span> <span class="n">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="n">LinkedList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">linkedList</span> <span class="o">=</span> <span class="n">new</span> <span class="n">LinkedList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span><span class="p">();</span>
+
+        <span class="o">//</span> <span class="n">ArrayList</span> <span class="n">add</span>
+        <span class="n">long</span> <span class="n">startTime</span>  <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">nanoTime</span><span class="p">();</span>
+        <span class="n">long</span> <span class="n">endTime</span><span class="p">;</span>
+        <span class="n">long</span> <span class="n">duration</span><span class="p">;</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">arrayList</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">endTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">nanoTime</span><span class="p">();</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">endTime</span> <span class="o">-</span> <span class="n">startTime</span><span class="p">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;ArrayList add:  &quot;</span> <span class="o">+</span> <span class="n">duration</span><span class="p">);</span>
+
+        <span class="o">//</span> <span class="n">LinkedList</span> <span class="n">add</span>
+        <span class="n">startTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">nanoTime</span><span class="p">();</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">linkedList</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">endTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">nanoTime</span><span class="p">();</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">endTime</span> <span class="o">-</span> <span class="n">startTime</span><span class="p">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;LinkedList add: &quot;</span> <span class="o">+</span> <span class="n">duration</span><span class="p">);</span>
+
+        <span class="o">//</span> <span class="n">ArrayList</span> <span class="n">get</span>
+        <span class="n">startTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">nanoTime</span><span class="p">();</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">arrayList</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">endTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">nanoTime</span><span class="p">();</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">endTime</span> <span class="o">-</span> <span class="n">startTime</span><span class="p">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;ArrayList get:  &quot;</span> <span class="o">+</span> <span class="n">duration</span><span class="p">);</span>
+
+        <span class="o">//</span> <span class="n">LinkedList</span> <span class="n">get</span>
+        <span class="n">startTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">nanoTime</span><span class="p">();</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">linkedList</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">endTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">nanoTime</span><span class="p">();</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">endTime</span> <span class="o">-</span> <span class="n">startTime</span><span class="p">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;LinkedList get: &quot;</span> <span class="o">+</span> <span class="n">duration</span><span class="p">);</span>
+
+        <span class="o">//</span> <span class="n">ArrayList</span> <span class="n">remove</span>
+        <span class="n">startTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">nanoTime</span><span class="p">();</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">9999</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">arrayList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">endTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">nanoTime</span><span class="p">();</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">endTime</span> <span class="o">-</span> <span class="n">startTime</span><span class="p">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;ArrayList remove:  &quot;</span> <span class="o">+</span> <span class="n">duration</span><span class="p">);</span>
+
+        <span class="o">//</span> <span class="n">LinkedList</span> <span class="n">remove</span>
+        <span class="n">startTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">nanoTime</span><span class="p">();</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">9999</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">linkedList</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">endTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">nanoTime</span><span class="p">();</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">endTime</span> <span class="o">-</span> <span class="n">startTime</span><span class="p">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;LinkedList remove: &quot;</span> <span class="o">+</span> <span class="n">duration</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>控制台输出如下：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ArrayList</span> <span class="n">add</span><span class="p">:</span>  <span class="mi">16904776</span>
+<span class="n">LinkedList</span> <span class="n">add</span><span class="p">:</span> <span class="mi">12015418</span>
+<span class="n">ArrayList</span> <span class="n">get</span><span class="p">:</span>  <span class="mi">1304593</span>
+<span class="n">LinkedList</span> <span class="n">get</span><span class="p">:</span> <span class="mi">108950741</span>
+<span class="n">ArrayList</span> <span class="n">remove</span><span class="p">:</span>  <span class="mi">787388127</span>
+<span class="n">LinkedList</span> <span class="n">remove</span><span class="p">:</span> <span class="mi">128145950</span>
+</pre></div>
+</div>
+<p>对比下的话，其性能差距很明显。LinkedList在添加和删除中性能快，但在获取中性能差。从复杂度和测试结果，我们应该懂得平时在添加或者删除操作频繁的地方，选择LinkedList时考虑：</p>
+<blockquote>
+<div><p>1、没有大量的元素的随机访问</p>
+<p>2、添加/删除操作</p>
+</div></blockquote>
+<p>自然我下面用LinedList实现一个数据结构–栈。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>package com.sedion.bysocket.collection;
+import java.util.LinkedList;
+
+/**
+ * 用LinkedList实现栈
+ * 队列和栈区别：队列先进先出，栈先进后出。
+ */
+public class Stack&lt;T&gt;
+{
+    private LinkedList&lt;T&gt; storage = new LinkedList&lt;T&gt;();
+
+    /** 入栈 */
+    public void push(T v)
+    {
+        storage.addFirst(v);
+    }
+
+    /** 出栈，但不删除 */
+    public T peek()
+    {
+        return storage.getFirst();
+    }
+
+    /** 出栈，删除 */
+    public T pop()
+    {
+        return storage.removeFirst();
+    }
+
+    /** 栈是否为空 */
+    public boolean empty()
+    {
+        return storage.isEmpty();
+    }
+
+    /** 输出栈元素 */
+    public String toString()
+    {
+        return storage.toString();
+    }
+
+    public static void main(String[] args)
+    {
+        Stack stack=new Stack&lt;String&gt;();
+        stack.push(&quot;a&quot;);
+        stack.push(&quot;b&quot;);
+        stack.push(&quot;c&quot;);
+        System.out.println(stack.toString());
+        Object obj=stack.peek();
+        System.out.println(obj+&quot;--&quot;+stack.toString());
+        obj=stack.pop();
+        System.out.println(obj+&quot;--&quot;+stack.toString());
+        System.out.println(stack.empty());
+    }
+}
+</pre></div>
+</div>
+<p>总结</p>
+<p><strong>Vector和ArrayList</strong></p>
+<p>1、vector是线程同步的，所以它也是线程安全的，而arraylist是线程异步的，是不安全的。</p>
+<p>2、记住并发修改异常 java.util.ConcurrentModificationException ，优先考虑ArrayList，除非你在使用多线程所需。</p>
+<p><strong>Aarraylist和Linkedlist</strong></p>
+<p>1、对于随机访问get和set，ArrayList觉得优于LinkedList，LinkedList要移动指针。</p>
+<p>2、于新增和删除操作add和remove，LinedList比较占优势，ArrayList要移动数据。</p>
+<p>3、</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>单条数据插入或删除，大部分情况下，ArrayList的速度反而优于LinkedList。“</li>
+<li>大部分情况下，数组长度N不会很长很长那种，那么插入的时候，最多移动的点是N/2。大部分情况下这个值(a) 肯定很小。但是LinkedList（element，next，previous ）三个结构组成，在单个插入的是或new一个LinkedList（相当于new了三个对象），然后element赋值，next赋值，previous赋值，造成消耗时间就大了。</li>
+<li>但随机批量，量多了效率明显不一样了。数组,(a)增生很大，LinkedList却依然乘个倍数而已。</li>
+</ol>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ArrayList 、LinkedList和Vector比较</a><ul>
+<li><a class="reference internal" href="#list">List回顾</a></li>
+<li><a class="reference internal" href="#arraylist-vs-vector">ArrayList vs. Vector</a></li>
+<li><a class="reference internal" href="#linkedlistarraylist">LinkedList及其与ArrayList性能比</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_primary/core/b08_arraylist_linkedlist.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_primary/core/b08_arraylist_linkedlist.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

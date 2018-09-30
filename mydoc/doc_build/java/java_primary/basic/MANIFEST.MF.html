@@ -1,0 +1,243 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MANIFEST.MF 文件详解 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="manifest-mf">
+<h1>MANIFEST.MF 文件详解<a class="headerlink" href="#manifest-mf" title="Permalink to this headline">¶</a></h1>
+<ol class="arabic">
+<li><p class="first">在命令行中输入“jar -help”，就k可看到jar的详细用法了。</p>
+</li>
+<li><p class="first">示例：</p>
+<p>1）将两个class文档归档到一个jar文件中：jar -cvf  XX.jar  A.class B.class</p>
+<p>2 )使用清单文件Manifest.mf将dir目录下的所有文件归档到一个jar中：jar -cvfm   XX.jar  Manifest.mf dir/*</p>
+</li>
+</ol>
+<p>manifest 文件的格式很简单，每一行都是  ” 名－值 ”  对应的：</p>
+<p>属性名开头，接着是 “:” ，然后是属性值，每行最多72个字符，如果需要增加，你可以在下一行续行，续行以空格开头，以空格开头的行       都会被视为前一行的续行。
+使用 m 选项，把指定文件名的manifest文件传入，</p>
+<p>例如</p>
+<blockquote>
+<div>jar cvfm myapplication.jar myapplication.mf [-C]classdir</div></blockquote>
+<p>现在我们来体验一下manifest文件的作用，如果现在我们有一个Java 应用程序打包在myapplication.jar中，
+main class为</p>
+<blockquote>
+<div>com.example.myapp.MyAppMain ，</div></blockquote>
+<p>那么我们可以用以下的命令来运行</p>
+<blockquote>
+<div>java -classpath myapplication.jar com.example.myapp.MyAppMain</div></blockquote>
+<p>这显然太麻烦了，现在我们来创建自己的manifest文件，如下：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Manifest</span><span class="o">-</span><span class="n">Version</span><span class="p">:</span> <span class="mf">1.0</span>
+<span class="n">Created</span><span class="o">-</span><span class="n">By</span><span class="p">:</span> <span class="n">JDJ</span> <span class="n">example</span>
+<span class="n">Main</span><span class="o">-</span><span class="n">Class</span><span class="p">:</span> <span class="n">com</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">myapp</span><span class="o">.</span><span class="n">MyAppMain</span>
+</pre></div>
+</div>
+<p>这样我们就可以使用如下的命令来运行程序了：（明显简单多了，也不会造成无谓的拼写错误）</p>
+<blockquote>
+<div>java -jar myapplication.jar</div></blockquote>
+<div class="section" id="jar">
+<h2>管理JAR的依赖资源<a class="headerlink" href="#jar" title="Permalink to this headline">¶</a></h2>
+<p>很少Java应用会仅仅只有一个jar文 件，一般还需要 其他类库。比如我的应用程序用到了Sun 的 Javamail classes ，在classpath中我需要包含activation.jar 和 mail.jar,这样在运行程序时,相比上面的例子,我们要增加一些:</p>
+<blockquote>
+<div>java -classpath mail.jar:activation.jar -jar myapplication.jar</div></blockquote>
+<p>在不同的操作系统中,jar包间的分隔符也不一样，在UNIX用“:”，在 window中使用 “;”，这样也不方便</p>
+<p>同样，我们改写我们的manifest文件，如下</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Manifest</span><span class="o">-</span><span class="n">Version</span><span class="p">:</span> <span class="mf">1.0</span>
+<span class="n">Created</span><span class="o">-</span><span class="n">By</span><span class="p">:</span> <span class="n">JDJ</span> <span class="n">example</span>
+<span class="n">Main</span><span class="o">-</span><span class="n">Class</span><span class="p">:</span> <span class="n">com</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">myapp</span><span class="o">.</span><span class="n">MyAppMain</span>
+<span class="n">Class</span><span class="o">-</span><span class="n">Path</span><span class="p">:</span> <span class="n">mail</span><span class="o">.</span><span class="n">jar</span> <span class="n">activation</span><span class="o">.</span><span class="n">jar</span>
+</pre></div>
+</div>
+<p>（加入了Class-Path: mail.jar activation.jar，用空格分隔两个jar包）
+这样我们仍然可以使用和上例中相同的命令来执行该程序：</p>
+<blockquote>
+<div>java -jar myapplication.jar</div></blockquote>
+<p>Class-Path属性中包含了用空格分隔的jar文件，在这些jar文件名中要对特定的字符使用逃逸符，比如空格，要表示成” “，在路径的表示中，都采用“/” 来分隔目录()，无论是在什么操作系统中，(即使在window中)，而且这里用的是相对路径（相对于本身的JAR文 件）：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Manifest</span><span class="o">-</span><span class="n">Version</span><span class="p">:</span> <span class="mf">1.0</span>
+<span class="n">Created</span><span class="o">-</span><span class="n">By</span><span class="p">:</span> <span class="n">JDJ</span> <span class="n">example</span>
+<span class="n">Main</span><span class="o">-</span><span class="n">Class</span><span class="p">:</span> <span class="n">com</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">myapp</span><span class="o">.</span><span class="n">MyAppMain</span>
+<span class="n">Class</span><span class="o">-</span><span class="n">Path</span><span class="p">:</span> <span class="n">ext</span><span class="o">/</span><span class="n">mail</span><span class="o">.</span><span class="n">jar</span> <span class="n">ext</span><span class="o">/</span><span class="n">activation</span><span class="o">.</span><span class="n">jar</span>
+</pre></div>
+</div>
+<p>Multiple Main Classes（多主类）
+还有一种Multiple Main Classes情况，如果你的应用程序可能有命令行版本 和GUI版本，或者一些不同的应用却共享很多相同的代码，这时你可能有多个Main Class，我们建议你采取这样的策略：把共享的类打成lib包，然后把不同的应用打成不同的包，分别标志主类：如下</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Manifest</span> <span class="k">for</span> <span class="n">myapplicationlib</span><span class="o">.</span><span class="n">jar</span><span class="p">:</span>
+<span class="n">Manifest</span><span class="o">-</span><span class="n">Version</span><span class="p">:</span> <span class="mf">1.0</span>
+<span class="n">Created</span><span class="o">-</span><span class="n">By</span><span class="p">:</span> <span class="n">JDJ</span> <span class="n">example</span>
+<span class="n">Class</span><span class="o">-</span><span class="n">Path</span><span class="p">:</span> <span class="n">mail</span><span class="o">.</span><span class="n">jar</span> <span class="n">activation</span><span class="o">.</span><span class="n">jar</span>
+
+<span class="n">Manifest</span> <span class="k">for</span> <span class="n">myappconsole</span><span class="o">.</span><span class="n">jar</span><span class="p">:</span>
+<span class="n">Manifest</span><span class="o">-</span><span class="n">Version</span><span class="p">:</span> <span class="mf">1.0</span>
+<span class="n">Created</span><span class="o">-</span><span class="n">By</span><span class="p">:</span> <span class="n">JDJ</span> <span class="n">example</span>
+<span class="n">Class</span><span class="o">-</span><span class="n">Path</span><span class="p">:</span> <span class="n">myapplicationlib</span><span class="o">.</span><span class="n">jar</span>
+<span class="n">Main</span><span class="o">-</span><span class="n">Class</span><span class="p">:</span> <span class="n">com</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">myapp</span><span class="o">.</span><span class="n">MyAppMain</span>
+
+<span class="n">Manifest</span> <span class="k">for</span> <span class="n">myappadmin</span><span class="o">.</span><span class="n">jar</span><span class="p">:</span>
+<span class="n">Manifest</span><span class="o">-</span><span class="n">Version</span><span class="p">:</span> <span class="mf">1.0</span>
+<span class="n">Created</span><span class="o">-</span><span class="n">By</span><span class="p">:</span> <span class="n">JDJ</span> <span class="n">example</span>
+<span class="n">Class</span><span class="o">-</span><span class="n">Path</span><span class="p">:</span> <span class="n">myapplicationlib</span><span class="o">.</span><span class="n">jar</span>
+<span class="n">Main</span><span class="o">-</span><span class="n">Class</span><span class="p">:</span> <span class="n">com</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">myapp</span><span class="o">.</span><span class="n">MyAdminTool</span>
+</pre></div>
+</div>
+<p>在myappconsole.jar 和 myappadmin.jar的manifest文件中分别注明各自的
+Main Class Package Versioning
+完成发布后，如果使用者想了解 ，哪些代码是谁的？目前是什么版本？使用什么版本的类库？解决的方法很多 ，manifest提供了一个较好的方法，你可以在manifest文件中描述每一个包的信息。</p>
+<p>Java 秉承了实现说明与描述分离的原则，package 的描述 定义了package 是什么，实现说明 定义了谁提供了描述的实现，描述和实现包含 名、版本号和提供者。要得到这些信息，可以查看JVM的系统属性（使用 java.lang.System.getProperty() ）
+在manifest文件中，我可以为每个package定义描述和实现版本，声明名字，并加入描述属性和实现属性，这些属性是</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Specification</span><span class="o">-</span><span class="n">Title</span>
+<span class="n">Specification</span><span class="o">-</span><span class="n">Version</span>
+<span class="n">Specification</span><span class="o">-</span><span class="n">Vendor</span>
+<span class="n">Implementation</span><span class="o">-</span><span class="n">Title</span>
+<span class="n">Implementation</span><span class="o">-</span><span class="n">Version</span>
+<span class="n">Implementation</span><span class="o">-</span><span class="n">Vendor</span>
+</pre></div>
+</div>
+<p>当要提供一个类库或编程接口时，描述信息显得是很重要，见以下范例：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Manifest</span><span class="o">-</span><span class="n">Version</span><span class="p">:</span> <span class="mf">1.0</span>
+<span class="n">Created</span><span class="o">-</span><span class="n">By</span><span class="p">:</span> <span class="n">JDJ</span> <span class="n">example</span>
+<span class="n">Class</span><span class="o">-</span><span class="n">Path</span><span class="p">:</span> <span class="n">mail</span><span class="o">.</span><span class="n">jar</span> <span class="n">activation</span><span class="o">.</span><span class="n">jar</span>
+<span class="n">Name</span><span class="p">:</span> <span class="n">com</span><span class="o">/</span><span class="n">example</span><span class="o">/</span><span class="n">myapp</span><span class="o">/</span>
+<span class="n">Specification</span><span class="o">-</span><span class="n">Title</span><span class="p">:</span> <span class="n">MyApp</span>
+<span class="n">Specification</span><span class="o">-</span><span class="n">Version</span><span class="p">:</span> <span class="mf">2.4</span>
+<span class="n">Specification</span><span class="o">-</span><span class="n">Vendor</span><span class="p">:</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span>
+<span class="n">Implementation</span><span class="o">-</span><span class="n">Title</span><span class="p">:</span> <span class="n">com</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">myapp</span>
+<span class="n">Implementation</span><span class="o">-</span><span class="n">Version</span><span class="p">:</span> <span class="mi">2002</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="n">A</span>
+<span class="n">Implementation</span><span class="o">-</span><span class="n">Vendor</span><span class="p">:</span> <span class="n">example</span><span class="o">.</span><span class="n">com</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="package-version">
+<h2>Package Version 查询<a class="headerlink" href="#package-version" title="Permalink to this headline">¶</a></h2>
+<p>在manifest文件中加入package描述后，就可以使用Java提供的java.lang.Package class进行Package 的信息查询，这里列举3个最基本的获取package object的方法</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">1.</span><span class="n">Package</span><span class="o">.</span><span class="n">getPackages</span><span class="p">():</span><span class="n">返回系统中所有定义的package列表</span>
+<span class="mf">2.</span><span class="n">Package</span><span class="o">.</span><span class="n">getPackage</span><span class="p">(</span><span class="n">String</span> <span class="n">packagename</span><span class="p">):</span><span class="n">按名返回package</span>
+<span class="mf">3.</span><span class="n">Class</span><span class="o">.</span><span class="n">getPackage</span><span class="p">():</span><span class="n">返回给定class所在的package</span>
+</pre></div>
+</div>
+<p>使用者这方法就可以动态的获取package信息.
+需要注意的是如果给定的package中没有class被加载,则也无法获得package 对象</p>
+</div>
+<div class="section" id="manifest">
+<h2>Manifest 技巧<a class="headerlink" href="#manifest" title="Permalink to this headline">¶</a></h2>
+<p>总是以Manifest-Version属性开头,
+每行最长72个字符，如果超过的化，采用续行
+确认每行都以回车结束，否则改行将会被忽略
+如果Class-Path 中的存在路径，使用”/”分隔目录，与平台无关
+使用空行分隔主属性和package属性
+使用”/”而不是”.”来分隔package 和class ,比如 com/example/myapp/
+class 要以.class结尾，package 要以 / 结尾</p>
+<p>打包可执行jar包时，MANIFEST.MF总是个让人头疼的东西，经常出现这种那种问题。
+一个例子：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">================================================================================</span>
+<span class="n">Manifest</span><span class="o">-</span><span class="n">Version</span><span class="p">:</span> <span class="mf">1.0</span>
+<span class="n">Main</span><span class="o">-</span><span class="n">Class</span><span class="p">:</span> <span class="n">test</span><span class="o">.</span><span class="n">Main</span>
+<span class="n">Class</span><span class="o">-</span><span class="n">Path</span><span class="p">:</span> <span class="o">./</span> <span class="o">./</span><span class="n">lib</span><span class="o">/</span><span class="n">commons</span><span class="o">-</span><span class="n">collections</span><span class="o">-</span><span class="mf">3.2</span><span class="o">.</span><span class="n">jar</span> <span class="o">./</span><span class="n">lib</span><span class="o">/</span><span class="n">commons</span><span class="o">-</span><span class="n">dbcp</span><span class="o">-</span><span class="mf">1.2</span><span class="o">.</span><span class="mf">2.</span><span class="n">jar</span>
+  <span class="o">./</span><span class="n">lib</span><span class="o">/</span><span class="n">commons</span><span class="o">-</span><span class="n">lang</span><span class="o">-</span><span class="mf">2.3</span><span class="o">.</span><span class="n">jar</span> <span class="o">./</span><span class="n">lib</span><span class="o">/</span><span class="n">commons</span><span class="o">-</span><span class="n">logging</span><span class="o">-</span><span class="mf">1.1</span><span class="o">.</span><span class="n">jar</span>
+<span class="o">================================================================================</span>
+</pre></div>
+</div>
+<p>各部分解释：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Manifest</span><span class="o">-</span><span class="n">Version</span> <span class="n">MF文件版本号</span>
+<span class="n">Main</span><span class="o">-</span><span class="n">Class</span> <span class="n">包含main方法的类</span>
+<span class="n">Class</span><span class="o">-</span><span class="n">Path</span> <span class="n">执行这个jar包时的ClassPath</span>
+</pre></div>
+</div>
+<p>以下是需要注意的各个要点：</p>
+<ol class="arabic simple">
+<li>Manifest-Version、Main-Class和Class-Path后面跟着一个英文的冒号，冒号后面必须跟着一个空格，然后才是版本号、类和ClassPath。</li>
+<li>Class-Path中的各项应使用空格分隔，不是逗号或分号。</li>
+<li>Class-Path中如果有很多项，写成一行打包的时候会报错line too long，这时需要把Class-Path分多行写。注意：从第二行开始，必须以两个空格开头，三个以上我没试过，不过不用空格开头和一个空格开头都是不行的，我已经试过了。</li>
+<li>Class-Path写完之后最后一定要有一个空行。</li>
+<li>jar包内有些配置文件想放在jar包外面，比如文件config.properties：如果这个文件是以路径方式载入的，比如new file(“./config/config.properties”)，那么将config.properties放在jar包相同目录下的config目录下即可，也就是说“./”路径等价于jar包所在目录；如果这个文件是以ClassPath下的文件这种方式载入的，比如在Spring中载入classpath:config.properties，则在MF文件的配置文件的ClassPath中添加“./”，然后将这个配置文件与jar包放在同一个目录即可，当然也可以在MF文件的配置文件的ClassPath中添加“./config/”，然后把配置文件都放在jar包相同目录下的config目录下。</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">MANIFEST.MF 文件详解</a><ul>
+<li><a class="reference internal" href="#jar">管理JAR的依赖资源</a></li>
+<li><a class="reference internal" href="#package-version">Package Version 查询</a></li>
+<li><a class="reference internal" href="#manifest">Manifest 技巧</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_primary/basic/MANIFEST.MF.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_primary/basic/MANIFEST.MF.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

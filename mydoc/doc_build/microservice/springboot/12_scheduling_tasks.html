@@ -1,0 +1,148 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>定时任务 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>定时任务<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id2">
+<h2>构建工程<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>创建一个Springboot工程，在它的程序入口加上&#64;EnableScheduling,开启调度任务。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@SpringBootApplication</span>
+<span class="nd">@EnableScheduling</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">SpringbootSchedulingTasksApplication</span> <span class="p">{</span>
+
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">SpringApplication</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">SpringbootSchedulingTasksApplication</span><span class="o">.</span><span class="n">class</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>创建定时任务<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>创建一个定时任务，每过5s在控制台打印当前时间。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Component</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">ScheduledTasks</span> <span class="p">{</span>
+
+    <span class="n">private</span> <span class="n">static</span> <span class="n">final</span> <span class="n">Logger</span> <span class="n">log</span> <span class="o">=</span> <span class="n">LoggerFactory</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">ScheduledTasks</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
+
+    <span class="n">private</span> <span class="n">static</span> <span class="n">final</span> <span class="n">SimpleDateFormat</span> <span class="n">dateFormat</span> <span class="o">=</span> <span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span><span class="s2">&quot;HH:mm:ss&quot;</span><span class="p">);</span>
+
+    <span class="nd">@Scheduled</span><span class="p">(</span><span class="n">fixedRate</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">)</span>
+    <span class="n">public</span> <span class="n">void</span> <span class="n">reportCurrentTime</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The time is now </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dateFormat</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new</span> <span class="n">Date</span><span class="p">()));</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>通过在方法上加&#64;Scheduled注解，表明该方法是一个调度任务。</p>
+<blockquote>
+<div><ul class="simple">
+<li>&#64;Scheduled(fixedRate = 5000) ：上一次开始执行时间点之后5秒再执行</li>
+<li>&#64;Scheduled(fixedDelay = 5000) ：上一次执行完毕时间点之后5秒再执行</li>
+<li>&#64;Scheduled(initialDelay=1000, fixedRate=5000) ：第一次延迟1秒后执行，之后按fixedRate的规则每5秒执行一次</li>
+<li>&#64;Scheduled(cron=” /5 “) ：通过cron表达式定义规则，什么是cro表达式，自行搜索引擎。</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id4">
+<h2>总结<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>在springboot创建定时任务比较简单，只需2步：</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>在程序的入口加上&#64;EnableScheduling注解。</li>
+<li>在定时方法上加&#64;Scheduled注解。</li>
+</ol>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">定时任务</a><ul>
+<li><a class="reference internal" href="#id2">构建工程</a></li>
+<li><a class="reference internal" href="#id3">创建定时任务</a></li>
+<li><a class="reference internal" href="#id4">总结</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springboot/12_scheduling_tasks.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springboot/12_scheduling_tasks.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

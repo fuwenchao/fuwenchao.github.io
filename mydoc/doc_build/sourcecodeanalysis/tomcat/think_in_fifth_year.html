@@ -1,0 +1,91 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>&lt;no title&gt; &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>恍然间，发现自己在这个行业里已经摸爬滚打了五年了，原以为自己就凭已有的项目经验和工作经历怎么着也应该算得上是一个业内比较资历的人士了，但是今年在换工作的过程中却遭到了重大的挫折。详细过程我就不再叙述，在此，只想给大家说一说被拒绝的原因，看看大家有没有相似的经历，和类似的感悟。面试官对我的答复大致是这样的，我们不需要熟练工，我们需要在某领域拥有超过常人的积累认知，和拥有整套完整思维模式和优秀认知事物能力的人…他很诚恳地告诉我，你还年轻，真的应该好好地静下心来，深入地研究一些东西，自己写一些东西，而不是这也用过，那也知道，但是多半都是局限于仅仅见过，会用，却从来没有认真思考过其代码背后蕴含的思想，更少有人研究过源码，进而体会大师们在某些问题的解决上秉承的思想和思维的风格。个人感觉，这也算是国内大部分程序员最让人悲哀的地方了，当然这也与外界浮躁氛围的蔓延不无关系。不了解这一行的人总觉得程序员都是代码民工，如果自己也认为自己是敲代码的机器的话，我诚恳地建议您尽早转行吧，也许我这么说会得罪伤害一些同行，毕竟转行对任何一个人来说都是有相当的风险和挑战的。不过这绝对应该是善意的忠告。相反，我强烈地认为，程序员应该是最有活力和最有思想的一个群体，只要你不肯让自己浮于表面，更重要的是，必须勤于思考。如果你认可我这句的话，就请您继续往下看看我的感慨，否则，那就希望您好好利用好自己的时间做您最需要做的事吧。</p>
+<p>由于面试中被问到tomcat的时候，让面试官问得人仰马翻，哑口无言，所以回来之后洗心革面，下决心要把tomcat好好研究个明白，再也无法容忍自己只知其一不知其二了。于是上阿帕奇的官网上找文档找资料，当源码，在一些技术论坛找高人的分析帖子，并且搜罗相关的书籍，无奈一番折腾后都不能让我满意，因为一千个人对一个事物或许会有一千个看法和观点。网上此类介绍tomcat的技术类帖子更多的都是些抄袭，说到这里，本人在此郑重声明，做技术的人应该恪守一点职业道德，那就是责任心(我曾经给自己取的网名就是扯嗓门讲大道理的人)，你想给大家讲某个东西的话，必须应该是自己真正亲自分析研究过的，这是最最起码的要求，千万不能东抄一点西抄一点拼凑，不懂瞎装，瞎写，这是极其让人鄙视的态度，虽然当下这个时代，大家确实都比较浮躁，而且急功近利，但越是这样，就更需要大家坚守自己，尤其是做技术的人，对技术必须秉承实事求是，严谨，务实的态度，彻底刨掉那些虚华的东西，这样我们才敢从心态上说我们称得上是一位真正做技术的人。</p>
+<p>好了，说了这么多废话，浪费大家时间了，下面说说我对tomcat源码研究的几点展望，众所周知，tomcat是一个开源的Servlet容器，而这个容器的主要作用就是负责处理和响应客户请求(我们暂且忽略其他的一些次要的方面)。那么好，我们可以先做这样一个比喻,tomcat应该可以比作一部机器，这部机器可以接受客户端的请求，并返回一个结果给客户端，而且这部机器的原材料是java。那么我们想知道，这部机器的结构是怎么样的？它的组成部分有哪些，这些组成部分是如何被组织到一块的？这应该是第一步，即对tomcat的整体组成要有个纵览，知道tomcat这部机器都有些什么组成部分，知道每一部分主要都负责了什么工作，这一点非常重要；那么第二步，就是，这部机器是如何启动的？《精通tomcat》一书中把tomcat比作一部发动机，再恰当不过了，因为在它正常提供处理客户端请求的服务之前，它得先完成它的启动，我拿到源码之后(版本号是TOMCAT_6_0_12)，也是参考《精通tomcat》一书的指导，找到Bootstrap类，然后Dubug as Java Application,一步一步跟源码来研究tomcat的启动脉络。大家知道，tomcat是一个基于组件的服务器，那么完成了第一步工作，我想大家应该大体都会知道tomcat里面都包含了哪些组件了，那么通过第二步，我相信大家对这些组件是如何组装并启动的这个问题，就会有一个比较初始的认识和了解了。我们在日常工作中的系统设计和开发处处强调松耦合的思想，那么我想tomcat里面这些组件的组织将会是一个非常典范的案例值得我们研究和学习，人家是如何组织自身的组件的，如何装配的,这个问题，需要大家对digester技术有所研究，当然现在digester已经作为阿帕奇的一个common项目了，大家可以当相关的文档和源码进行深入研究这个技术，我也正在研究学习中，希望大家共同学习共同进步。那么再完成了前两部，知道tomcat里面都有些什么，并且知道tomcat的启动流程之后，我觉得就应该对tomcat应答一次请求的全过程进行细致深入的分析了，客户端发出向tomcat发出请求之后，tomcat是如何处理的？最先是那个类那个方法来响应，那个组件最先接到了请求的，之后它具体都做了什么，整个过程的处理逻辑和原则是什么样的？搞懂了这些，相信对tomcat的任何返回结果就再也不会感到意外和困惑。遗憾的是，我目前只看到很多地方粗粗地这么介绍：请求被发送到本机端口8080，被监听的HttpConnector获得，然后再由Connector交给Engine处理，再匹配名为localhost的Host处理，紧接着由Host匹配Context，再找JSPServelt类等等，这些介绍我目前还深表怀疑，貌似正确，其实说得不免有些笼统，当然也不能说完全错误，因为我目前还没彻底搞清楚这个问题，也不敢贸然下结论，我只是跟了源码后发现，请求来了先运行的是CoyoteAdapter这个类的service方法，实践出真知，还是希望大家亲自跟跟源码去理清楚其中玄机，看看tomcat接受请求处理请求的过程到底是怎么样的？我觉得只有搞清楚了这个问题，才敢说自己对tomcat算是真的懂了一些，至少tomcat对自己不再是个黑盒了。这个过程我目前还在进行中，由于自身能力有限，尚需多少时间能彻底搞清楚还是个未知数，但是我愿意继续努力，今天由于时间原因，先写到这里，我会继续发帖向大家汇报我的进展，更加希望能得到众多高人的指点，不甚感激，谢谢大家。</p>
+<hr class="docutils" />
+<p>我觉的这位面试官是你的贵人，他说的很对，5年的经验如果仅仅是使用开源框架，那真的是一种悲哀，资深的技术人员是必须钻研一个领域的，这个领域有几个层面的东西，一个业务领域、一个是技术领域。业务领域很明显需要清楚的需求，技术领域就是计算机科学，大家都是做技术的，哪个领域适合自己，只有自己最清楚。
+另外我想说明一点，一开始就去看源码，我保证能读懂70%就不错了，有很多基础性的东西你真的掌握里吗？举个简单的例子：如果源码里有一个优先队列，当你看源码的时候你能看出来这是一个优先级队列吗？或者一个多路归并排序，你能看出来算法思路吗？
+我再次强调一点，如果没有数据结构和算法的基础，是无法和优秀的程序员对话的。</p>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/sourcecodeanalysis/tomcat/think_in_fifth_year.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/sourcecodeanalysis/tomcat/think_in_fifth_year.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

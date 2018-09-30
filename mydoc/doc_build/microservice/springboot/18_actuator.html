@@ -1,0 +1,619 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>使用Spring Boot Actuator监控应用 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="spring-boot-actuator">
+<h1>使用Spring Boot Actuator监控应用<a class="headerlink" href="#spring-boot-actuator" title="Permalink to this headline">¶</a></h1>
+<p>微服务的特点决定了功能模块的部署是分布式的，大部分功能模块都是运行在不同的机器上，彼此通过服务调用进行交互，前后台的业务流会经过很多个微服务的处理和传递，出现了异常如何快速定位是哪个环节出现了问题？</p>
+<p>在这种框架下，微服务的监控显得尤为重要。本文主要结合Spring Boot Actuator，跟大家一起分享微服务Spring Boot Actuator的常见用法，方便我们在日常中对我们的微服务进行监控治理。</p>
+<div class="section" id="actuator">
+<h2>Actuator监控<a class="headerlink" href="#actuator" title="Permalink to this headline">¶</a></h2>
+<p>Spring Boot使用“习惯优于配置的理念”，采用包扫描和自动化配置的机制来加载依赖jar中的Spring bean,不需要任何Xml配置，就可以实现Spring的所有配置。虽然这样做能让我们的代码变得非常简洁，但是整个应用的实例创建和依赖关系等信息都被离散到了各个配置类的注解上，这使得我们分析整个应用中资源和实例的各种关系变得非常的困难。</p>
+<p>Actuator是Spring Boot提供的对应用系统的自省和监控的集成功能，可以查看应用配置的详细信息，例如自动化配置信息、创建的Spring beans以及一些环境属性等。</p>
+<p>Actuator监控只需要添加以下依赖就可以完成</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependencies</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">web</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">actuator</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">security</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependencies</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>为了保证actuator暴露的监控接口的安全性，需要添加安全控制的依赖spring-boot-start-security依赖，访问应用监控端点时，都需要输入验证信息。Security依赖，可以选择不加，不进行安全管理，但不建议这么做。</p>
+</div>
+<div class="section" id="actuator-rest">
+<h2>Actuator 的 REST 接口<a class="headerlink" href="#actuator-rest" title="Permalink to this headline">¶</a></h2>
+<p>Actuator监控分成两类：原生端点和用户自定义端点；自定义端点主要是指扩展性，用户可以根据自己的实际应用，定义一些比较关心的指标，在运行期进行监控。</p>
+<p>原生端点是在应用程序里提供众多 Web 接口，通过它们了解应用程序运行时的内部状况。原生端点又可以分成三类：</p>
+<blockquote>
+<div><ul class="simple">
+<li>应用配置类：可以查看应用在运行期的静态信息：例如自动配置信息、加载的springbean信息、yml文件配置信息、环境信息、请求映射信息；</li>
+<li>度量指标类：主要是运行期的动态信息，例如堆栈、请求连、一些健康指标、metrics信息等；</li>
+<li>操作控制类：主要是指shutdown,用户可以发送一个请求将应用的监控功能关闭。</li>
+</ul>
+</div></blockquote>
+<p>Actuator 提供了 13 个接口，具体如下表所示。</p>
+<p><strong>HTTP方法     路径  描述</strong></p>
+<ul class="simple">
+<li>GET     /autoconfig     提供了一份自动配置报告，记录哪些自动配置条件通过了，哪些没通过</li>
+<li>GET     /configprops    描述配置属性(包含默认值)如何注入Bean</li>
+<li>GET     /beans  描述应用程序上下文里全部的Bean，以及它们的关系</li>
+<li>GET     /dump   获取线程活动的快照</li>
+<li>GET     /env    获取全部环境属性</li>
+<li>GET     /env/{name}     根据名称获取特定的环境属性值</li>
+<li>GET     /health     报告应用程序的健康指标，这些值由HealthIndicator的实现类提供</li>
+<li>GET     /info   获取应用程序的定制信息，这些信息由info打头的属性提供</li>
+<li>GET     /mappings   描述全部的URI路径，以及它们和控制器(包含Actuator端点)的映射关系</li>
+<li>GET     /metrics    报告各种应用程序度量信息，比如内存用量和HTTP请求计数</li>
+<li>GET     /metrics/{name}     报告指定名称的应用程序度量值</li>
+<li>POST    /shutdown   关闭应用程序，要求endpoints.shutdown.enabled设置为true</li>
+<li>GET     /trace  提供基本的HTTP请求跟踪信息(时间戳、HTTP头等)</li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h2>快速上手<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h3>相关配置<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p><strong>项目依赖</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependencies</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">web</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+      <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">actuator</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependencies</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p><strong>配置文件</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">server</span><span class="p">:</span>
+  <span class="n">port</span><span class="p">:</span> <span class="mi">8080</span>
+<span class="n">management</span><span class="p">:</span>
+  <span class="n">security</span><span class="p">:</span>
+    <span class="n">enabled</span><span class="p">:</span> <span class="n">false</span> <span class="c1">#关掉安全认证</span>
+  <span class="n">port</span><span class="p">:</span> <span class="mi">8088</span> <span class="c1">#管理端口调整成8088</span>
+  <span class="n">context</span><span class="o">-</span><span class="n">path</span><span class="p">:</span> <span class="o">/</span><span class="n">monitor</span> <span class="c1">#actuator的访问路径</span>
+<span class="n">endpoints</span><span class="p">:</span>
+  <span class="n">shutdown</span><span class="p">:</span>
+    <span class="n">enabled</span><span class="p">:</span> <span class="n">true</span>
+
+<span class="n">info</span><span class="p">:</span>
+   <span class="n">app</span><span class="p">:</span>
+      <span class="n">name</span><span class="p">:</span> <span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">actuator</span>
+      <span class="n">version</span><span class="p">:</span> <span class="mf">1.0</span><span class="o">.</span><span class="mi">0</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>management.security.enabled=false默认有一部分信息需要安全验证之后才可以查看，如果去掉这些安全认证，直接设置management.security.enabled=false</li>
+<li>management.context-path=/monitor 代表启用单独的url地址来监控Spring Boot应用，为了安全一般都启用独立的端口来访问后端的监控信息</li>
+<li>endpoints.shutdown.enabled=true 启用接口关闭Spring Boot</li>
+</ul>
+<p>配置完成之后，启动项目就可以继续验证各个监控功能了。</p>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>命令详解<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p><strong>autoconfig</strong></p>
+<p>Spring Boot的自动配置功能非常便利，但有时候也意味着出问题比较难找出具体的原因。使用 autoconfig 可以在应用运行时查看代码了某个配置在什么条件下生效，或者某个自动配置为什么没有生效。</p>
+<p>启动示例项目，访问：<a class="reference external" href="http://localhost:8088/monitor">http://localhost:8088/monitor</a>/autoconfig返回部分信息如下：</p>
+<div class="code json highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;positiveMatches&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="s2">&quot;DevToolsDataSourceAutoConfiguration&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;notMatched&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;DevToolsDataSourceAutoConfiguration.DevToolsDataSourceCondition&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;DevTools DataSource Condition did not find a single DataSource bean&quot;</span>
+                <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;matched&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;RemoteDevToolsAutoConfiguration&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;notMatched&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;OnPropertyCondition&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;@ConditionalOnProperty (spring.devtools.remote.secret) did not find property &#39;secret&#39;&quot;</span>
+                <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;matched&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;condition&quot;</span><span class="p">:</span> <span class="s2">&quot;OnClassCondition&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;@ConditionalOnClass found required classes &#39;javax.servlet.Filter&#39;, &#39;org.springframework.http.server.ServerHttpRequest&#39;; @ConditionalOnMissingClass did not find unwanted class&quot;</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>configprops</strong></p>
+<p>查看配置文件中设置的属性内容，以及一些配置属性的默认值。</p>
+<p>启动示例项目，访问：<a class="reference external" href="http://localhost:8088/monitor">http://localhost:8088/monitor</a>/configprops返回部分信息如下：</p>
+<div class="code json highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="o">...</span>
+  <span class="s2">&quot;environmentEndpoint&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;prefix&quot;</span><span class="p">:</span> <span class="s2">&quot;endpoints.env&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;env&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;sensitive&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="n">true</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;spring.http.multipart-org.springframework.boot.autoconfigure.web.MultipartProperties&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;prefix&quot;</span><span class="p">:</span> <span class="s2">&quot;spring.http.multipart&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;maxRequestSize&quot;</span><span class="p">:</span> <span class="s2">&quot;10MB&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;fileSizeThreshold&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;maxFileSize&quot;</span><span class="p">:</span> <span class="s2">&quot;1MB&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;resolveLazily&quot;</span><span class="p">:</span> <span class="n">false</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;infoEndpoint&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;prefix&quot;</span><span class="p">:</span> <span class="s2">&quot;endpoints.info&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;sensitive&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;enabled&quot;</span><span class="p">:</span> <span class="n">true</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>beans</strong></p>
+<p>根据示例就可以看出，展示了bean的别名、类型、是否单例、类的地址、依赖等信息。</p>
+<p>启动示例项目，访问：<a class="reference external" href="http://localhost:8088/monitor">http://localhost:8088/monitor</a>/beans返回部分信息如下：</p>
+<div class="code json highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;context&quot;</span><span class="p">:</span> <span class="s2">&quot;application:8080:management&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parent&quot;</span><span class="p">:</span> <span class="s2">&quot;application:8080&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;beans&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;bean&quot;</span><span class="p">:</span> <span class="s2">&quot;embeddedServletContainerFactory&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;aliases&quot;</span><span class="p">:</span> <span class="p">[</span>
+
+        <span class="p">],</span>
+        <span class="s2">&quot;scope&quot;</span><span class="p">:</span> <span class="s2">&quot;singleton&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resource&quot;</span><span class="p">:</span> <span class="s2">&quot;null&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">[</span>
+
+        <span class="p">]</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;bean&quot;</span><span class="p">:</span> <span class="s2">&quot;endpointWebMvcChildContextConfiguration&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;aliases&quot;</span><span class="p">:</span> <span class="p">[</span>
+
+        <span class="p">],</span>
+        <span class="s2">&quot;scope&quot;</span><span class="p">:</span> <span class="s2">&quot;singleton&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;org.springframework.boot.actuate.autoconfigure.EndpointWebMvcChildContextConfiguration$$EnhancerBySpringCGLIB$$a4a10f9d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resource&quot;</span><span class="p">:</span> <span class="s2">&quot;null&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">[</span>
+
+        <span class="p">]</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p><strong>dump</strong></p>
+<p>/dump 接口会生成当前线程活动的快照。这个功能非常好，方便我们在日常定位问题的时候查看线程的情况。
+主要展示了线程名、线程ID、线程的状态、是否等待锁资源等信息。</p>
+<p>启动示例项目，访问：<a class="reference external" href="http://localhost:8088/monitor">http://localhost:8088/monitor</a>/dump返回部分信息如下：</p>
+<div class="code json highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;threadName&quot;</span><span class="p">:</span> <span class="s2">&quot;http-nio-8088-exec-6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;threadId&quot;</span><span class="p">:</span> <span class="mi">49</span><span class="p">,</span>
+    <span class="s2">&quot;blockedTime&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;blockedCount&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;waitedTime&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;waitedCount&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;lockName&quot;</span><span class="p">:</span> <span class="s2">&quot;java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject@1630a501&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;lockOwnerId&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;lockOwnerName&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+    <span class="s2">&quot;inNative&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+    <span class="s2">&quot;suspended&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+    <span class="s2">&quot;threadState&quot;</span><span class="p">:</span> <span class="s2">&quot;WAITING&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;stackTrace&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;methodName&quot;</span><span class="p">:</span> <span class="s2">&quot;park&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fileName&quot;</span><span class="p">:</span> <span class="s2">&quot;Unsafe.java&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lineNumber&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;sun.misc.Unsafe&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nativeMethod&quot;</span><span class="p">:</span> <span class="n">true</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;methodName&quot;</span><span class="p">:</span> <span class="s2">&quot;park&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fileName&quot;</span><span class="p">:</span> <span class="s2">&quot;LockSupport.java&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lineNumber&quot;</span><span class="p">:</span> <span class="mi">175</span><span class="p">,</span>
+        <span class="s2">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;java.util.concurrent.locks.LockSupport&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nativeMethod&quot;</span><span class="p">:</span> <span class="n">false</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;methodName&quot;</span><span class="p">:</span> <span class="s2">&quot;await&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fileName&quot;</span><span class="p">:</span> <span class="s2">&quot;AbstractQueuedSynchronizer.java&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lineNumber&quot;</span><span class="p">:</span> <span class="mi">2039</span><span class="p">,</span>
+        <span class="s2">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nativeMethod&quot;</span><span class="p">:</span> <span class="n">false</span>
+      <span class="p">},</span>
+       <span class="o">...</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;methodName&quot;</span><span class="p">:</span> <span class="s2">&quot;getTask&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fileName&quot;</span><span class="p">:</span> <span class="s2">&quot;ThreadPoolExecutor.java&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lineNumber&quot;</span><span class="p">:</span> <span class="mi">1067</span><span class="p">,</span>
+        <span class="s2">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;java.util.concurrent.ThreadPoolExecutor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nativeMethod&quot;</span><span class="p">:</span> <span class="n">false</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;methodName&quot;</span><span class="p">:</span> <span class="s2">&quot;runWorker&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fileName&quot;</span><span class="p">:</span> <span class="s2">&quot;ThreadPoolExecutor.java&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lineNumber&quot;</span><span class="p">:</span> <span class="mi">1127</span><span class="p">,</span>
+        <span class="s2">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;java.util.concurrent.ThreadPoolExecutor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nativeMethod&quot;</span><span class="p">:</span> <span class="n">false</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;methodName&quot;</span><span class="p">:</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fileName&quot;</span><span class="p">:</span> <span class="s2">&quot;ThreadPoolExecutor.java&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lineNumber&quot;</span><span class="p">:</span> <span class="mi">617</span><span class="p">,</span>
+        <span class="s2">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;java.util.concurrent.ThreadPoolExecutor$Worker&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nativeMethod&quot;</span><span class="p">:</span> <span class="n">false</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;methodName&quot;</span><span class="p">:</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fileName&quot;</span><span class="p">:</span> <span class="s2">&quot;TaskThread.java&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lineNumber&quot;</span><span class="p">:</span> <span class="mi">61</span><span class="p">,</span>
+        <span class="s2">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;org.apache.tomcat.util.threads.TaskThread$WrappingRunnable&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nativeMethod&quot;</span><span class="p">:</span> <span class="n">false</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;methodName&quot;</span><span class="p">:</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fileName&quot;</span><span class="p">:</span> <span class="s2">&quot;Thread.java&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lineNumber&quot;</span><span class="p">:</span> <span class="mi">745</span><span class="p">,</span>
+        <span class="s2">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;java.lang.Thread&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nativeMethod&quot;</span><span class="p">:</span> <span class="n">false</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;lockedMonitors&quot;</span><span class="p">:</span> <span class="p">[</span>
+
+    <span class="p">],</span>
+    <span class="s2">&quot;lockedSynchronizers&quot;</span><span class="p">:</span> <span class="p">[</span>
+
+    <span class="p">],</span>
+    <span class="s2">&quot;lockInfo&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;identityHashCode&quot;</span><span class="p">:</span> <span class="mi">372286721</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="o">...</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p><strong>env</strong></p>
+<p>展示了系统环境变量的配置信息，包括使用的环境变量、JVM 属性、命令行参数、项目使用的jar包等信息。和configprops不同的是，configprops关注于配置信息，env关注运行环境信息。</p>
+<p>启动示例项目，访问：<a class="reference external" href="http://localhost:8088/monitor">http://localhost:8088/monitor</a>/env返回部分信息如下：</p>
+<div class="code json highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;profiles&quot;</span><span class="p">:</span> <span class="p">[</span>
+
+  <span class="p">],</span>
+  <span class="s2">&quot;server.ports&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;local.management.port&quot;</span><span class="p">:</span> <span class="mi">8088</span><span class="p">,</span>
+    <span class="s2">&quot;local.server.port&quot;</span><span class="p">:</span> <span class="mi">8080</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;servletContextInitParams&quot;</span><span class="p">:</span> <span class="p">{</span>
+
+  <span class="p">},</span>
+  <span class="s2">&quot;systemProperties&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;com.sun.management.jmxremote.authenticate&quot;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;java.runtime.name&quot;</span><span class="p">:</span> <span class="s2">&quot;Java(TM) SE Runtime Environment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;spring.output.ansi.enabled&quot;</span><span class="p">:</span> <span class="s2">&quot;always&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sun.boot.library.path&quot;</span><span class="p">:</span> <span class="s2">&quot;C:</span><span class="se">\\</span><span class="s2">Program Files</span><span class="se">\\</span><span class="s2">Java</span><span class="se">\\</span><span class="s2">jdk1.8.0_101</span><span class="se">\\</span><span class="s2">jre</span><span class="se">\\</span><span class="s2">bin&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;java.vm.version&quot;</span><span class="p">:</span> <span class="s2">&quot;25.101-b13&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;java.vm.vendor&quot;</span><span class="p">:</span> <span class="s2">&quot;Oracle Corporation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;java.vendor.url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://java.oracle.com/&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;java.rmi.server.randomIDs&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;path.separator&quot;</span><span class="p">:</span> <span class="s2">&quot;;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;java.vm.name&quot;</span><span class="p">:</span> <span class="s2">&quot;Java HotSpot(TM) 64-Bit Server VM&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;file.encoding.pkg&quot;</span><span class="p">:</span> <span class="s2">&quot;sun.io&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;user.country&quot;</span><span class="p">:</span> <span class="s2">&quot;CN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;user.script&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sun.java.launcher&quot;</span><span class="p">:</span> <span class="s2">&quot;SUN_STANDARD&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sun.os.patch.level&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PID&quot;</span><span class="p">:</span> <span class="s2">&quot;5268&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;com.sun.management.jmxremote.port&quot;</span><span class="p">:</span> <span class="s2">&quot;60093&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;java.vm.specification.name&quot;</span><span class="p">:</span> <span class="s2">&quot;Java Virtual Machine Spe</span>
+</pre></div>
+</div>
+<p>为了避免敏感信息暴露到 /env 里，所有名为password、secret、key(或者名字中最后一段是这些)的属性在 /env 里都会加上“*”。举个例子，如果有一个属性名字是database.password，那么它在/env中的显示效果是这样的：</p>
+<blockquote>
+<div>“database.password”:”<strong>**</strong>”</div></blockquote>
+<p>/env/{name}用法</p>
+<p>就是env的扩展 可以获取指定配置信息，比如：<a class="reference external" href="http://localhost:8088/monitor/env/java.vm.version">http://localhost:8088/monitor/env/java.vm.version</a>,返回：{“java.vm.version”:”25.101-b13”}</p>
+<p><strong>health</strong></p>
+<p>可以看到 HealthEndPoint 给我们提供默认的监控结果，包含 磁盘检测和数据库检测</p>
+<p>启动示例项目，访问：<a class="reference external" href="http://localhost:8088/monitor">http://localhost:8088/monitor</a>/health返回部分信息，下面的JSON响应是由状态、磁盘空间和db。描述了应用程序的整体健康状态,UP 表明应用程序是健康的。磁盘空间描述总磁盘空间,剩余的磁盘空间和最小阈值。application.properties阈值是可配置的</p>
+<div class="code json highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;UP&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;diskSpace&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;UP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="mi">209715195904</span><span class="p">,</span>
+    <span class="s2">&quot;free&quot;</span><span class="p">:</span> <span class="mi">183253909504</span><span class="p">,</span>
+    <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mi">10485760</span>
+  <span class="p">}</span>
+  <span class="s2">&quot;db&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;UP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;database&quot;</span><span class="p">:</span> <span class="s2">&quot;MySQL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hello&quot;</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>其实看 Spring Boot-actuator 源码，你会发现 HealthEndPoint 提供的信息不仅限于此，org.springframework.boot.actuate.health 包下 你会发现 ElasticsearchHealthIndicator、RedisHealthIndicator、RabbitHealthIndicator 等</p>
+<p><strong>info</strong></p>
+<p>info就是我们自己配置在配置文件中以Info开头的配置信息，比如我们在示例项目中的配置是：</p>
+<div class="code json highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">info</span><span class="p">:</span>
+   <span class="n">app</span><span class="p">:</span>
+      <span class="n">name</span><span class="p">:</span> <span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">actuator</span>
+      <span class="n">version</span><span class="p">:</span> <span class="mf">1.0</span><span class="o">.</span><span class="mi">0</span>
+</pre></div>
+</div>
+<p>启动示例项目，访问：<a class="reference external" href="http://localhost:8088/monitor">http://localhost:8088/monitor</a>/info返回部分信息如下：</p>
+<div class="code json highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;app&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;spring-boot-actuator&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0.0&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>mappings</strong></p>
+<p>描述全部的URI路径，以及它们和控制器的映射关系</p>
+<p>启动示例项目，访问：<a class="reference external" href="http://localhost:8088/monitor">http://localhost:8088/monitor</a>/mappings返回部分信息如下：</p>
+<div class="code json highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;/**/favicon.ico&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;bean&quot;</span><span class="p">:</span> <span class="s2">&quot;faviconHandlerMapping&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;{[/hello]}&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;bean&quot;</span><span class="p">:</span> <span class="s2">&quot;requestMappingHandlerMapping&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;public java.lang.String com.neo.controller.HelloController.index()&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;{[/error]}&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;bean&quot;</span><span class="p">:</span> <span class="s2">&quot;requestMappingHandlerMapping&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;public org.springframework.http.ResponseEntity&lt;java.util.Map&lt;java.lang.String, java.lang.Object&gt;&gt; org.springframework.boot.autoconfigure.web.BasicErrorController.error(javax.servlet.http.HttpServletRequest)&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>metrics</strong></p>
+<p>最重要的监控内容之一，主要监控了JVM内容使用、GC情况、类加载信息等。</p>
+<p>启动示例项目，访问：<a class="reference external" href="http://localhost:8088/monitor">http://localhost:8088/monitor</a>/metrics返回部分信息如下：</p>
+<div class="code json highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;mem&quot;</span><span class="p">:</span> <span class="mi">337132</span><span class="p">,</span>
+  <span class="s2">&quot;mem.free&quot;</span><span class="p">:</span> <span class="mi">183380</span><span class="p">,</span>
+  <span class="s2">&quot;processors&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+  <span class="s2">&quot;instance.uptime&quot;</span><span class="p">:</span> <span class="mi">254552</span><span class="p">,</span>
+  <span class="s2">&quot;uptime&quot;</span><span class="p">:</span> <span class="mi">259702</span><span class="p">,</span>
+  <span class="s2">&quot;systemload.average&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
+  <span class="s2">&quot;heap.committed&quot;</span><span class="p">:</span> <span class="mi">292864</span><span class="p">,</span>
+  <span class="s2">&quot;heap.init&quot;</span><span class="p">:</span> <span class="mi">129024</span><span class="p">,</span>
+  <span class="s2">&quot;heap.used&quot;</span><span class="p">:</span> <span class="mi">109483</span><span class="p">,</span>
+  <span class="s2">&quot;heap&quot;</span><span class="p">:</span> <span class="mi">1827840</span><span class="p">,</span>
+  <span class="s2">&quot;nonheap.committed&quot;</span><span class="p">:</span> <span class="mi">45248</span><span class="p">,</span>
+  <span class="s2">&quot;nonheap.init&quot;</span><span class="p">:</span> <span class="mi">2496</span><span class="p">,</span>
+  <span class="s2">&quot;nonheap.used&quot;</span><span class="p">:</span> <span class="mi">44269</span><span class="p">,</span>
+  <span class="s2">&quot;nonheap&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;threads.peak&quot;</span><span class="p">:</span> <span class="mi">63</span><span class="p">,</span>
+  <span class="s2">&quot;threads.daemon&quot;</span><span class="p">:</span> <span class="mi">43</span><span class="p">,</span>
+  <span class="s2">&quot;threads.totalStarted&quot;</span><span class="p">:</span> <span class="mi">83</span><span class="p">,</span>
+  <span class="s2">&quot;threads&quot;</span><span class="p">:</span> <span class="mi">46</span><span class="p">,</span>
+  <span class="s2">&quot;classes&quot;</span><span class="p">:</span> <span class="mi">6357</span><span class="p">,</span>
+  <span class="s2">&quot;classes.loaded&quot;</span><span class="p">:</span> <span class="mi">6357</span><span class="p">,</span>
+  <span class="s2">&quot;classes.unloaded&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;gc.ps_scavenge.count&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+  <span class="s2">&quot;gc.ps_scavenge.time&quot;</span><span class="p">:</span> <span class="mi">99</span><span class="p">,</span>
+  <span class="s2">&quot;gc.ps_marksweep.count&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="s2">&quot;gc.ps_marksweep.time&quot;</span><span class="p">:</span> <span class="mi">43</span><span class="p">,</span>
+  <span class="s2">&quot;httpsessions.max&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+  <span class="s2">&quot;httpsessions.active&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>对 /metrics接口提供的信息进行简单分类如下表：</p>
+<ul class="simple">
+<li>垃圾收集器   gc.*    已经发生过的垃圾收集次数，以及垃圾收集所耗费的时间，适用于标记-清理垃圾收集器和并行垃圾收集器(数据源自java.lang.management. GarbageCollectorMXBean)</li>
+<li>内存  mem.*   分配给应用程序的内存数量和空闲的内存数量(数据源自java.lang. Runtime)</li>
+<li>堆   heap.*  当前内存用量(数据源自java.lang.management.MemoryUsage)</li>
+<li>类加载器    classes.*   JVM类加载器加载与卸载的类的数量(数据源自java.lang. management.ClassLoadingMXBean)</li>
+<li>系统  processors、instance.uptime、uptime、systemload.average    系统信息，例如处理器数量(数据源自java.lang.Runtime)、运行时间(数据源自java.lang.management.RuntimeMXBean)、平均负载(数据源自java.lang.management.OperatingSystemMXBean)</li>
+<li>线程池     thread.*    线程、守护线程的数量，以及JVM启动后的线程数量峰值(数据源自 java.lang .management.ThreadMXBean)</li>
+<li>数据源     datasource.*    数据源连接的数量(源自数据源的元数据，仅当Spring应用程序上下文里存在 DataSource Bean 的时候才会有这个信息)</li>
+<li>Tomcat 会话   httpsessions.*  Tomcat的活跃会话数和最大会话数(数据源自嵌入式Tomcat的Bean，仅在使用嵌入式Tomcat服务器运行应用程序时才有这个信息)</li>
+<li>HTTP    counter.status.、gauge.response.     多种应用程序服务HTTP请求的度量值与计数器</li>
+</ul>
+<p>解释说明：</p>
+<blockquote>
+<div><ul class="simple">
+<li>请注意，这里的一些度量值，比如数据源和Tomcat会话，仅在应用程序中运行特定组件时才有数据。你还可以注册自己的度量信息。</li>
+<li>HTTP的计数器和度量值需要做一点说明。counter.status 后的值是HTTP状态码，随后是所请求的路径。举个例子，counter.status.200.metrics 表明/metrics端点返回 200(OK) 状态码的次数。</li>
+<li>HTTP的度量信息在结构上也差不多，却在报告另一类信息。它们全部以gauge.response 开头,，表明这是HTTP响应的度量信息。前缀后是对应的路径。度量值是以毫秒为单位的时间，反映了最近处理该路径请求的耗时。</li>
+<li>这里还有几个特殊的值需要注意。root路径指向的是根路径或/。star-star代表了那些Spring 认为是静态资源的路径，包括图片、JavaScript和样式表，其中还包含了那些找不到的资源。这就是为什么你经常会看到 counter.status.404.star-star，这是返回了HTTP 404 (NOT FOUND) 状态的请求数。</li>
+<li>/metrics接口会返回所有的可用度量值，但你也可能只对某个值感兴趣。要获取单个值，请求时可以在URL后加上对应的键名。例如，要查看空闲内存大小,可以向/metrics/mem.free发一 个GET请求。例如访问：<a class="reference external" href="http://localhost:8088/monitor/metrics/mem.free">http://localhost:8088/monitor/metrics/mem.free</a>，返回：{“mem.free”:178123}。</li>
+</ul>
+</div></blockquote>
+<p><strong>shutdown</strong></p>
+<p>开启接口优雅关闭Spring Boot应用，要使用这个功能首先需要在配置文件中开启：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">endpoints</span><span class="p">:</span>
+  <span class="n">shutdown</span><span class="p">:</span>
+    <span class="n">enabled</span><span class="p">:</span> <span class="n">true</span>
+</pre></div>
+</div>
+<p>配置完成之后，启动示例项目，访问：<a class="reference external" href="http://localhost:8088/monitor">http://localhost:8088/monitor</a>/shutdown返回部分信息如下：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Shutting down, bye...&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>此时你会发现应用已经被关闭。</p>
+<p><strong>trace</strong></p>
+<p>/trace 接口能报告所有Web请求的详细信息，包括请求方法、路径、时间戳以及请求和响应的头信息，记录每一次请求的详细信息。</p>
+<p>启动示例项目，先访问一次：<a class="reference external" href="http://localhost:8080/hello">http://localhost:8080/hello</a>，再到浏览器执行：<a class="reference external" href="http://localhost:8088/monitor">http://localhost:8088/monitor</a>/trace查看返回信息：</p>
+<div class="code json highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1516780334777</span><span class="p">,</span>
+    <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;/hello&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;headers&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;localhost:8080&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;connection&quot;</span><span class="p">:</span> <span class="s2">&quot;keep-alive&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;cache-control&quot;</span><span class="p">:</span> <span class="s2">&quot;max-age=0&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;user-agent&quot;</span><span class="p">:</span> <span class="s2">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;upgrade-insecure-requests&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;accept&quot;</span><span class="p">:</span> <span class="s2">&quot;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;accept-encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;gzip, deflate, br&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;accept-language&quot;</span><span class="p">:</span> <span class="s2">&quot;zh-CN,zh;q=0.9&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;cookie&quot;</span><span class="p">:</span> <span class="s2">&quot;UM_distinctid=16053ba344f1cd-0dc220c44cc94-b7a103e-13c680-16053ba3450751; Hm_lvt_0fb30c642c5f6453f17d881f529a1141=1513076406,1514961720,1515649377; CNZZDATA1260945749=232252692-1513233181-%7C1516085149; Hm_lvt_6d8e8bb59814010152d98507a18ad229=1515247964,1515296008,1515672972,1516086283&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;X-Application-Context&quot;</span><span class="p">:</span> <span class="s2">&quot;application:8080&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;text/html;charset=UTF-8&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;Content-Length&quot;</span><span class="p">:</span> <span class="s2">&quot;11&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;Date&quot;</span><span class="p">:</span> <span class="s2">&quot;Wed, 24 Jan 2018 07:52:14 GMT&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;200&quot;</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;timeTaken&quot;</span><span class="p">:</span> <span class="s2">&quot;4&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>上述信息展示了，/hello请求的详细信息。</p>
+</div>
+<div class="section" id="id4">
+<h2>其它配置<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>敏感信息访问限制</p>
+<p>根据上面表格，鉴权为false的，表示不敏感，可以随意访问，否则就是做了一些保护，不能随意访问。</p>
+<blockquote>
+<div>endpoints.mappings.sensitive=false</div></blockquote>
+<p>这样需要对每一个都设置，比较麻烦。敏感方法默认是需要用户拥有ACTUATOR角色，因此，也可以设置关闭安全限制：</p>
+<blockquote>
+<div>management.security.enabled=false</div></blockquote>
+<p>或者配合Spring Security做细粒度控制。
+启用和禁用接口</p>
+<p>虽然Actuator的接口都很有用，但你不一定需要全部这些接口。默认情况下，所有接口(除 了/shutdown)都启用。比如要禁用 /metrics 接口，则可以设置如下：</p>
+<blockquote>
+<div>endpoints.metrics.enabled = false</div></blockquote>
+<p>如果你只想打开一两个接口，那就先禁用全部接口，然后启用那几个你要的，这样更方便。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">endpoints</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="n">false</span>
+<span class="n">endpoints</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="n">true</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">使用Spring Boot Actuator监控应用</a><ul>
+<li><a class="reference internal" href="#actuator">Actuator监控</a></li>
+<li><a class="reference internal" href="#actuator-rest">Actuator 的 REST 接口</a></li>
+<li><a class="reference internal" href="#id1">快速上手</a><ul>
+<li><a class="reference internal" href="#id2">相关配置</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">命令详解</a></li>
+<li><a class="reference internal" href="#id4">其它配置</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springboot/18_actuator.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springboot/18_actuator.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

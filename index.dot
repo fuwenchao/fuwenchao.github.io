@@ -37,9 +37,10 @@ digraph mytest{
 
         javaHigh [label="java高级" shape=folder]
         javareflect [label="java反射" URL="mydoc/doc_build/java/java_pro/reflection/readme.html"]
-        javaannomiate [label="java注解"]
-        javaconcurrency [label="java高并发"]
-        javanetwork [label="java 网络编程" URL="mydoc/doc_build/java/java_pro/java_nio/readme.html" shape="folder"]
+        javaannomiate [label="java泛型" URL="mydoc/doc_build/java/java_pro/generic/readme.html"]
+        javaconcurrency [label="java并发" URL="mydoc/doc_build/java/java_pro/concurrency/readme.html"]
+        javanetwork [label="java网络编程" URL="mydoc/doc_build/java/java_pro/java_nio/readme.html" shape="folder"]
+        javanetwork [label="java线程" URL="mydoc/doc_build/java/java_pro/thread/readme.html" shape="folder"]
 
 
         javaPrimary 
@@ -180,7 +181,7 @@ digraph mytest{
     thinkinjava [label="java编程思想" shape=note]
 
     books -> java
-    java -> {effectivejava,javaconcurrencyinpractive,JVM,thinkinjava} [ label="待购" color=yellow ]
+    java -> {effectivejava,javaconcurrencyinpractive,JVM,thinkinjava} [ label="已购" color=yellow ]
 
     bigdata [label="大数据参考"]
     books ->bigdata

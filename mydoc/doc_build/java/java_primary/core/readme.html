@@ -1,0 +1,176 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>java 核心36讲 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="java-36">
+<h1>java 核心36讲<a class="headerlink" href="#java-36" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>模块一：基础<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="b01_java_compiler.html">1. 谈谈你对java体系的理解，“java是解释执行”这句话对吗？</a></p>
+<p><a class="reference external" href="../exception/exception.html">2. 请对比 Exception 和 Error ，运行时异常和一般异常有什么区别</a></p>
+<p><a class="reference external" href="b03_final.html">3. 谈谈 finally  final finalize 有什么不同</a></p>
+<p><a class="reference external" href="b04_reference.html">4. 强引用，软引用，弱引用，幻想引用有什么区别，他们的使用场景是什么</a></p>
+<p><a class="reference external" href="b05_reflection_proxy.html">5. 谈谈java的反射机制，动态代理是基于什么原理</a></p>
+<p><a class="reference external" href="b06_String.html">6. String 之 理解java的字符串，String，StringBuilder,StringBuffer有什么区别</a></p>
+<p><a href="#id16"><span class="problematic" id="id17">`7. String 之 new String()究竟创建几个对象?`_</span></a></p>
+<p><a class="reference external" href="b08_arraylist_linedlist.html">8. 对比Vector，ArrayList ， LindedList有何区别</a></p>
+<ol class="arabic simple" start="9">
+<li>对比 HashTable HashMap HashTree ，谈谈你对HashMap的掌握</li>
+<li>如何保证集合是线程安全的，ConcurrentHashMap 做了什么</li>
+<li>Java　NIO 提供了哪些IO方式，看过NIO的源码吗？如果让你来改进NIO，会做什么改进？</li>
+<li>面向对象基础，抽象类，接口的区别是什么？</li>
+<li>说说你知道的设计模式，请动手实现单例模式，Spring，Mybaties使用了哪些模式</li>
+</ol>
+<p><a class="reference external" href="b14_byte127.html">14. byte的最大值为什么是127</a></p>
+<p><a class="reference external" href="b15_staticMethod_nonStaticMethod.html">15. 静态方法与非静态方法的区别</a></p>
+</div>
+<div class="section" id="jvm">
+<h2>JVM<a class="headerlink" href="#jvm" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="j01_java_memory.html">1. Java内存区域</a></p>
+<p><a class="reference external" href="j02_oom.html">2. 内存溢出异常</a></p>
+<p><a class="reference external" href="j03_gc.html">3. 谈谈 JVM 的垃圾回收</a></p>
+<p><a class="reference external" href="j04_memory_allocation_recyle_policy.html">4. 内存分配与回收策略</a></p>
+<p><a class="reference external" href="j05_memory_out_leak.html">5. java 内存泄漏与内存溢出的异同</a></p>
+<p><a class="reference external" href="j06_field_location.html">6. Java中基本数据类型和引用数据类型的存放位置</a></p>
+<p><a class="reference external" href="j07_constant_pool_runtime_constant_pool.html">7. JVM中的常量池和运行时常量池有什么区别</a></p>
+<p><a class="reference external" href="j08_java_stack.html">8. 探究 Java 虚拟机栈</a></p>
+</div>
+<div class="section" id="id2">
+<h2>模块二：进阶<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>理解Java锁实现，Synchronized 和 ReentrantLock 有什么区别，有人说 Synchronized 最慢，这话靠谱吗？</li>
+<li>一个线程连着调用两次start会出现什么情况，谈谈线程的生命周期和状态转移</li>
+<li>什么情况下java会产生死锁，如何排除？</li>
+<li>Java并发包提供了哪些并发类，使用这些数据结构解决过什么并发问题</li>
+<li>AtomicInteger 底层实现原理是什么，如何在自己的代码中应用CAS操作</li>
+<li>java 并发类库提供的线程池有哪几种，如何选择？</li>
+<li>什么是类加载过程、双亲委派模型</li>
+<li>谈谈JVM内存区域划分，如何监控和诊断JVM堆内和堆外内存使用，OOM常见排错思路有哪些</li>
+<li>GC 收集器有哪些，常见的调优方法有哪些</li>
+<li>谈谈 Java 内存排序模型（JMM） ，原子性，可见性，有序性是什么，现在很多都在谈 HAPPEN-Before
+之类概念，那么如何用程序证明比如Volatile的行为是否正确？</li>
+<li>我的Java程序似乎被Docker欺负了，有什么建议？</li>
+</ol>
+</div>
+<div class="section" id="java">
+<h2>模块三：java应用开发扩展<a class="headerlink" href="#java" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>谈谈 MYSQL 支持的隔离级别（读未提交，读已提交，可重复读，可序列化读），以及悲观锁和乐观锁的原理和使用场景</li>
+<li>谈谈Redis典型使用场景和实现策略</li>
+<li>消息队列的使用场景是什么，谈谈你所用过的消息队列的架构，比如Kafka是如何保证多个partitions之间数据一致性的</li>
+<li>Spring框架概览，谈谈Spring Bean 的生命周期和作用域，Spring AOP解决什么问题</li>
+<li>什么场景下需要用到 <strong>Netty</strong> ，对比 JAVA 的 NIO 库，你知道 Netty 如何实现更高新能吗？</li>
+<li>常见的分布式ID的设计方案是什么，SnowFlake 会收冬令时切换影响吗？</li>
+<li>处理过分布式事务吗，谈谈常见解决方案</li>
+<li>微服务 和 SOA 的区别是什么，请比较构建微服务的常见方案</li>
+</ol>
+</div>
+<div class="section" id="id3">
+<h2>模块四：java安全基础<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>java应用程序中常见的安全攻击有哪些，如何规避哪些臭名昭著的攻击</li>
+<li>如何写出安全的java代码，最佳时间与反实践有哪些？</li>
+</ol>
+</div>
+<div class="section" id="id4">
+<h2>模块五：java性能基础<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>后台服务明显变慢，谈谈你的诊断思路</li>
+<li>有人说 “Lambda能让Java程序慢30倍，你怎么看？理解JVM优化Java代码是都做了什么，怎样才能实现靠谱的Benchmark？</li>
+</ol>
+<hr class="docutils" />
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">java 核心36讲</a><ul>
+<li><a class="reference internal" href="#id1">模块一：基础</a></li>
+<li><a class="reference internal" href="#jvm">JVM</a></li>
+<li><a class="reference internal" href="#id2">模块二：进阶</a></li>
+<li><a class="reference internal" href="#java">模块三：java应用开发扩展</a></li>
+<li><a class="reference internal" href="#id3">模块四：java安全基础</a></li>
+<li><a class="reference internal" href="#id4">模块五：java性能基础</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_primary/core/readme.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_primary/core/readme.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

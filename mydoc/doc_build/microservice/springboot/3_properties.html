@@ -1,0 +1,427 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>配置文件 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>配置文件<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="value">
+<h2>Value注入<a class="headerlink" href="#value" title="Permalink to this headline">¶</a></h2>
+<p>当我们创建一个springboot项目的时候，系统默认会为我们在src/main/java/resources目录下创建一个application.properties。个人习惯，我会将application.properties改为application.yml文件，两种文件格式都支持。</p>
+<p>在application.yml自定义一组属性：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">server</span><span class="p">:</span>
+  <span class="n">port</span><span class="p">:</span> <span class="mi">8081</span>
+<span class="n">girl</span><span class="p">:</span>
+  <span class="n">cupSize</span><span class="p">:</span> <span class="n">B</span>
+  <span class="n">age</span><span class="p">:</span> <span class="mi">18</span>
+</pre></div>
+</div>
+<p>或者</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>my:
+ name: forezp
+ age: 12
+ number:  ${random.int}
+ uuid : ${random.uuid}
+ max: ${random.int(10)}
+ value: ${random.value}
+ greeting: hi,i&#39;m  ${my.name}
+</pre></div>
+</div>
+<p>如果你需要读取配置文件的值只需要加&#64;Value(“${属性名}”)：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@RestController</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">MiyaController</span> <span class="p">{</span>
+
+    <span class="nd">@Value</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{girl.cupSize}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">private</span> <span class="n">String</span> <span class="n">cupSize</span><span class="p">;</span>
+
+    <span class="nd">@Value</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{my.age}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">private</span> <span class="nb">int</span> <span class="n">age</span><span class="p">;</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;/miya&quot;</span><span class="p">)</span>
+    <span class="n">public</span> <span class="n">String</span> <span class="n">miya</span><span class="p">(){</span>
+        <span class="k">return</span> <span class="n">cupSize</span><span class="o">+</span><span class="s2">&quot;:&quot;</span><span class="o">+</span><span class="n">age</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>将配置文件的属性赋给实体类<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>@Component
+@ConfigurationProperties(prefix = &quot;girl&quot;)  //获取前缀是girl的配置
+public class GirlProperties {
+    private String cupSize;  //需与配置文件中名字一直，这样就不需要每个属性属用到@value注解了
+    private Integer age;
+
+    public String getCupSize() {
+        return cupSize;
+    }
+
+    public void setCupSize(String cupSize) {
+        this.cupSize = cupSize;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+}
+</pre></div>
+</div>
+<p>另一个</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;my&quot;</span><span class="p">)</span>
+<span class="nd">@Component</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">ConfigBean</span> <span class="p">{</span>
+
+    <span class="n">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="n">private</span> <span class="nb">int</span> <span class="n">age</span><span class="p">;</span>
+    <span class="n">private</span> <span class="nb">int</span> <span class="n">number</span><span class="p">;</span>
+    <span class="n">private</span> <span class="n">String</span> <span class="n">uuid</span><span class="p">;</span>
+    <span class="n">private</span> <span class="nb">int</span> <span class="nb">max</span><span class="p">;</span>
+    <span class="n">private</span> <span class="n">String</span> <span class="n">value</span><span class="p">;</span>
+    <span class="n">private</span> <span class="n">String</span> <span class="n">greeting</span><span class="p">;</span>
+
+    <span class="n">省略了getter</span> <span class="n">setter</span><span class="o">....</span>
+</pre></div>
+</div>
+<p>另外&#64;Component可加可不加</p>
+<p>另外spring-boot-configuration-processor依赖可加可不加，具体原因不详。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">configuration</span><span class="o">-</span><span class="n">processor</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">optional</span><span class="o">&gt;</span><span class="n">true</span><span class="o">&lt;/</span><span class="n">optional</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>另外需要在应用类或者application类，加EnableConfigurationProperties注解。[经验证，可以不加]</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@RestController</span>
+<span class="nd">@EnableConfigurationProperties</span><span class="p">({</span><span class="n">ConfigBean</span><span class="o">.</span><span class="n">class</span><span class="p">})</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">LucyController</span> <span class="p">{</span>
+    <span class="nd">@Autowired</span>
+    <span class="n">ConfigBean</span> <span class="n">configBean</span><span class="p">;</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;/lucy&quot;</span><span class="p">)</span>
+    <span class="n">public</span> <span class="n">String</span> <span class="n">miya</span><span class="p">(){</span>
+        <span class="k">return</span> <span class="n">configBean</span><span class="o">.</span><span class="n">getGreeting</span><span class="p">()</span><span class="o">+</span><span class="s2">&quot; &gt;&gt;&gt;&gt;&quot;</span><span class="o">+</span><span class="n">configBean</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span><span class="o">+</span><span class="s2">&quot; &gt;&gt;&gt;&gt;&quot;</span><span class="o">+</span> <span class="n">configBean</span><span class="o">.</span><span class="n">getUuid</span><span class="p">()</span><span class="o">+</span><span class="s2">&quot; &gt;&gt;&gt;&gt;&quot;</span><span class="o">+</span><span class="n">configBean</span><span class="o">.</span><span class="n">getMax</span><span class="p">();</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@RestController</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">GirlController</span> <span class="p">{</span>
+
+    <span class="nd">@Autowired</span>
+    <span class="n">private</span> <span class="n">GirlRepository</span> <span class="n">girlRepository</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>自定义配置文件<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>上面介绍的是我们都把配置文件写到application.yml中。有时我们不愿意把配置都写到application配置文件中，这时需要我们自定义配置文件，比如test.properties:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">com</span><span class="o">.</span><span class="n">forezp</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="n">wenchaofu</span>
+<span class="n">com</span><span class="o">.</span><span class="n">forezp</span><span class="o">.</span><span class="n">age</span><span class="o">=</span><span class="mi">12</span>
+</pre></div>
+</div>
+<p>怎么将这个配置文件信息赋予给一个javabean呢？</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Configuration</span>
+<span class="nd">@PropertySource</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;classpath:test.properties&quot;</span><span class="p">)</span>
+<span class="nd">@ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;com.forezp&quot;</span><span class="p">)</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">User</span> <span class="p">{</span>
+    <span class="n">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="n">private</span> <span class="nb">int</span> <span class="n">age</span><span class="p">;</span>
+
+    <span class="n">public</span> <span class="n">String</span> <span class="n">getName</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">name</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="n">void</span> <span class="n">setName</span><span class="p">(</span><span class="n">String</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="nb">int</span> <span class="n">getAge</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">age</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="n">void</span> <span class="n">setAge</span><span class="p">(</span><span class="nb">int</span> <span class="n">age</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">age</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>在最新版本的springboot，需要加这三个注解。</p>
+<ul class="simple">
+<li>&#64;Configuration</li>
+<li>&#64;PropertySource(value = “classpath:test.properties”)</li>
+<li>&#64;ConfigurationProperties(prefix = “com.forezp”);</li>
+</ul>
+<p>这里要注意哦，有一个问题，如果你使用的是1.5以前的版本，那么可以通过locations指定properties文件的位置，这样：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;config2&quot;</span><span class="p">,</span><span class="n">locations</span><span class="o">=</span><span class="s2">&quot;classpath:test.properties&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>但是1.5版本后就没有这个属性了，找了半天发现添加&#64;Configuration和&#64;PropertySource(“classpath:test.properties”)后才可以读取。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@RestController</span>
+<span class="nd">@EnableConfigurationProperties</span><span class="p">({</span><span class="n">ConfigBean</span><span class="o">.</span><span class="n">class</span><span class="p">,</span><span class="n">User</span><span class="o">.</span><span class="n">class</span><span class="p">})</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">LucyController</span> <span class="p">{</span>
+    <span class="nd">@Autowired</span>
+    <span class="n">ConfigBean</span> <span class="n">configBean</span><span class="p">;</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;/lucy&quot;</span><span class="p">)</span>
+    <span class="n">public</span> <span class="n">String</span> <span class="n">miya</span><span class="p">(){</span>
+        <span class="k">return</span> <span class="n">configBean</span><span class="o">.</span><span class="n">getGreeting</span><span class="p">()</span><span class="o">+</span><span class="s2">&quot; &gt;&gt;&gt;&gt;&quot;</span><span class="o">+</span><span class="n">configBean</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span><span class="o">+</span><span class="s2">&quot; &gt;&gt;&gt;&gt;&quot;</span><span class="o">+</span> <span class="n">configBean</span><span class="o">.</span><span class="n">getUuid</span><span class="p">()</span><span class="o">+</span><span class="s2">&quot; &gt;&gt;&gt;&gt;&quot;</span><span class="o">+</span><span class="n">configBean</span><span class="o">.</span><span class="n">getMax</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Autowired</span>
+    <span class="n">User</span> <span class="n">user</span><span class="p">;</span>
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;/user&quot;</span><span class="p">)</span>
+    <span class="n">public</span> <span class="n">String</span> <span class="n">user</span><span class="p">(){</span>
+        <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span><span class="o">+</span><span class="n">user</span><span class="o">.</span><span class="n">getAge</span><span class="p">();</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>参数间引用<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>在application.properties中的各个参数之间也可以直接引用来使用，就像下面的设置：</p>
+<p>com.dudu.name=”wenchaofu”
+com.dudu.want=”happy”
+com.dudu.yearhope=${com.dudu.name}hahah${com.dudu.want}</p>
+</div>
+<div class="section" id="id5">
+<h2>随机值配置<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>配置文件中${random} 可以用来生成各种不同类型的随机值，从而简化了代码生成的麻烦，例如 生成 int 值、long 值或者 string 字符串。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>wen.secret=${random.value}
+wen.number=${random.int}
+wen.bignumber=${random.long}
+wen.uuid=${random.uuid}
+wen.number.less.than.ten=${random.int(10)}
+wen.number.in.range=${random.int[1024,65536]}
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>多个环境配置文件<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p>在现实的开发环境中，我们需要不同的配置环境；格式为application-{profile}.properties，其中{profile}对应你的环境标识，比如：</p>
+<blockquote>
+<div><ul class="simple">
+<li>application-test.properties：测试环境</li>
+<li>application-dev.properties：开发环境</li>
+<li>application-prod.properties：生产环境</li>
+</ul>
+</div></blockquote>
+<p>怎么使用？只需要我们在application.yml中加：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spring</span><span class="p">:</span>
+  <span class="n">profiles</span><span class="p">:</span>
+    <span class="n">active</span><span class="p">:</span> <span class="n">dev</span>
+</pre></div>
+</div>
+<p>当然你也可以用命令行启动的时候带上参数：</p>
+<blockquote>
+<div>java -jar xxx.jar –spring.profiles.active=dev</div></blockquote>
+<p>除了可以用profile的配置文件来分区配置我们的环境变量，在代码里，我们还可以直接用&#64;Profile注解来进行配置，例如数据库配置，这里我们先定义一个接口</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span>  <span class="n">interface</span> <span class="n">DBConnector</span> <span class="p">{</span> <span class="n">public</span>  <span class="n">void</span>  <span class="n">configure</span><span class="p">();</span> <span class="p">}</span>
+</pre></div>
+</div>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/**</span>
+  <span class="o">*</span> <span class="n">测试数据库</span>
+  <span class="o">*/</span>
+<span class="nd">@Component</span>
+<span class="nd">@Profile</span><span class="p">(</span><span class="s2">&quot;testdb&quot;</span><span class="p">)</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">TestDBConnector</span> <span class="n">implements</span> <span class="n">DBConnector</span> <span class="p">{</span>
+    <span class="nd">@Override</span>
+    <span class="n">public</span> <span class="n">void</span> <span class="n">configure</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;testdb&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="o">/**</span>
+ <span class="o">*</span> <span class="n">生产数据库</span>
+ <span class="o">*/</span>
+<span class="nd">@Component</span>
+<span class="nd">@Profile</span><span class="p">(</span><span class="s2">&quot;devdb&quot;</span><span class="p">)</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">DevDBConnector</span> <span class="n">implements</span> <span class="n">DBConnector</span> <span class="p">{</span>
+    <span class="nd">@Override</span>
+    <span class="n">public</span> <span class="n">void</span> <span class="n">configure</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;devdb&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>通过在配置文件激活具体使用哪个实现类</p>
+<blockquote>
+<div>spring.profiles.active=testdb</div></blockquote>
+<p>然后就可以这么用了</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s2">&quot;/task&quot;</span><span class="p">)</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">TaskController</span> <span class="p">{</span>
+
+    <span class="nd">@Autowired</span> <span class="n">DBConnector</span> <span class="n">connector</span> <span class="p">;</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;/&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">})</span>
+    <span class="n">public</span> <span class="n">String</span> <span class="n">hellTask</span><span class="p">(){</span>
+
+        <span class="n">connector</span><span class="o">.</span><span class="n">configure</span><span class="p">();</span> <span class="o">//</span><span class="n">最终打印testdb</span>
+        <span class="k">return</span> <span class="s2">&quot;hello task !! myage is &quot;</span> <span class="o">+</span> <span class="n">myage</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>除了spring.profiles.active来激活一个或者多个profile之外，还可以用spring.profiles.include来叠加profile</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spring</span><span class="o">.</span><span class="n">profiles</span><span class="o">.</span><span class="n">active</span><span class="p">:</span> <span class="n">testdb</span>
+<span class="n">spring</span><span class="o">.</span><span class="n">profiles</span><span class="o">.</span><span class="n">include</span><span class="p">:</span> <span class="n">proddb</span><span class="p">,</span><span class="n">prodmq</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h2>外部配置-命令行参数配置<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p>Spring Boot是基于jar包运行的，打成jar包的程序可以直接通过下面命令运行：</p>
+<blockquote>
+<div>java -jar xx.jar</div></blockquote>
+<p>可以以下命令修改tomcat端口号：</p>
+<blockquote>
+<div>java -jar xx.jar –server.port=9090</div></blockquote>
+<p>可以看出，命令行中连续的两个减号–就是对application.properties中的属性值进行赋值的标识。
+所以java -jar xx.jar –server.port=9090等价于在application.properties中添加属性server.port=9090。
+如果你怕命令行有风险，可以使用SpringApplication.setAddCommandLineProperties(false)禁用它。</p>
+<p>实际上，Spring Boot应用程序有多种设置途径，Spring Boot能从多重属性源获得属性，包括如下几种：</p>
+<blockquote>
+<div><ul class="simple">
+<li>根目录下的开发工具全局设置属性(当开发工具激活时为~/.spring-boot-devtools.properties)。</li>
+<li>测试中的&#64;TestPropertySource注解。</li>
+<li>测试中的&#64;SpringBootTest#properties注解特性。</li>
+<li>命令行参数</li>
+<li>SPRING_APPLICATION_JSON中的属性(环境变量或系统属性中的内联JSON嵌入)。</li>
+<li>ServletConfig初始化参数。</li>
+<li>ServletContext初始化参数。</li>
+<li>java:comp/env里的JNDI属性</li>
+<li>JVM系统属性</li>
+<li>操作系统环境变量</li>
+<li>随机生成的带random.* 前缀的属性（在设置其他属性时，可以应用他们，比如${random.long}）</li>
+<li>应用程序以外的application.properties或者appliaction.yml文件</li>
+<li>打包在应用程序内的application.properties或者appliaction.yml文件</li>
+<li>通过&#64;PropertySource标注的属性源</li>
+<li>默认属性(通过SpringApplication.setDefaultProperties指定).</li>
+</ul>
+</div></blockquote>
+<p>这里列表按组优先级排序高到低，也就是说，任何在高优先级属性源里设置的属性都会覆盖低优先级的相同属性，列如我们上面提到的命令行属性就覆盖了application.properties的属性。</p>
+</div>
+<div class="section" id="id8">
+<h2>配置文件的优先级<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<p>application.properties和application.yml文件可以放在以下四个位置：</p>
+<blockquote>
+<div><ul class="simple">
+<li>外置，在相对于应用程序运行目录的/congfig子目录里。</li>
+<li>外置，在应用程序运行的目录里</li>
+<li>内置，在config包内</li>
+<li>内置，在Classpath根目录</li>
+</ul>
+</div></blockquote>
+<p>同样，这个列表按照优先级排序，也就是说，src/main/resources/config下application.properties覆盖src/main/resources下application.properties中相同的属性，如图：</p>
+<img alt="../../_images/properties-1.jpg" src="../../_images/properties-1.jpg" />
+<p>此外，如果你在相同优先级位置同时有application.properties和application.yml，那么application.properties里的属性里面的属性就会覆盖application.yml。</p>
+<hr class="docutils" />
+<p><strong>参考</strong></p>
+<ul class="simple">
+<li><a class="reference external" href="http://tengj.top/2017/02/28/springboot2/">http://tengj.top/2017/02/28/springboot2/</a></li>
+</ul>
+<p>回到 <a class="reference external" href="readme.html">springboot索引页</a></p>
+<p>源代码： <a class="reference external" href="https://github.com/fuwenchao/sprintbootdemo.git">https://github.com/fuwenchao/sprintbootdemo.git</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">配置文件</a><ul>
+<li><a class="reference internal" href="#value">Value注入</a></li>
+<li><a class="reference internal" href="#id2">将配置文件的属性赋给实体类</a></li>
+<li><a class="reference internal" href="#id3">自定义配置文件</a></li>
+<li><a class="reference internal" href="#id4">参数间引用</a></li>
+<li><a class="reference internal" href="#id5">随机值配置</a></li>
+<li><a class="reference internal" href="#id6">多个环境配置文件</a></li>
+<li><a class="reference internal" href="#id7">外部配置-命令行参数配置</a></li>
+<li><a class="reference internal" href="#id8">配置文件的优先级</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springboot/3_properties.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springboot/3_properties.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

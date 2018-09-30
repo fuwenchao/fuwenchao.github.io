@@ -39,6 +39,27 @@ ctrl+shift+enter 表示 **收尾** 的意思
 不要动不动就用idea重构功能
 --------------------------
 
+重构
+-----------
+
+方法 ： 选中代码块 ctrl + shift + p  ---> 修改为 ctrl + alt + m
+
+变量 ： ctrl + alt + v
+
+静态变量 ： ctrl + alt + c
+
+成员变量： ctrl + alt + f
+
+增加方法参数： ctrl + alt + p
+
+
+
+
+
+快速补全
+------------
+
+ctrl + shift + enter
 
 
 把鼠标定位到project视图中
@@ -68,9 +89,15 @@ DT.xxx
 如何找到目录
 ---------------
 
-使用 ctrl + shift + n （找文件的）后， 使用 / 然后哦输入 文件夹名称
+使用 ctrl + shift + n （找文件的）后， 使用 / 然后输入 文件夹名称 (或者双击shift)
 
 /resour
+
+
+窗口复位
+-------------
+
+.. image:: ./images/restore.png
 
 
 
@@ -147,6 +174,25 @@ bookmark -- 了解项目关键业务流程方法的利器
 .. image:: ./images/tab.png
 
 
+多行tab
+-----------
+
+.. image:: ./images/tabs.png
+
+
+设置代码的注释风格
+-------------------
+
+.. image:: ./images/comment_style.png
+
+显示同名类或者方法的不同参数
+-------------------------------
+
+ctrl + p
+
+.. image:: ./images/moreargs.png
+
+
 ctrl + e 找到最近修改
 
 如何阅读又臭又长的代码
@@ -160,7 +206,7 @@ ctrl + e 找到最近修改
 
 - ctrl + shift + i 可以查看代码中某个类的定义，定位到类，按该快捷键
 
-- alt + f7 找到使用的地方
+- alt + f7 找到使用的地方 （列出变量在那些地方使用了）
 
 撤销
 -----
@@ -175,6 +221,45 @@ redo ctrl + shift + z
 ctrl + ` 快捷键
 
 
+增加右侧拖动条 类似sublime
+------------------------------
+
+ctrl + shift + a  ---> plugins ---> 安装 codeglance
+
+
+弹出想看的类
+----------------
+
+ctrl + shfit + i
+
+
+后悔药
+--------
+
+ctrl + z
+
+ctrl + shift + z
 
 
 
+ctrl + shift + h 小心
+-------------------------
+
+查看方法的调用关系
+
+但是要细心看
+
+建议使用 alt + f7 这个快捷键
+
+问题
+
+::
+
+    1. 如何调到源代码  选择条目，点击鼠标或者 f4
+    2. 如何回到 ctrl + shift + h 视图 ； alt + 8
+
+
+参考
+------------
+
+http://tengj.top/2017/02/22/idea1-1/

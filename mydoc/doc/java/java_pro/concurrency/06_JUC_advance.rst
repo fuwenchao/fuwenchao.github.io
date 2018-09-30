@@ -35,3 +35,17 @@ join 合并小任务的结果
 Blocking Queue
 --------------------
 
+
+ArrayBlockingQueue
+
+DelayQueue
+
+LinkedBlockingQueue
+
+PriorityBlockingQueue  需实现comparable接口
+
+SyncronousQueue 单个元素
+
+
+
+.. image:: ./images/blockingqueue.png

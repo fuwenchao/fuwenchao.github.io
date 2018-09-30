@@ -109,7 +109,7 @@ Class的基本API
             /**
              * Method 方法对象
              * getMethods() 获取public方法，包括父类继承而来的
-             * getDeclaredMethods() 获取所有方法
+             * getDeclaredMethods() 获取所有方法,但是不包括父类的private方法，包括父类的public方法
              */
             Method[] declaredMethods = c.getDeclaredMethods();
             for (Method declaredMethod : declaredMethods) {
@@ -238,6 +238,129 @@ java中集合的泛型，是防止错误输入的，只在编译阶段有效
             System.out.println(list2);
         }
     }
+
+
+一个ESB报文对象转换的例子
+
+.. code:: java
+
+
+   /**
+     * 递归转换成对象
+     * <p/>
+     * CompositeData、Field转换成T
+     * 不支持继承的属性复制
+     *
+     * @param atomData 完整报文xml映射的对象
+     * @param clz 要解析的其中某一个List的类
+     * @param <T>
+     * @return
+     */
+    public static <T> T atomDataToClassByField(AtomData atomData, Class<T> clz) throws InstantiationException, IllegalAccessException, ExecutionException, InvocationTargetException {
+        if (atomData == null) {
+            return null;
+        }
+        T t = null;
+        if (atomData instanceof CompositeData) {
+            t = clz.newInstance();
+            CompositeData struct = (CompositeData) atomData;
+            Iterator it = struct.iterator();
+            Map<String, java.lang.reflect.Field> stringFieldMap = cache.get(clz);
+            while (it.hasNext() && stringFieldMap != null) {
+                String name = it.next().toString();  // [name APP_HEADER] ...
+                AtomData atom = struct.getObject(name);
+
+                java.lang.reflect.Field field = stringFieldMap.get(name);
+                if (field == null) {  // 如果找不到，不赋值，进入下次循环
+                    continue;
+                }
+                field.setAccessible(true);
+                if (atom instanceof Array) {
+                    Type genericType = field.getGenericType();
+                    //处理异常
+                    if (genericType instanceof ParameterizedType) {  // 泛型类型是否已经实例化，如果不是泛型类型，比如String，则返回false。List<String> 返回true
+                        ParameterizedType pt = (ParameterizedType) genericType;
+                        Class<?> genericClazz = (Class<?>) pt.getActualTypeArguments()[0];
+                        List<T> tList = (List<T>) atomArrayToListByField((Array) atom, genericClazz);
+                        field.set(t, tList);
+                    }
+                } else {
+                    Object obj = atomDataToClassByField(atom, field.getType());
+                    field.set(t, obj);
+                }
+            }
+        } else if (atomData instanceof Field) {
+            return (T) fieldToObj((Field) atomData);
+        }
+        return t;
+    }
+
+    /**
+     * 使用 【method】 进行赋值操作
+     *
+     * @param atomData
+     * @param clz
+     * @param <T>
+     * @return
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws ExecutionException
+     */
+    public static <T> T atomDataToClass(AtomData atomData, Class<T> clz) throws InstantiationException, IllegalAccessException, ExecutionException, InvocationTargetException {
+        if (atomData == null) {
+            return null;
+        }
+        T t = null;
+        if (atomData instanceof CompositeData) {
+            t = clz.newInstance();
+            CompositeData struct = (CompositeData) atomData;
+            Iterator it = struct.iterator();
+            Map<String, java.lang.reflect.Method> jsonMethonMap = cache2(clz);  // 换成google的缓存 cacheMethod.get(clz);
+            while (it.hasNext() && jsonMethonMap != null) {
+                String name = it.next().toString();
+                AtomData atom = struct.getObject(name);
+                java.lang.reflect.Method method = jsonMethonMap.get(name);
+                if (method == null) {  // 如果找不到，不赋值，进入下次循环
+                    continue;
+                }
+                method.setAccessible(true);
+                Type[] p = null;
+                if (atom instanceof Array) {
+                    Type[] genericParameterTypes = method.getGenericParameterTypes();
+                    Type p0 = genericParameterTypes[0];
+                    if (p0 instanceof ParameterizedType) {
+                        Class<?> genericClazz = (Class<?>) ((ParameterizedType) p0).getActualTypeArguments()[0];
+                        List<T> tList = (List<T>) atomArrayToList((Array) atom, genericClazz);
+                        method.invoke(t, tList);
+                    }
+
+                } else {
+                    Type[] genericParameterTypes = method.getGenericParameterTypes();
+                    Type p0 = genericParameterTypes[0];
+                    Class<?> genericClazz = null;
+                    if (p0 instanceof ParameterizedType) {
+                        genericClazz = (Class<?>) ((ParameterizedType) p0).getActualTypeArguments()[0];
+                    } else {
+                        genericClazz = p0.getClass();
+                    }
+                    Object obj = atomDataToClass(atom, genericClazz);
+                    method.invoke(t, obj);
+                }
+            }
+        } else if (atomData instanceof Field) {
+            return (T) fieldToObj((Field) atomData);
+        }
+        return t;
+    }
+
+
+
+
+
+
+
+
+
 
 
 

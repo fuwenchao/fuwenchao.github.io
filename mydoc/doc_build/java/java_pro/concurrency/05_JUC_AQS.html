@@ -1,0 +1,176 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>AQS介绍 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="aqs">
+<h1>AQS介绍<a class="headerlink" href="#aqs" title="Permalink to this headline">¶</a></h1>
+<p>AbstractQueuedSynchronizer  – AQS</p>
+<p>提供了 FIFO 队列</p>
+<p>AQS类底层的数据结构</p>
+<img alt="../../../_images/aqs_datastruct.png" src="../../../_images/aqs_datastruct.png" />
+<p>双向链表</p>
+<ul class="simple">
+<li>使用Node实现了FIFO队列，可以用于构建锁或者其他同步装置的基础框架</li>
+<li>利用率了一个int类型表示状态</li>
+<li>使用方法是继承 子类通过继承并实现他的方法管理其状态（acquire 和 release）的方法操纵状态</li>
+<li>可以同时实现排他锁和共享锁模式（独占，共享）</li>
+<li>CountDownLatch</li>
+<li>semaphore</li>
+<li>CyclicBarrier</li>
+<li>ReentrantLock</li>
+<li>Condition</li>
+<li>FutureTask</li>
+</ul>
+<div class="section" id="countdownlatch">
+<h2>CountDownLatch<a class="headerlink" href="#countdownlatch" title="Permalink to this headline">¶</a></h2>
+<p>同步阻塞类，可以完成阻塞线程的功能</p>
+<p>一个线程或者多个线程持续等待，直到其他线程执行的操作完成</p>
+<p>原子操作</p>
+<p>使用场景：在某些业务场景中，程序执行需要等待某个条件完成后才能继续执行后续的操作
+。比如说并行计算</p>
+<img alt="../../../_images/countdownlatch.png" src="../../../_images/countdownlatch.png" />
+</div>
+<div class="section" id="semaphore">
+<h2>Semaphore<a class="headerlink" href="#semaphore" title="Permalink to this headline">¶</a></h2>
+<p>控制并发访问的线程个数</p>
+<p>如果没有获取到许可的话，其余线程丢弃</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>if (semaphore.tryAcquire()) { // 尝试获取一个许可可以传入数字代表一次性获取多个许可。
+                              //如果传入两个参数，获取许可的等待时间
+                              // 三个参数
+                test(threadNum);
+                semaphore.release(); // 释放一个许可
+            }
+</pre></div>
+</div>
+</div>
+<div class="section" id="cyclicbarrier">
+<h2>CyclicBarrier<a class="headerlink" href="#cyclicbarrier" title="Permalink to this headline">¶</a></h2>
+<p>同步辅助类，一组现场相互等待，直到到达某个公共的屏障点。多个线程相互等待，只有当每个线程都准备就绪后，才能各自往下执行后续的操作。</p>
+<img alt="../../../_images/cyclicbarrier.png" src="../../../_images/cyclicbarrier.png" />
+<p>countdownlatch 的计数器只能使用一次。 一个或者多个线程需要等待其他线程完成某项操作之后才能继续往下执行。</p>
+<p>cyclicbarrier 的计数器可以重用多次 reset重置计数器。 多个线程相互等待，直到所有线程都满足了条件之后才能继续执行后续操作，描述的是各个线程内部相互等待的关系。能够处理更复杂的场景，比如说计算发生错误了，可以重置计数器，重新执行一次。getNumberWaiting方法</p>
+</div>
+<div class="section" id="reentrantlock">
+<h2>ReentrantLock 锁<a class="headerlink" href="#reentrantlock" title="Permalink to this headline">¶</a></h2>
+<p>java 两种锁</p>
+<ol class="arabic simple">
+<li>synchronized 提供的锁</li>
+<li>JUC里面提供的核心的锁，也就是这个 ReentrantLock</li>
+</ol>
+<ul class="simple">
+<li>可重入锁 都是</li>
+<li>所得实现 synchronized JVM提供，不好查看源码 ，ReentrantLock jdk实现的</li>
+<li>性能 synchronized 优化以前，性能极差。优化后性能差不多。官方推荐 synchronized ,更容易。</li>
+<li>功能方面 syn 方面简洁，Reen手工加锁释放锁。</li>
+</ul>
+<p><strong>独有功能</strong></p>
+<ul class="simple">
+<li>ReentrantLock 可以指定是公平锁（先等待的线程先获得锁）还是非公平锁。sync只有非公平锁。</li>
+<li>ReentrantLock 提供了一个condition类，可以分组唤醒需要唤醒的线程，sync要么一个，要么全部线程（唤醒）</li>
+<li>ReentrantLock 提供了中断等待锁的线程的机制 lock.lockInterruptibly()</li>
+</ul>
+<p>sync能做的ReentrantLock都能做，反之否，看独有功能。</p>
+<p>ReentrantReadWriteLock 有任何读操作时都不能获取写锁，悲观读</p>
+<p>StampedLock 控制锁有三种模式</p>
+<ul class="simple">
+<li>写</li>
+<li>读</li>
+<li>乐观读</li>
+</ul>
+<p>一个stampedlock的状态有 版本 和 模式 两部分组成</p>
+<p>锁获取的方法返回的数字作为票据(stamp)</p>
+<p>由相关的锁状态表示并控制相关的访问</p>
+<p>乐观读：</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">AQS介绍</a><ul>
+<li><a class="reference internal" href="#countdownlatch">CountDownLatch</a></li>
+<li><a class="reference internal" href="#semaphore">Semaphore</a></li>
+<li><a class="reference internal" href="#cyclicbarrier">CyclicBarrier</a></li>
+<li><a class="reference internal" href="#reentrantlock">ReentrantLock 锁</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_pro/concurrency/05_JUC_AQS.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_pro/concurrency/05_JUC_AQS.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

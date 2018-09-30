@@ -1,6 +1,8 @@
 <map id="mytest" name="mytest">
 <area shape="poly" id="node6" href="mydoc/doc_build/java/java_pro/reflection/readme.html" title="java反射" alt="" coords="695,309,718,308,737,305,749,301,754,295,751,289,743,283,731,278,717,275,701,272,685,272,670,273,655,276,641,281,631,286,626,292,627,298,635,303,651,307,672,309"/>
-<area shape="rect" id="node9" href="mydoc/doc_build/java/java_pro/java_nio/readme.html" title="java 网络编程" alt="" coords="627,333,752,363"/>
+<area shape="poly" id="node7" href="mydoc/doc_build/java/java_pro/generic/readme.html" title="java泛型" alt="" coords="695,248,718,247,737,244,749,239,754,234,751,228,743,222,731,217,717,213,701,211,685,211,670,212,655,215,641,219,631,225,626,231,627,237,635,242,651,245,672,248"/>
+<area shape="poly" id="node8" href="mydoc/doc_build/java/java_pro/concurrency/readme.html" title="java并发" alt="" coords="695,424,718,423,737,420,749,415,754,410,751,404,743,398,731,393,717,389,701,387,685,387,670,388,655,391,641,395,631,401,626,407,627,413,635,418,651,421,672,424"/>
+<area shape="rect" id="node9" href="mydoc/doc_build/java/java_pro/thread/readme.html" title="java线程" alt="" coords="647,333,732,363"/>
 <area shape="poly" id="node10" href="https://about.me/fu.wenchao" title="联系我" alt="" coords="160,717,158,712,151,706,140,702,126,699,111,698,96,699,82,702,71,706,64,712,62,717,64,723,71,728,82,733,96,735,111,736,126,735,140,733,151,728,158,723"/>
 <area shape="rect" id="node12" href="https://about.me/fu.wenchao" title="&lt;TABLE&gt;" alt="" coords="41,760,181,875"/>
 <area shape="rect" id="node16" href="mydoc/doc_build/designpattern/readme.html" title="设计模式" alt="" coords="351,736,436,765"/>

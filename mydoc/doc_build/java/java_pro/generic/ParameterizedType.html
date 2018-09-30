@@ -1,0 +1,291 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ParameterizedType应用 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="parameterizedtype">
+<h1>ParameterizedType应用<a class="headerlink" href="#parameterizedtype" title="Permalink to this headline">¶</a></h1>
+<p>java反射，获取参数化类型的class实例</p>
+<p><strong>ParameterizedType是一个接口，这个类可以用来检验泛型是否被参数化</strong></p>
+<p>比如:</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Dao</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="p">{</span>
+    <span class="n">public</span> <span class="n">Dao</span><span class="p">(){</span>
+
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>上面的这个类，也就是泛型类，当有子类集成它的时候，子类也许会将其参数化，当然也可能不进行参数化</p>
+<p>比如我们在这样的子类中:</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SubDao</span> <span class="n">extends</span> <span class="n">Dao</span><span class="o">&lt;</span><span class="n">Student</span><span class="o">&gt;</span>
+
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>这个我们就是在子类集成的时候将Dao&lt;T&gt;这个泛型参数化了</p>
+<p>我们在Dao层对数据库进行操作常常需要得到的是实体的class类，也就是上面的Student这个实体类，我们得到其class实例之后就可以利用反射获取到里面的实体类中各种方法和变量，进而我们可以为实体类进行操作</p>
+<p>那么如何在Dao层获取到实体类的class实例成为了这一切操作的基础</p>
+<p>下面这些方法我们可以获取到class实例，其实应该知道的是当我们在在SubDao层来调用Dao类中的方法时候，其实调用的已经被参数化的Dao，也就是这个方法是Dao&lt;Student&gt;中的，因为我们SubDao既然要调用Dao层的方法当然要继承Dao层，而且在继承的时候进行参数化，换个方式说:</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Dao</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="p">{</span>
+    <span class="n">public</span> <span class="n">Dao</span><span class="p">()</span>
+    <span class="p">{</span>
+
+    <span class="p">}</span>
+    <span class="n">public</span> <span class="n">T</span> <span class="n">get</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">null</span><span class="p">;</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>我们要调用上面的get方法，其实我们在StudnetDao里面调用的已经不是上面的Dao&lt;T&gt;中的get方法了，而是</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Dao</span><span class="o">&lt;</span><span class="n">Student</span><span class="o">&gt;</span>
+<span class="p">{</span>
+    <span class="n">public</span> <span class="n">Dao</span><span class="p">(){</span>
+
+    <span class="p">}</span>
+    <span class="n">public</span> <span class="n">Student</span> <span class="n">get</span><span class="p">()</span>
+    <span class="p">{</span>
+
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>这个Dao&lt;Student&gt;里面的get方法，其实这个类我们是看不到的，因为继承关系，所以在我们子类的构造函数执行的时候就会生成这个类，这样我们只需要写一个泛型化的Dao&lt;T&gt;类，在StudnetDao，CourseDao对其实现继承并且参数化，我们的Dao里面的 方法就可以重复的使用了，进而实现了代码的复用。</p>
+<p>我们现在就是遇到的问题更加的清晰了，我们现在需要在Dao&lt;Student&gt;类里面，或者是Dao&lt;T&gt;里面获得实体Student的一个class实例，那么我们需要记性判断，判断什么，在子类继承的时候到底有没有进行参数化</p>
+<p>如何判断:有这样的一个方法我们可以获取到当前类的父类</p>
+<p>也就是我们在子类中执行获取其父类superclass，判断superclass是Dao&lt;T&gt;还是Dao&lt;Student&gt;就可以知道是不是Dao&lt;T&gt;是不是被参数化了</p>
+<p>其实这个地方有一个基础的，需要我们注意就是子类在执行自己的构造方法的时候，我们知道也会执行父类的构造方法，那么在执行父类的构造方法的时候，里面的 this表示的是父类还是自己</p>
+<blockquote>
+<div>Type superclass=this.getClass().getGenericSuperClass();</div></blockquote>
+<p>这个我们是放在Dao的构造方法中，但是在子类的构造方法执行的时候，调用super(),这个地方的this是指的子类，也就是StudentDao这个类，这样我们就获得了StudentDao的父类superclass</p>
+<p>那么我们并不知道superclass到底是指的Dao&lt;T&gt;还是Dao&lt;Student&gt;，在判断superclass是否被参数化之前，我们有必要说一下Type这个接口 API文档中是这样写道:</p>
+<p>“Type 是 Java 编程语言中所有类型的公共高级接口。它们包括原始类型、参数化类型、数组类型、类型变量和基本类型。”</p>
+<p>不管怎样，Type是一个接口，表示类型，我们的superclass就是一个类型，</p>
+<p>下面我们要岁superclass进行判断:</p>
+<p>我们判断用到了另外的一个接口，通过判断superclass是否为这个接口的一个实例，来判断superclass是否被实例化</p>
+<p>这个接口是:</p>
+<blockquote>
+<div>ParameterizedType</div></blockquote>
+<p>如果superclass是该接口的一个实例化对象就表示superclass被参数化了，也就是superclass:Dao&lt;Student&gt;,当然如果不是这个接口的一个实例就表示是没有被参数化，superclass:Dao&lt;T&gt;</p>
+<p>我们这样来进行判断:</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>if(superclass instanceof ParameterizedType)
+
+{
+
+    当Dao&lt;T&gt; 这个泛型类被参数化之后执行。。。。。
+
+}
+</pre></div>
+</div>
+<p>我们现在已经知道Dao&lt;T&gt;是否被参数化了，现在我们要做的事情就会获取到T，如何获取</p>
+<p>在ParameterizedType中有一个方法:GetActualTypeArguments()这个方法的返回值是一个Type的数组</p>
+<p>里面存的就是我们的要的T</p>
+<p>我们可以这样创建一个参数化类型的变量:</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ParameterizedType</span>  <span class="n">parameterizedtype</span><span class="o">=</span><span class="n">null</span><span class="p">;</span>
+
+<span class="n">parameterizedtype</span><span class="o">=</span><span class="p">(</span><span class="n">ParameterizedType</span><span class="p">)</span><span class="n">superclass</span><span class="p">;</span>
+
+<span class="n">Type</span> <span class="n">tys</span><span class="p">[]</span><span class="o">=</span><span class="n">parameterizedtype</span><span class="o">.</span><span class="n">getActualTypeArguments</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>其实这个地方我们就获得到了T（Student）并且存储到了Type的数组中</p>
+<p>if(tys!=null &amp;&amp; tys.length&gt;0)</p>
+<p>{</p>
+<blockquote>
+<div>clazz=(Class)type[0];</div></blockquote>
+<p>}</p>
+<p>这样我们就获取到了T的类型，并且得到得到了一个class实例，我们下面就可以利用反射获取到里面的方法和属性并操作</p>
+<p>，具体代码如下:</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">package</span> <span class="n">me</span><span class="o">.</span><span class="n">wenchao</span><span class="o">.</span><span class="n">javapro</span><span class="o">.</span><span class="n">generic</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">java.lang.reflect.ParameterizedType</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.reflect.Type</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.sql.PreparedStatement</span><span class="p">;</span>
+
+<span class="o">/**</span>
+ <span class="o">*</span> <span class="nd">@Author</span> <span class="n">wenchaofu</span>
+ <span class="o">*</span> <span class="nd">@DATE</span> <span class="mi">18</span><span class="p">:</span><span class="mi">12</span> <span class="mi">2018</span><span class="o">/</span><span class="mi">5</span><span class="o">/</span><span class="mi">9</span>
+ <span class="o">*</span> <span class="nd">@DESC</span>
+ <span class="o">*/</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">Dao</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="n">private</span> <span class="n">static</span> <span class="n">PreparedStatement</span> <span class="n">st</span> <span class="o">=</span> <span class="n">null</span><span class="p">;</span>
+    <span class="n">public</span> <span class="n">Class</span> <span class="n">clazz</span><span class="p">;</span>
+
+    <span class="n">public</span> <span class="n">Dao</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">Type</span> <span class="n">superclass</span> <span class="o">=</span> <span class="n">getClass</span><span class="p">()</span><span class="o">.</span><span class="n">getGenericSuperclass</span><span class="p">();</span>
+        <span class="n">ParameterizedType</span> <span class="n">parameterizedType</span> <span class="o">=</span> <span class="n">null</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">superclass</span> <span class="n">instanceof</span> <span class="n">ParameterizedType</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">parameterizedType</span> <span class="o">=</span> <span class="p">(</span><span class="n">ParameterizedType</span><span class="p">)</span> <span class="n">superclass</span><span class="p">;</span>
+            <span class="n">Type</span><span class="p">[]</span> <span class="n">typeArray</span> <span class="o">=</span> <span class="n">parameterizedType</span><span class="o">.</span><span class="n">getActualTypeArguments</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">typeArray</span> <span class="o">!=</span> <span class="n">null</span> <span class="o">&amp;&amp;</span> <span class="n">typeArray</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">clazz</span> <span class="o">=</span> <span class="p">(</span><span class="n">Class</span><span class="p">)</span> <span class="n">typeArray</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>使用</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="k">class</span> <span class="nc">UseDao</span> <span class="n">extends</span> <span class="n">Dao</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="p">{</span>
+<span class="o">/*</span>    <span class="n">public</span> <span class="n">UseDao</span><span class="p">(){</span>
+        <span class="nb">super</span><span class="p">();</span>
+    <span class="p">}</span><span class="o">*/</span>
+
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">UseDao</span> <span class="n">ud</span> <span class="o">=</span> <span class="n">new</span> <span class="n">UseDao</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">ud</span><span class="o">.</span><span class="n">clazz</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>再来一个栗子</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">package</span> <span class="n">me</span><span class="o">.</span><span class="n">wenchao</span><span class="o">.</span><span class="n">javapro</span><span class="o">.</span><span class="n">generic</span><span class="p">;</span>
+
+<span class="o">/**</span>
+ <span class="o">*</span> <span class="nd">@Author</span> <span class="n">wenchaofu</span>
+ <span class="o">*</span> <span class="nd">@DATE</span> <span class="mi">17</span><span class="p">:</span><span class="mi">50</span> <span class="mi">2018</span><span class="o">/</span><span class="mi">5</span><span class="o">/</span><span class="mi">9</span>
+ <span class="o">*</span> <span class="nd">@DESC</span>
+ <span class="o">*/</span>
+
+<span class="kn">import</span> <span class="nn">java.lang.reflect.ParameterizedType</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.reflect.Type</span><span class="p">;</span>
+
+<span class="n">public</span> <span class="k">class</span> <span class="nc">ParamatrizedTypeTest</span> <span class="p">{</span>
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="n">throws</span> <span class="n">NoSuchMethodException</span> <span class="p">{</span>
+        <span class="n">new</span> <span class="n">Sub</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">Parent</span> <span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">Child</span> <span class="n">extends</span> <span class="n">Parent</span> <span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">UpperGeneric</span> <span class="p">{</span>
+    <span class="n">static</span> <span class="k">class</span> <span class="nc">Generic</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">R</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="n">T</span> <span class="n">t</span><span class="p">;</span>
+        <span class="n">R</span> <span class="n">r</span><span class="p">;</span>
+
+        <span class="n">protected</span> <span class="n">Generic</span><span class="p">(</span><span class="n">T</span> <span class="n">t</span><span class="p">,</span> <span class="n">R</span> <span class="n">r</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">this</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="p">;</span>
+            <span class="n">this</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">r</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">void</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="n">err</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">r</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">Sub</span> <span class="n">extends</span> <span class="n">UpperGeneric</span><span class="o">.</span><span class="n">Generic</span><span class="o">&lt;</span><span class="n">Child</span><span class="p">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="p">{</span>
+
+    <span class="n">protected</span> <span class="n">Sub</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">new</span> <span class="n">Child</span><span class="p">(),</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="n">Class</span> <span class="n">clazz</span> <span class="o">=</span> <span class="n">getClass</span><span class="p">()</span><span class="o">.</span><span class="n">getSuperclass</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">err</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;super clazz:&quot;</span> <span class="o">+</span> <span class="n">clazz</span><span class="p">);</span>
+
+        <span class="n">Type</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">getClass</span><span class="p">()</span><span class="o">.</span><span class="n">getGenericSuperclass</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">err</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;generic super class type:&quot;</span> <span class="o">+</span> <span class="nb">type</span><span class="p">);</span>
+
+        <span class="n">Type</span> <span class="n">trueType</span> <span class="o">=</span> <span class="p">((</span><span class="n">ParameterizedType</span><span class="p">)</span> <span class="nb">type</span><span class="p">)</span><span class="o">.</span><span class="n">getActualTypeArguments</span><span class="p">()[</span><span class="mi">0</span><span class="p">];</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">err</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;type 0:&quot;</span> <span class="o">+</span> <span class="n">trueType</span><span class="p">);</span>
+        <span class="n">trueType</span> <span class="o">=</span> <span class="p">((</span><span class="n">ParameterizedType</span><span class="p">)</span> <span class="nb">type</span><span class="p">)</span><span class="o">.</span><span class="n">getActualTypeArguments</span><span class="p">()[</span><span class="mi">1</span><span class="p">];</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">err</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;type 1:&quot;</span> <span class="o">+</span> <span class="n">trueType</span><span class="p">);</span>
+
+        <span class="n">trueType</span> <span class="o">=</span> <span class="p">((</span><span class="n">ParameterizedType</span><span class="p">)</span> <span class="nb">type</span><span class="p">)</span><span class="o">.</span><span class="n">getRawType</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">err</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;raw type:&quot;</span> <span class="o">+</span> <span class="n">trueType</span><span class="p">);</span>
+
+        <span class="n">trueType</span> <span class="o">=</span> <span class="p">((</span><span class="n">ParameterizedType</span><span class="p">)</span> <span class="nb">type</span><span class="p">)</span><span class="o">.</span><span class="n">getOwnerType</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">err</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;owner type:&quot;</span> <span class="o">+</span> <span class="n">trueType</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_pro/generic/ParameterizedType.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_pro/generic/ParameterizedType.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

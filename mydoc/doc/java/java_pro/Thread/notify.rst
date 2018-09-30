@@ -43,7 +43,7 @@ wait/notify必须存在于synchronized块中。并且，这三个关键字针对
 
 **直接用于方法**
 
- 相当于上面代码中用lock来锁定的效果，实际获取的是Thread1类的monitor。更进一步，如果修饰的是static方法，则锁定该类所有实例。
+相当于上面代码中用lock来锁定的效果，实际获取的是Thread1类的monitor。更进一步，如果修饰的是static方法，则锁定该类所有实例。
 
  .. code:: java
 

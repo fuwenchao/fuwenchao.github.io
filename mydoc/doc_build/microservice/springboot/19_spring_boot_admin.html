@@ -1,0 +1,346 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>使用spring-boot-admin对spring-boot服务进行监控 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="spring-boot-adminspring-boot">
+<h1>使用spring-boot-admin对spring-boot服务进行监控<a class="headerlink" href="#spring-boot-adminspring-boot" title="Permalink to this headline">¶</a></h1>
+<p>上一篇文章 <a class="reference external" href="18_actuator.html">使用Spring Boot Actuator监控应用</a> 介绍了Spring Boot Actuator的使用，Spring Boot Actuator提供了对单个Spring Boot的监控，信息包含：应用状态、内存、线程、堆栈等等，比较全面的监控了Spring Boot应用的整个生命周期。</p>
+<p>但是这样监控也有一些问题：第一，所有的监控都需要调用固定的接口来查看，如果全面查看应用状态需要调用很多接口，并且接口返回的Json信息不方便运营人员理解；第二，如果Spring Boot应用集群非常大，每个应用都需要调用不同的接口来查看监控信息，操作非常繁琐低效。在这样的背景下，就诞生了另外一个开源软件：Spring Boot Admin。</p>
+<div class="section" id="spring-boot-admin">
+<h2>什么是Spring Boot Admin?<a class="headerlink" href="#spring-boot-admin" title="Permalink to this headline">¶</a></h2>
+<p>Spring Boot Admin 是一个管理和监控Spring Boot 应用程序的开源软件。每个应用都认为是一个客户端，通过HTTP或者使用 Eureka注册到admin server中进行展示，Spring Boot Admin UI部分使用AngularJs将数据展示在前端。</p>
+<p>Spring Boot Admin 是一个针对spring-boot的actuator接口进行UI美化封装的监控工具。他可以：在列表中浏览所有被监控spring-boot项目的基本信息，详细的Health信息、内存信息、JVM信息、垃圾回收信息、各种配置信息（比如数据源、缓存列表和命中率）等，还可以直接修改logger的level。</p>
+<p>这篇文章给大家介绍如何使用Spring Boot Admin对Spring Boot应用进行监控。</p>
+</div>
+<div class="section" id="id1">
+<h2>监控单体应用<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>这节给大家展示如何使用Spring Boot Admin监控单个Spring Boot应用。</p>
+<p><strong>Admin Server端</strong></p>
+<p>项目依赖</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependencies</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">de</span><span class="o">.</span><span class="n">codecentric</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">admin</span><span class="o">-</span><span class="n">server</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.5</span><span class="o">.</span><span class="mi">6</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">de</span><span class="o">.</span><span class="n">codecentric</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">admin</span><span class="o">-</span><span class="n">server</span><span class="o">-</span><span class="n">ui</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.5</span><span class="o">.</span><span class="mi">6</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependencies</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>配置文件</p>
+<blockquote>
+<div>server.port=8000</div></blockquote>
+<p>服务端设置端口为：8000。</p>
+<p><strong>启动类</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Configuration</span>
+<span class="nd">@EnableAutoConfiguration</span>
+<span class="nd">@EnableAdminServer</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">AdminServerApplication</span> <span class="p">{</span>
+
+  <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">SpringApplication</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">AdminServerApplication</span><span class="o">.</span><span class="n">class</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>完成上面三步之后，启动服务端，浏览器访问http://localhost:8000可以看到以下界面：</p>
+<img alt="../../_images/admin1.png" src="../../_images/admin1.png" />
+<p><strong>Admin Client端</strong></p>
+<p>项目依赖</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependencies</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">de</span><span class="o">.</span><span class="n">codecentric</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">admin</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">client</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.5</span><span class="o">.</span><span class="mi">6</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependencies</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>配置文件</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">server</span><span class="o">.</span><span class="n">port</span><span class="o">=</span><span class="mi">8001</span>
+
+<span class="n">spring</span><span class="o">.</span><span class="n">boot</span><span class="o">.</span><span class="n">admin</span><span class="o">.</span><span class="n">url</span><span class="o">=</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">8000</span>
+<span class="n">management</span><span class="o">.</span><span class="n">security</span><span class="o">.</span><span class="n">enabled</span><span class="o">=</span><span class="n">false</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>spring.boot.admin.url 配置Admin Server的地址</li>
+<li>management.security.enabled=false 关闭安全验证</li>
+</ul>
+<p>启动类</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@SpringBootApplication</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">AdminClientApplication</span> <span class="p">{</span>
+  <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">SpringApplication</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">AdminClientApplication</span><span class="o">.</span><span class="n">class</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>配置完成之后，启动Client端服务，再次访问服务：<a class="reference external" href="http://localhost">http://localhost</a>:8000可以看到客户端的相关信息。</p>
+<img alt="../../_images/admin2.png" src="../../_images/admin2.png" />
+<p>首页会展示被监控的各个服务，点击详情可以查看某个服务的具体监控信息</p>
+</div>
+<div class="section" id="id2">
+<h2>监控微服务<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>如果我们使用的是单个Spring Boot应用，就需要在每一个被监控的应用中配置Admin Server的地址信息；如果应用都注册在Eureka中就不需要再对每个应用进行配置，Spring Boot Admin会自动从注册中心抓取应用的相关信息。</p>
+<p>这里使用四个示例项目来演示：</p>
+<blockquote>
+<div><ul class="simple">
+<li>spring-boot-admin-server Admin Server端</li>
+<li>spring-cloud-eureka 注册中心</li>
+<li>spring-cloud-producer 应用一，Admin Client端</li>
+<li>spring-cloud-producer-2 应用二，Admin Client端</li>
+</ul>
+</div></blockquote>
+<p>首先启动注册中心spring-cloud-eureka，如果对Eureka不了解的同学可以查看这篇文章 springcloud注册中心Eureka</p>
+<p><strong>Server端</strong></p>
+<p>示例项目：spring-boot-admin-server</p>
+<p>项目依赖</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependencies</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">cloud</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">cloud</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">eureka</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">de</span><span class="o">.</span><span class="n">codecentric</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">admin</span><span class="o">-</span><span class="n">server</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.5</span><span class="o">.</span><span class="mi">6</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">de</span><span class="o">.</span><span class="n">codecentric</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">admin</span><span class="o">-</span><span class="n">server</span><span class="o">-</span><span class="n">ui</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.5</span><span class="o">.</span><span class="mi">6</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependencies</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>增加了对eureka的支持</p>
+<p>配置文件</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>server:
+  port: 8000
+spring:
+  application:
+    name: admin-server
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+  client:
+    registryFetchIntervalSeconds: 5
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761}/eureka/
+
+management.security.enabled: false
+</pre></div>
+</div>
+<p>配置文件中添加了eureka的相关配置</p>
+<p>启动类</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Configuration</span>
+<span class="nd">@EnableAutoConfiguration</span>
+<span class="nd">@EnableDiscoveryClient</span>
+<span class="nd">@EnableAdminServer</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">AdminServerApplication</span> <span class="p">{</span>
+
+  <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">SpringApplication</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">AdminServerApplication</span><span class="o">.</span><span class="n">class</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>上述步骤完成之后，启动Server端。</p>
+<p><strong>Client端</strong></p>
+<p>示例项目：spring-cloud-producer和spring-cloud-producer-2</p>
+<p>项目依赖</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependencies</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">cloud</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">cloud</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">eureka</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">de</span><span class="o">.</span><span class="n">codecentric</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">admin</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">client</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.5</span><span class="o">.</span><span class="mi">6</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+  <span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependencies</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>配置文件</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">server</span><span class="p">:</span>
+  <span class="n">port</span><span class="p">:</span> <span class="mi">9000</span>
+<span class="n">spring</span><span class="p">:</span>
+  <span class="n">application</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">producer</span>
+<span class="n">eureka</span><span class="p">:</span>
+  <span class="n">client</span><span class="p">:</span>
+    <span class="n">serviceUrl</span><span class="p">:</span>
+      <span class="n">defaultZone</span><span class="p">:</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">8761</span><span class="o">/</span><span class="n">eureka</span><span class="o">/</span>
+<span class="n">management</span><span class="p">:</span>
+  <span class="n">security</span><span class="p">:</span>
+    <span class="n">enabled</span><span class="p">:</span> <span class="n">false</span>
+</pre></div>
+</div>
+<p>我们发现配置文件中并没有添加Admin Server的相关配置</p>
+<p>启动类</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@SpringBootApplication</span>
+<span class="nd">@EnableDiscoveryClient</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">ProducerApplication</span> <span class="p">{</span>
+
+  <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">SpringApplication</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">ProducerApplication</span><span class="o">.</span><span class="n">class</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Web层</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="s2">&quot;/hello&quot;</span><span class="p">)</span>
+  <span class="n">public</span> <span class="n">String</span> <span class="n">index</span><span class="p">(</span><span class="nd">@RequestParam</span> <span class="n">String</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;request one/two  name is &quot;</span><span class="o">+</span><span class="n">name</span><span class="p">);</span>
+      <span class="k">return</span> <span class="s2">&quot;hello &quot;</span><span class="o">+</span><span class="n">name</span><span class="o">+</span><span class="s2">&quot;，this is first messge&quot;</span><span class="p">;</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+<p>web层添加了/hello的请求方法，方法中使用one/two区别是哪个应用。spring-cloud-producer-2和spring-cloud-producer代码类似，具体大家可以查看示例代码。</p>
+<p>完成上面配置之后，分别启动项目：spring-cloud-producer和spring-cloud-producer-2，浏览器访问http://localhost:8000 可以看到以下界面：</p>
+<img alt="../../_images/admin4.png" src="../../_images/admin4.png" />
+<p>从上图可以看出Admin Server监控了四个实例，包括Server自己，注册中心、两个PRODUCER。说明Admin Server自动从服务中心抓取了所有的实例信息并进行了监控。点击Detail可以具体查看某一个示例的监控信息。</p>
+</div>
+<div class="section" id="id3">
+<h2>邮件告警<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>Spring Boot Admin将微服务中所有应用信息在后台进行了展示，非常方便我们对微服务整体的监控和治理。但是我们的运营人员也不可能一天24小时盯着监控后台，因此如果服务有异常的时候，有对应的邮件告警就太好了，其实Spring Boot Admin也给出了支持。</p>
+<p>我们对上面的示例项目spring-boot-admin-server进行改造。</p>
+<p><strong>添加依赖</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">mail</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>增加了邮件发送的starter包</p>
+<p><strong>配置文件</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spring</span><span class="p">:</span>
+  <span class="n">mail</span><span class="p">:</span>
+    <span class="n">host</span><span class="p">:</span> <span class="n">smtp</span><span class="o">.</span><span class="n">qq</span><span class="o">.</span><span class="n">com</span>
+    <span class="n">username</span><span class="p">:</span> <span class="n">xxxxx</span><span class="nd">@qq</span><span class="o">.</span><span class="n">com</span>
+    <span class="n">password</span><span class="p">:</span> <span class="n">xxxx</span>
+    <span class="n">properties</span><span class="p">:</span>
+      <span class="n">mail</span><span class="p">:</span>
+        <span class="n">smtp</span><span class="p">:</span>
+          <span class="n">auth</span><span class="p">:</span> <span class="n">true</span>
+          <span class="n">starttls</span><span class="p">:</span>
+            <span class="n">enable</span><span class="p">:</span> <span class="n">true</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">true</span>
+  <span class="n">boot</span><span class="p">:</span>
+    <span class="n">admin</span><span class="p">:</span>
+      <span class="n">notify</span><span class="p">:</span>
+        <span class="n">mail</span><span class="p">:</span>
+          <span class="n">from</span><span class="p">:</span> <span class="n">xxxx</span><span class="nd">@qq</span><span class="o">.</span><span class="n">com</span>
+          <span class="n">to</span><span class="p">:</span> <span class="n">xxxx</span><span class="nd">@qq</span><span class="o">.</span><span class="n">com</span>
+<span class="c1"># http://codecentric.github.io/spring-boot-admin/1.5.6/#mail-notifications</span>
+</pre></div>
+</div>
+<p>在配置文件中添加邮件发送相关信息：邮件的发送者、接受者、协议、移动授权码等。关于Spring Boot邮件发送，可以参考springboot(十)：邮件服务</p>
+<p>配置完成后，重新启动项目spring-boot-admin-server，这样Admin Server就具备了邮件告警的功能，默认情况下Admin Server对Eureka中的服务上下线都进行了监控，当服务上下线的时候我们就会收到如下邮件：</p>
+<img alt="../../_images/admin5.png" src="../../_images/admin5.png" />
+<p>当然这只是最基本的邮件监控，在实际的使用过程中，需要根据我们的情况对邮件告警内容进行自定义，比如监控堆内存的使用情况，当到达一定比例的时候进行告警等。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id4">
+<h2>参考<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://www.cnblogs.com/ityouknow/p/8440455.html">使用spring-boot-admin对spring-boot服务进行监控</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">使用spring-boot-admin对spring-boot服务进行监控</a><ul>
+<li><a class="reference internal" href="#spring-boot-admin">什么是Spring Boot Admin?</a></li>
+<li><a class="reference internal" href="#id1">监控单体应用</a></li>
+<li><a class="reference internal" href="#id2">监控微服务</a></li>
+<li><a class="reference internal" href="#id3">邮件告警</a></li>
+<li><a class="reference internal" href="#id4">参考</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springboot/19_spring_boot_admin.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springboot/19_spring_boot_admin.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

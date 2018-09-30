@@ -1,0 +1,277 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Java 内存溢出异常 OOM &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="java-oom">
+<h1>Java 内存溢出异常 OOM<a class="headerlink" href="#java-oom" title="Permalink to this headline">¶</a></h1>
+<p>除程序计数器外，其他内存区域都有可能OOM</p>
+<div class="section" id="id1">
+<h2>异常代码演示<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>参数设置</p>
+<blockquote>
+<div>-Xms20m -Xmx20m -XX:+HeapDumpOnOutOfMemoryError</div></blockquote>
+<p>将堆的最小值—Xms参数与最大值-Xmx参数设为相等可避免自动扩展</p>
+<p><strong>-XX:+HeapDumpOnOutOfMemoryError</strong> 可以让虚拟机在出现内存异常是Dump出当前的内存堆转储快照以便分析</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="k">class</span> <span class="nc">HeapOOM</span> <span class="p">{</span>
+    <span class="n">static</span> <span class="k">class</span> <span class="nc">OOMObject</span><span class="p">{</span>
+
+    <span class="p">}</span>
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">OOMObject</span><span class="o">&gt;</span> <span class="n">oom</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">OOMObject</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="nb">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">;</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">true</span><span class="p">){</span>
+            <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">count</span><span class="o">++</span><span class="p">);</span>
+            <span class="n">oom</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new</span> <span class="n">OOMObject</span><span class="p">());</span>
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>返回值</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">OutOfMemoryError</span><span class="p">:</span> <span class="n">GC</span> <span class="n">overhead</span> <span class="n">limit</span> <span class="n">exceeded</span>
+<span class="n">Dumping</span> <span class="n">heap</span> <span class="n">to</span> <span class="n">java_pid8696</span><span class="o">.</span><span class="n">hprof</span> <span class="o">...</span>
+<span class="n">Heap</span> <span class="n">dump</span> <span class="n">file</span> <span class="n">created</span> <span class="p">[</span><span class="mi">28080282</span> <span class="nb">bytes</span> <span class="ow">in</span> <span class="mf">0.142</span> <span class="n">secs</span><span class="p">]</span>
+<span class="ne">Exception</span> <span class="ow">in</span> <span class="n">thread</span> <span class="s2">&quot;main&quot;</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">OutOfMemoryError</span><span class="p">:</span> <span class="n">GC</span> <span class="n">overhead</span> <span class="n">limit</span> <span class="n">exceeded</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">nio</span><span class="o">.</span><span class="n">CharBuffer</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">CharBuffer</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">373</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">sun</span><span class="o">.</span><span class="n">nio</span><span class="o">.</span><span class="n">cs</span><span class="o">.</span><span class="n">StreamEncoder</span><span class="o">.</span><span class="n">implWrite</span><span class="p">(</span><span class="n">StreamEncoder</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">265</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">sun</span><span class="o">.</span><span class="n">nio</span><span class="o">.</span><span class="n">cs</span><span class="o">.</span><span class="n">StreamEncoder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">StreamEncoder</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">125</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">OutputStreamWriter</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">OutputStreamWriter</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">207</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">BufferedWriter</span><span class="o">.</span><span class="n">flushBuffer</span><span class="p">(</span><span class="n">BufferedWriter</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">129</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">PrintStream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">PrintStream</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">526</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">PrintStream</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">PrintStream</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">597</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">PrintStream</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">PrintStream</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">736</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">me</span><span class="o">.</span><span class="n">wenchao</span><span class="o">.</span><span class="n">javabasic</span><span class="o">.</span><span class="n">oom</span><span class="o">.</span><span class="n">HeapOOM</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">HeapOOM</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">19</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>当前项目路径找到 java_pid8696.hprof，使用 Jprofile 打开</p>
+</div>
+<div class="section" id="id2">
+<h2>虚拟机栈和本地方法栈溢出<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>-Xss 参数减少栈内存容量</div></blockquote>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/**</span>
+ <span class="o">*</span> <span class="nd">@Author</span> <span class="n">wenchaofu</span>
+ <span class="o">*</span> <span class="nd">@DATE</span> <span class="mi">16</span><span class="p">:</span><span class="mi">12</span> <span class="mi">2018</span><span class="o">/</span><span class="mi">5</span><span class="o">/</span><span class="mi">17</span>
+ <span class="o">*</span> <span class="nd">@DESC</span>
+ <span class="o">*</span> <span class="o">-</span><span class="n">Xss128K</span> <span class="n">限制栈容量</span>
+ <span class="o">*/</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">StackOOM</span> <span class="p">{</span>
+
+    <span class="n">private</span> <span class="nb">int</span> <span class="n">statcLength</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">public</span> <span class="n">void</span> <span class="n">stackLeak</span><span class="p">(){</span>
+        <span class="n">statcLength</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">stackLeak</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>  <span class="p">{</span>
+        <span class="n">StackOOM</span> <span class="n">soom</span> <span class="o">=</span> <span class="n">new</span> <span class="n">StackOOM</span><span class="p">();</span>
+        <span class="k">try</span> <span class="p">{</span>
+            <span class="n">soom</span><span class="o">.</span><span class="n">stackLeak</span><span class="p">();</span>
+        <span class="p">}</span><span class="n">catch</span> <span class="p">(</span><span class="n">Throwable</span> <span class="n">e</span><span class="p">){</span>
+            <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;stack Length is &quot;</span> <span class="o">+</span> <span class="n">soom</span><span class="o">.</span><span class="n">statcLength</span><span class="p">);</span>
+            <span class="n">throw</span> <span class="n">e</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>返回结果如下：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stack</span> <span class="n">Length</span> <span class="ow">is</span> <span class="mi">993</span>
+<span class="ne">Exception</span> <span class="ow">in</span> <span class="n">thread</span> <span class="s2">&quot;main&quot;</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">StackOverflowError</span>
+    <span class="n">at</span> <span class="n">me</span><span class="o">.</span><span class="n">wenchao</span><span class="o">.</span><span class="n">javabasic</span><span class="o">.</span><span class="n">oom</span><span class="o">.</span><span class="n">StackOOM</span><span class="o">.</span><span class="n">stackLeak</span><span class="p">(</span><span class="n">StackOOM</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">13</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">me</span><span class="o">.</span><span class="n">wenchao</span><span class="o">.</span><span class="n">javabasic</span><span class="o">.</span><span class="n">oom</span><span class="o">.</span><span class="n">StackOOM</span><span class="o">.</span><span class="n">stackLeak</span><span class="p">(</span><span class="n">StackOOM</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">14</span><span class="p">)</span>
+    <span class="o">......</span>
+</pre></div>
+</div>
+<p>结果表明，在单个线程下无论是栈帧太大还是虚拟机栈容量太小，当内存无法分配的时候，虚拟机抛出的都是StackOverflowError异常</p>
+<p>如果是多线程，通过不断建立线程方式倒是可以产生内存溢出异常，如：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">package</span> <span class="n">me</span><span class="o">.</span><span class="n">wenchao</span><span class="o">.</span><span class="n">javabasic</span><span class="o">.</span><span class="n">oom</span><span class="p">;</span>
+
+<span class="o">/**</span>
+ <span class="o">*</span> <span class="nd">@Author</span> <span class="n">wenchaofu</span>
+ <span class="o">*</span> <span class="nd">@DATE</span> <span class="mi">13</span><span class="p">:</span><span class="mi">22</span> <span class="mi">2018</span><span class="o">/</span><span class="mi">5</span><span class="o">/</span><span class="mi">18</span>
+ <span class="o">*</span> <span class="nd">@DESC</span> <span class="o">-</span><span class="n">Xss2M</span> <span class="p">(</span><span class="n">虚拟机栈设置大一些</span><span class="p">)</span>
+ <span class="o">*/</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">StackOOM2</span> <span class="p">{</span>
+    <span class="n">private</span> <span class="n">void</span> <span class="n">noStop</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">true</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">try</span> <span class="p">{</span>
+                <span class="n">Thread</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+            <span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">e</span><span class="o">.</span><span class="n">printStackTrace</span><span class="p">();</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="n">void</span> <span class="n">stackLeakByThread</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">true</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">Thread</span> <span class="n">thread</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Thread</span><span class="p">(</span><span class="n">new</span> <span class="n">Runnable</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nd">@Override</span>
+                <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">()</span> <span class="p">{</span>
+                    <span class="n">noStop</span><span class="p">();</span>
+                <span class="p">}</span>
+            <span class="p">});</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">StackOOM2</span> <span class="n">stackOOM2</span> <span class="o">=</span> <span class="n">new</span> <span class="n">StackOOM2</span><span class="p">();</span>
+        <span class="n">stackOOM2</span><span class="o">.</span><span class="n">stackLeakByThread</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>返回结果如下</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ne">Exception</span> <span class="ow">in</span> <span class="n">thread</span> <span class="s2">&quot;main&quot;</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">OutOfMemoryError</span><span class="p">:</span> <span class="n">unable</span> <span class="n">to</span> <span class="n">create</span> <span class="n">new</span> <span class="n">native</span> <span class="n">thread</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="n">start0</span><span class="p">(</span><span class="n">Native</span> <span class="n">Method</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">Thread</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">717</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">me</span><span class="o">.</span><span class="n">wenchao</span><span class="o">.</span><span class="n">javabasic</span><span class="o">.</span><span class="n">oom</span><span class="o">.</span><span class="n">StackOOM2</span><span class="o">.</span><span class="n">stackLeakByThread</span><span class="p">(</span><span class="n">StackOOM2</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">27</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">me</span><span class="o">.</span><span class="n">wenchao</span><span class="o">.</span><span class="n">javabasic</span><span class="o">.</span><span class="n">oom</span><span class="o">.</span><span class="n">StackOOM2</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">StackOOM2</span><span class="o">.</span><span class="n">java</span><span class="p">:</span><span class="mi">33</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>提示：上述代码可能会导致操作系统假死</p>
+<hr class="docutils" />
+<p>但是这样产生的 OOM 与 栈空间是否足够大并不存在直接联系。或者准确地说，在这种情况下，为每个线程的栈分配
+的内存越大，反而越容易产生内存溢出异常</p>
+<p>其实原因不难理解，操作系统为每个进程分配的内存是有限的。譬如 32 位的windows限制为 2G，虚拟机提供了参数来控制Java堆和
+方法区的这两部分内存的最大值，剩余的内存为2G（操作系统限制）减去Xmx（最大堆容量），再减去MaxPermSize（最大栈方法区，java8无此参数），程序计数器消耗内存较小，可以忽略。如果虚拟机本身消耗的内存不计算在内，剩余的内存就有虚拟机栈和本地方法栈“瓜分”了（线程私有）。每个线程分配到的栈容量越大可以建立的线程数量越小，建立线程时就越容易把剩下的内存耗尽。</p>
+<p><strong>这一点在开发多线程时需要特别注意</strong> ，出现StackOverflowError异常时有错误的堆栈可以阅读，相对来说，比较容易找到问题所在。而且，如果使用虚拟机默认的参数，栈深度在大多数情况下（因为每个方法压入栈的栈帧大小并不一样，所以只能说大多数情况下）达到1000 ~ 2000 完全没有任何问题，对于正常的方法调用（包括递归），这个深度应该完全够用了。但是，如果是通过建立多线程导致的内存溢出，再不能减少线程数或者更换64位虚拟机的情况下，就只能通过 <strong>减少最大堆</strong> 和 <strong>减少栈容量</strong> 来换取更多的线程。如果没有这方面的处理经验，这种通过**“减少内存”<a href="#id3"><span class="problematic" id="id4">**</span></a>的手段来解决内存溢出的方式比较难以想到。</p>
+<blockquote>
+<div>注解：减少栈容量很容易理解，减少 <strong>最大堆</strong> 是因为可以让其他内存使用到更多的内存，如方法区</div></blockquote>
+</div>
+<div class="section" id="id5">
+<h2>方法区和运行时常量池溢出<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>JDK 1.7开始逐渐 “去永久代”</p>
+<p>String.intern() 是一个 Native 方法，它的作用是：如果字符串常量池中已经包含一个等于一个此String对象的字符串，则返回池中这个字符串的String对象；否则将此String对象包含的字符串添加到常量池中，并且返回此String对象的引用。在JDK1.6 及之前的版本中，由于字符串常量池分配在永久代中，我们可以通过 -XX:PermSize 和 -XX:MaxPermSize 限制方法区大小，从而间接限制其中的常量池大小</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">package</span> <span class="n">me</span><span class="o">.</span><span class="n">wenchao</span><span class="o">.</span><span class="n">javabasic</span><span class="o">.</span><span class="n">oom</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="p">;</span>
+
+<span class="o">/**</span>
+ <span class="o">*</span> <span class="nd">@Author</span> <span class="n">wenchaofu</span>
+ <span class="o">*</span> <span class="nd">@DATE</span> <span class="mi">14</span><span class="p">:</span><span class="mi">59</span> <span class="mi">2018</span><span class="o">/</span><span class="mi">5</span><span class="o">/</span><span class="mi">18</span>
+ <span class="o">*</span> <span class="nd">@DESC</span>
+ <span class="o">*</span> <span class="o">-</span><span class="n">XX</span><span class="p">:</span><span class="n">PermSize</span><span class="o">=</span><span class="mi">5</span><span class="n">M</span> <span class="o">-</span><span class="n">XX</span><span class="p">:</span><span class="n">MaxPermSize</span><span class="o">=</span><span class="mi">5</span><span class="n">M</span>
+ <span class="o">*/</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">PermOOM</span> <span class="p">{</span>
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+        <span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">;</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">true</span><span class="p">)</span> <span class="p">{</span>
+
+            <span class="nb">list</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">String</span><span class="o">.</span><span class="n">valueOf</span><span class="p">(</span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="o">.</span><span class="n">intern</span><span class="p">());</span>
+            <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+        <span class="p">}</span>
+
+
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>jdk1.8 不报错，在1.7之前的版本中
+报错</p>
+<blockquote>
+<div>OutOfMemroyError: PermGen space</div></blockquote>
+<p>在jdk8中，移除了方法区，转而用Metaspace区域替代，所以我们需要使用新的jvm参数：-XX:MaxMetaspaceSize=2M，依然运行如上代码，抛出：java.lang.OutOfMemoryError: Metaspace异常。同理说明运行时常量池是划分在Metaspace区域中。具体关于Metaspace区域的知识，请读者自行搜索。</p>
+</div>
+<div class="section" id="id6">
+<h2>本机直接内存溢出<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p>略</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Java 内存溢出异常 OOM</a><ul>
+<li><a class="reference internal" href="#id1">异常代码演示</a></li>
+<li><a class="reference internal" href="#id2">虚拟机栈和本地方法栈溢出</a></li>
+<li><a class="reference internal" href="#id5">方法区和运行时常量池溢出</a></li>
+<li><a class="reference internal" href="#id6">本机直接内存溢出</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_primary/core/j02_oom.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_primary/core/j02_oom.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

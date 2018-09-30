@@ -84,7 +84,7 @@ java反射，获取参数化类型的class实例
 
 不管怎样，Type是一个接口，表示类型，我们的superclass就是一个类型，
 
-下面我们要岁superclass进行判断:
+下面我们要对superclass进行判断:
 
 我们判断用到了另外的一个接口，通过判断superclass是否为这个接口的一个实例，来判断superclass是否被实例化
 
@@ -252,3 +252,65 @@ if(tys!=null && tys.length>0)
             System.err.println("owner type:" + trueType);
         }
     }
+
+
+
+
+**getSuperClass & getGenericSuperclass**
+
+getSuperClass 返回父类
+
+getGenericSuperClass 返回参数化的父类
+
+看例子：
+
+.. code:: java
+
+
+    /**
+     * @Author wenchaofu
+     * @DATE 9:55 2018/7/11
+     * @DESC
+     */
+
+    class Father<T> {
+
+    }
+
+    class Son extends Father<String> {
+
+    }
+    public class SuperClass {
+        public static void main(String[] args) {
+            Class<? super Son> superclass = Son.class.getSuperclass();
+            System.out.println(superclass);
+            Type genericSuperclass = Son.class.getGenericSuperclass();
+            System.out.println(genericSuperclass);
+            if (genericSuperclass instanceof ParameterizedType) {
+                ParameterizedType type = (ParameterizedType)genericSuperclass;
+                Type[] actualTypeArguments = type.getActualTypeArguments();
+                if (actualTypeArguments != null && actualTypeArguments.length>0) {
+                    Type type0 = actualTypeArguments[0];
+
+                    System.out.println("======");
+                    System.out.println(type0);
+                    System.out.println((Class)type0);
+                    System.out.println((Class)type0 == String.class);
+
+                }
+
+            }
+        }
+    }
+
+
+返回值
+
+::
+
+    class me.wenchao.javapro.generic.Father
+    me.wenchao.javapro.generic.Father<java.lang.String>
+    ======
+    class java.lang.String
+    class java.lang.String
+    true

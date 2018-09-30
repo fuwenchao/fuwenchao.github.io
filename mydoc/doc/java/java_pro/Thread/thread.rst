@@ -217,6 +217,8 @@ Thread 和 Runnable 这件的区别
                      }
                  }).start();
 
+参考 《高质量编程》 建议123
+
 
 Callable
 ---------------

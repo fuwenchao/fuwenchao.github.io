@@ -1,0 +1,137 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>自定义Filter &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="filter">
+<h1>自定义Filter<a class="headerlink" href="#filter" title="Permalink to this headline">¶</a></h1>
+<p>我们常常在项目中会使用filters用于录调用日志、排除有XSS威胁的字符、执行权限验证等等。Spring Boot自动添加了OrderedCharacterEncodingFilter和HiddenHttpMethodFilter，并且我们可以自定义Filter。</p>
+<p>两个步骤：</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>实现Filter接口，实现Filter方法</li>
+<li>添加&#64;Configurationz 注解，将自定义Filter加入过滤链</li>
+</ol>
+</div></blockquote>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Configuration</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">WebConfiguration</span> <span class="p">{</span>
+    <span class="nd">@Bean</span>
+    <span class="n">public</span> <span class="n">RemoteIpFilter</span> <span class="n">remoteIpFilter</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">new</span> <span class="n">RemoteIpFilter</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Bean</span>
+    <span class="n">public</span> <span class="n">FilterRegistrationBean</span> <span class="n">testFilterRegistration</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="n">FilterRegistrationBean</span> <span class="n">registration</span> <span class="o">=</span> <span class="n">new</span> <span class="n">FilterRegistrationBean</span><span class="p">();</span>
+        <span class="n">registration</span><span class="o">.</span><span class="n">setFilter</span><span class="p">(</span><span class="n">new</span> <span class="n">MyFilter</span><span class="p">());</span>
+        <span class="n">registration</span><span class="o">.</span><span class="n">addUrlPatterns</span><span class="p">(</span><span class="s2">&quot;/*&quot;</span><span class="p">);</span>
+        <span class="n">registration</span><span class="o">.</span><span class="n">addInitParameter</span><span class="p">(</span><span class="s2">&quot;paramName&quot;</span><span class="p">,</span> <span class="s2">&quot;paramValue&quot;</span><span class="p">);</span>
+        <span class="n">registration</span><span class="o">.</span><span class="n">setName</span><span class="p">(</span><span class="s2">&quot;MyFilter&quot;</span><span class="p">);</span>
+        <span class="n">registration</span><span class="o">.</span><span class="n">setOrder</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">registration</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="k">class</span> <span class="nc">MyFilter</span> <span class="n">implements</span> <span class="n">Filter</span> <span class="p">{</span>
+        <span class="nd">@Override</span>
+        <span class="n">public</span> <span class="n">void</span> <span class="n">destroy</span><span class="p">()</span> <span class="p">{</span>
+            <span class="o">//</span> <span class="n">TODO</span> <span class="n">Auto</span><span class="o">-</span><span class="n">generated</span> <span class="n">method</span> <span class="n">stub</span>
+        <span class="p">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="n">public</span> <span class="n">void</span> <span class="n">doFilter</span><span class="p">(</span><span class="n">ServletRequest</span> <span class="n">srequest</span><span class="p">,</span> <span class="n">ServletResponse</span> <span class="n">sresponse</span><span class="p">,</span> <span class="n">FilterChain</span> <span class="n">filterChain</span><span class="p">)</span>
+                <span class="n">throws</span> <span class="n">IOException</span><span class="p">,</span> <span class="n">ServletException</span> <span class="p">{</span>
+            <span class="o">//</span> <span class="n">TODO</span> <span class="n">Auto</span><span class="o">-</span><span class="n">generated</span> <span class="n">method</span> <span class="n">stub</span>
+            <span class="n">HttpServletRequest</span> <span class="n">request</span> <span class="o">=</span> <span class="p">(</span><span class="n">HttpServletRequest</span><span class="p">)</span> <span class="n">srequest</span><span class="p">;</span>
+            <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;this is MyFilter,url :&quot;</span><span class="o">+</span><span class="n">request</span><span class="o">.</span><span class="n">getRequestURI</span><span class="p">());</span>
+            <span class="n">filterChain</span><span class="o">.</span><span class="n">doFilter</span><span class="p">(</span><span class="n">srequest</span><span class="p">,</span> <span class="n">sresponse</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="n">public</span> <span class="n">void</span> <span class="n">init</span><span class="p">(</span><span class="n">FilterConfig</span> <span class="n">arg0</span><span class="p">)</span> <span class="n">throws</span> <span class="n">ServletException</span> <span class="p">{</span>
+            <span class="o">//</span> <span class="n">TODO</span> <span class="n">Auto</span><span class="o">-</span><span class="n">generated</span> <span class="n">method</span> <span class="n">stub</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springboot/17_filter.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springboot/17_filter.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

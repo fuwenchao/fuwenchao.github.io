@@ -1,0 +1,309 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>垃圾收集器 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>垃圾收集器<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>哪些内存需要回收</li>
+<li>什么时候回收</li>
+<li>如何回收</li>
+</ul>
+<div class="section" id="id2">
+<h2>基础<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p><strong>输出GC日志参数</strong></p>
+<p>要查看GC日志，需要设置一下jvm的参数。关于输出GC日志的参数有以下几种</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>-XX:+PrintGC 输出GC日志</li>
+<li>-XX:+PrintGCDetails 输出GC的详细日志</li>
+<li>-XX:+PrintGCTimeStamps 输出GC的时间戳（以基准时间的形式）</li>
+<li>-XX:+PrintGCDateStamps 输出GC的时间戳（以日期的形式，如 2013-05-04T21:53:59.234+0800）</li>
+<li>-XX:+PrintHeapAtGC 在进行GC的前后打印出堆的信息</li>
+<li>-Xloggc:../logs/gc.log 日志文件的输出路径</li>
+</ol>
+</div></blockquote>
+<p><strong>分析日志</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>GC日志开头的”[GC”和”[Full GC”说明了这次垃圾收集的停顿类型，如果有”Full”，说明这次GC发生了”Stop-The-World”。因为是调用了System.gc()方法触发的收集，所以会显示”[Full GC (System.gc())”，不然是没有后面的(System.gc())的。</li>
+<li>“[PSYoungGen”和”[ParOldGen”是指GC发生的区域，分别代表使用Parallel Scavenge垃圾收集器的新生代和使用Parallel old垃圾收集器的老生代。为什么是这两个垃圾收集器组合呢？因为我的jvm开启的模式是Server，而Server模式的默认垃圾收集器组合便是这个，在命令行输入java -version就可以看到自己的jvm默认开启模式。还有一种是client模式，默认组合是Serial收集器和Serial Old收集器组合。</li>
+<li>在方括号中”PSYoungGen:”后面的”3686K-&gt;664K(38400K)”代表的是”GC前该内存区域已使用的容量-&gt;GC后该内存区域已使用的容量(该内存区域总容量)”</li>
+<li>在方括号之外的”3686K-&gt;672K(125952K)”代表的是”GC前Java堆已使用容量-&gt;GC后Java堆已使用容量(Java堆总容量)”</li>
+<li>再往后的”0.0016607 sec”代表该内存区域GC所占用的时间，单位是秒。</li>
+<li>再后面的”[Times: user=0.00 sys=0.00, real=0.00 secs]”，user代表进程在用户态消耗的CPU时间，sys代表代表进程在内核态消耗的CPU时间、real代表程序从开始到结束所用的时钟时间。这个时间包括其他进程使用的时间片和进程阻塞的时间（比如等待 I/O 完成）。</li>
+<li>至于后面的”eden”代表的是Eden空间，还有”from”和”to”代表的是Survivor空间。</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id3">
+<h2>判断对象是否活着<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p><strong>1. 引用计数法</strong></p>
+<p>实现简单，判断效率高，在大部分情况下他都是一个不错的算法。但是主流的 JVM 没有选用引用计数法来管理内存，主要原因是他很难解决对象之间循环引用的问题</p>
+<p>栗子</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>package me.wenchao.javabasic.gc;
+
+/**
+ * @Author wenchaofu
+ * @DATE 15:40 2018/5/18
+ * @DESC
+ * -XX:+PrintGCDetails
+ */
+public class ReferenceCountingGC {
+    public Object instance = null;
+    private static final int _1MB = 1024*1024;
+
+    //占用内存，以便观察GC情况
+    private byte[] bigSize = new byte[2 * _1MB];
+
+    public static void testGC(){
+        ReferenceCountingGC objA = new ReferenceCountingGC();
+        ReferenceCountingGC objB = new ReferenceCountingGC();
+        objA.instance = objB;
+        objB.instance = objA;
+        objA = null;
+        objB = null;
+        System.gc();
+        System.out.println(&quot;gc over&quot;);
+    }
+
+
+    public static void main(String[] args) {
+        testGC();
+    }
+
+}
+</pre></div>
+</div>
+<p>返回结果</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">GC</span> <span class="p">(</span><span class="n">System</span><span class="o">.</span><span class="n">gc</span><span class="p">())</span> <span class="p">[</span><span class="n">PSYoungGen</span><span class="p">:</span> <span class="mi">7083</span><span class="n">K</span><span class="o">-&gt;</span><span class="mi">843</span><span class="n">K</span><span class="p">(</span><span class="mi">28160</span><span class="n">K</span><span class="p">)]</span> <span class="mi">7083</span><span class="n">K</span><span class="o">-&gt;</span><span class="mi">851</span><span class="n">K</span><span class="p">(</span><span class="mi">92672</span><span class="n">K</span><span class="p">),</span> <span class="mf">0.0068615</span> <span class="n">secs</span><span class="p">]</span> <span class="p">[</span><span class="n">Times</span><span class="p">:</span> <span class="n">user</span><span class="o">=</span><span class="mf">0.02</span> <span class="n">sys</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="mf">0.01</span> <span class="n">secs</span><span class="p">]</span>
+<span class="p">[</span><span class="n">Full</span> <span class="n">GC</span> <span class="p">(</span><span class="n">System</span><span class="o">.</span><span class="n">gc</span><span class="p">())</span> <span class="p">[</span><span class="n">PSYoungGen</span><span class="p">:</span> <span class="mi">843</span><span class="n">K</span><span class="o">-&gt;</span><span class="mi">0</span><span class="n">K</span><span class="p">(</span><span class="mi">28160</span><span class="n">K</span><span class="p">)]</span> <span class="p">[</span><span class="n">ParOldGen</span><span class="p">:</span> <span class="mi">8</span><span class="n">K</span><span class="o">-&gt;</span><span class="mi">779</span><span class="n">K</span><span class="p">(</span><span class="mi">64512</span><span class="n">K</span><span class="p">)]</span> <span class="mi">851</span><span class="n">K</span><span class="o">-&gt;</span><span class="mi">779</span><span class="n">K</span><span class="p">(</span><span class="mi">92672</span><span class="n">K</span><span class="p">),</span> <span class="p">[</span><span class="n">Metaspace</span><span class="p">:</span> <span class="mi">3478</span><span class="n">K</span><span class="o">-&gt;</span><span class="mi">3478</span><span class="n">K</span><span class="p">(</span><span class="mi">1056768</span><span class="n">K</span><span class="p">)],</span> <span class="mf">0.0292032</span> <span class="n">secs</span><span class="p">]</span> <span class="p">[</span><span class="n">Times</span><span class="p">:</span> <span class="n">user</span><span class="o">=</span><span class="mf">0.08</span> <span class="n">sys</span><span class="o">=</span><span class="mf">0.00</span><span class="p">,</span> <span class="n">real</span><span class="o">=</span><span class="mf">0.03</span> <span class="n">secs</span><span class="p">]</span>
+<span class="n">gc</span> <span class="n">over</span>
+<span class="n">Heap</span>
+ <span class="n">PSYoungGen</span>      <span class="n">total</span> <span class="mi">28160</span><span class="n">K</span><span class="p">,</span> <span class="n">used</span> <span class="mi">737</span><span class="n">K</span> <span class="p">[</span><span class="mh">0x00000000e0b80000</span><span class="p">,</span> <span class="mh">0x00000000e2a80000</span><span class="p">,</span> <span class="mh">0x0000000100000000</span><span class="p">)</span>
+  <span class="n">eden</span> <span class="n">space</span> <span class="mi">24576</span><span class="n">K</span><span class="p">,</span> <span class="mi">3</span><span class="o">%</span> <span class="n">used</span> <span class="p">[</span><span class="mh">0x00000000e0b80000</span><span class="p">,</span><span class="mh">0x00000000e0c386a8</span><span class="p">,</span><span class="mh">0x00000000e2380000</span><span class="p">)</span>
+  <span class="kn">from</span> <span class="nn">space</span> <span class="mi">3584</span><span class="n">K</span><span class="p">,</span> <span class="mi">0</span><span class="o">%</span> <span class="n">used</span> <span class="p">[</span><span class="mh">0x00000000e2380000</span><span class="p">,</span><span class="mh">0x00000000e2380000</span><span class="p">,</span><span class="mh">0x00000000e2700000</span><span class="p">)</span>
+  <span class="n">to</span>   <span class="n">space</span> <span class="mi">3584</span><span class="n">K</span><span class="p">,</span> <span class="mi">0</span><span class="o">%</span> <span class="n">used</span> <span class="p">[</span><span class="mh">0x00000000e2700000</span><span class="p">,</span><span class="mh">0x00000000e2700000</span><span class="p">,</span><span class="mh">0x00000000e2a80000</span><span class="p">)</span>
+ <span class="n">ParOldGen</span>       <span class="n">total</span> <span class="mi">64512</span><span class="n">K</span><span class="p">,</span> <span class="n">used</span> <span class="mi">779</span><span class="n">K</span> <span class="p">[</span><span class="mh">0x00000000a2200000</span><span class="p">,</span> <span class="mh">0x00000000a6100000</span><span class="p">,</span> <span class="mh">0x00000000e0b80000</span><span class="p">)</span>
+  <span class="nb">object</span> <span class="n">space</span> <span class="mi">64512</span><span class="n">K</span><span class="p">,</span> <span class="mi">1</span><span class="o">%</span> <span class="n">used</span> <span class="p">[</span><span class="mh">0x00000000a2200000</span><span class="p">,</span><span class="mh">0x00000000a22c2c78</span><span class="p">,</span><span class="mh">0x00000000a6100000</span><span class="p">)</span>
+ <span class="n">Metaspace</span>       <span class="n">used</span> <span class="mi">3486</span><span class="n">K</span><span class="p">,</span> <span class="n">capacity</span> <span class="mi">4496</span><span class="n">K</span><span class="p">,</span> <span class="n">committed</span> <span class="mi">4864</span><span class="n">K</span><span class="p">,</span> <span class="n">reserved</span> <span class="mi">1056768</span><span class="n">K</span>
+  <span class="k">class</span> <span class="nc">space</span>    <span class="n">used</span> <span class="mi">383</span><span class="n">K</span><span class="p">,</span> <span class="n">capacity</span> <span class="mi">388</span><span class="n">K</span><span class="p">,</span> <span class="n">committed</span> <span class="mi">512</span><span class="n">K</span><span class="p">,</span> <span class="n">reserved</span> <span class="mi">1048576</span><span class="n">K</span>
+
+<span class="n">Process</span> <span class="n">finished</span> <span class="k">with</span> <span class="n">exit</span> <span class="n">code</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>根据 <strong>7083K-&gt;851K(92672K)</strong> 可以看出并没有因为两个对象相互引用而没有回收他们，也从侧面反映了JVM并不是通过引用计数法来判断对象是否存活的。</p>
+<p><strong>2. 可达性分析算法</strong></p>
+<blockquote>
+<div>在主流的商用程序语言中(Java和C#)，都是使用可达性分析算法判断对象是否存活的。这个算法的基本思路就是通过一系列名为”GC Roots”的对象作为起始点，从这些节点开始向下搜索，搜索所走过的路径称为引用链(Reference Chain)，当一个对象到GC Roots没有任何引用链相连时，则证明此对象是不可用的，下图对象object5, object6, object7虽然有互相判断，但它们到GC Roots是不可达的，所以它们将会判定为是可回收对象。</div></blockquote>
+<img alt="../../../_images/gcroot.png" src="../../../_images/gcroot.png" />
+<p>在Java语言里，可作为GC Roots对象的包括如下几种：</p>
+<blockquote>
+<div><ol class="loweralpha simple">
+<li>虚拟机栈(栈桢中的本地变量表)中的引用的对象</li>
+<li>方法区中的类静态属性引用的对象</li>
+<li>方法区中的常量引用的对象</li>
+<li>本地方法栈中JNI的引用的对象</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="id4">
+<h2>谈谈引用<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>具体参见我的博客 <a class="reference external" href="b04_reference.html">强引用，软引用，弱引用，幻想引用有什么区别，他们的使用场景是什么</a></p>
+</div>
+<div class="section" id="id5">
+<h2>对象生存还是死亡<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>即使在可达性分析算法中不可达的对象，也并非是“非死不可”的，这时候它们暂时处于“缓刑”阶段，要真正宣告一个对象死亡，至少要经历再次标记过程。</p>
+<p>标记的前提是对象在进行可达性分析后发现没有与GC Roots相连接的引用链。</p>
+<p>1).第一次标记并进行一次筛选。
+筛选的条件是此对象是否有必要执行finalize()方法。
+当对象没有覆盖finalize方法，或者finzlize方法已经被虚拟机调用过，虚拟机将这两种情况都视为“没有必要执行”，对象被回收。</p>
+<p>2).第二次标记
+如果这个对象被判定为有必要执行finalize（）方法，那么这个对象将会被放置在一个名为：F-Queue的队列之中，并在稍后由一条虚拟机自动建立的、低优先级的Finalizer线程去执行。这里所谓的“执行”是指虚拟机会触发这个方法，但并不承诺会等待它运行结束。这样做的原因是，如果一个对象finalize（）方法中执行缓慢，或者发生死循环（更极端的情况），将很可能会导致F-Queue队列中的其他对象永久处于等待状态，甚至导致整个内存回收系统崩溃。
+Finalize（）方法是对象脱逃死亡命运的最后一次机会，稍后GC将对F-Queue中的对象进行第二次小规模标记，如果对象要在finalize（）中成功拯救自己—-只要重新与引用链上的任何的一个对象建立关联即可，譬如把自己赋值给某个类变量或对象的成员变量，那在第二次标记时它将移除出“即将回收”的集合。如果对象这时候还没逃脱，那基本上它就真的被回收了。</p>
+<img alt="../../../_images/finalizer.png" src="../../../_images/finalizer.png" />
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>/**
+ * 此代码演示了两点：
+ * 1.对象可以在被GC时自我拯救。
+ * 2.这种自救的机会只有一次，因为一个对象的finalize()方法最多只会被系统自动调用一次
+ * @author zzm
+ */
+public class FinalizeEscapeGC {
+
+    public static FinalizeEscapeGC SAVE_HOOK = null;
+
+    public void isAlive() {
+        System.out.println(&quot;yes, i am still alive :)&quot;);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        System.out.println(&quot;finalize mehtod executed!&quot;);
+        FinalizeEscapeGC.SAVE_HOOK = this;
+    }
+
+    public static void main(String[] args) throws Throwable {
+        SAVE_HOOK = new FinalizeEscapeGC();
+
+        //对象第一次成功拯救自己
+        SAVE_HOOK = null;
+        System.gc();
+        // 因为Finalizer方法优先级很低，暂停0.5秒，以等待它
+        Thread.sleep(500);
+        if (SAVE_HOOK != null) {
+            SAVE_HOOK.isAlive();
+        } else {
+            System.out.println(&quot;no, i am dead :(&quot;);
+        }
+
+        // 下面这段代码与上面的完全相同，但是这次自救却失败了
+        SAVE_HOOK = null;
+        System.gc();
+        // 因为Finalizer方法优先级很低，暂停0.5秒，以等待它
+        Thread.sleep(500);
+        if (SAVE_HOOK != null) {
+            SAVE_HOOK.isAlive();
+        } else {
+            System.out.println(&quot;no, i am dead :(&quot;);
+        }
+    }
+}
+</pre></div>
+</div>
+<p>运行结果</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>finalize method executed!
+yew, I am still alive
+no ,I am dead QAQ!
+</pre></div>
+</div>
+<p>从结果可以看出，SAVE_HOOK对象的finalize()方法确实被GC收集器触发过，并且在被收集前成功逃脱了。
+注意：任何一个对象的finalize()方法都只会被系统自动调用一次，如果对象面临下一次回收，它的finalize()方法不会被再次执行，因此第二段代码的自救行动失败了。 并且建议大家尽量避免使用它</p>
+</div>
+<div class="section" id="id7">
+<h2>回收方法区<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p>略</p>
+</div>
+</div>
+<div class="section" id="id8">
+<h1>垃圾收集算法<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id9">
+<h2>标记-清除算法<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="id10">
+<h2>复制算法<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="id11">
+<h2>标记-整理算法<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="id12">
+<h2>分代收集算法<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+<div class="section" id="hotspot">
+<h1>HotSpot 的算法实现<a class="headerlink" href="#hotspot" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="id13">
+<h1>垃圾收集器<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h1>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">垃圾收集器</a><ul>
+<li><a class="reference internal" href="#id2">基础</a></li>
+<li><a class="reference internal" href="#id3">判断对象是否活着</a></li>
+<li><a class="reference internal" href="#id4">谈谈引用</a></li>
+<li><a class="reference internal" href="#id5">对象生存还是死亡</a></li>
+<li><a class="reference internal" href="#id7">回收方法区</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id8">垃圾收集算法</a><ul>
+<li><a class="reference internal" href="#id9">标记-清除算法</a></li>
+<li><a class="reference internal" href="#id10">复制算法</a></li>
+<li><a class="reference internal" href="#id11">标记-整理算法</a></li>
+<li><a class="reference internal" href="#id12">分代收集算法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#hotspot">HotSpot 的算法实现</a></li>
+<li><a class="reference internal" href="#id13">垃圾收集器</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_primary/core/j03_gc.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_primary/core/j03_gc.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

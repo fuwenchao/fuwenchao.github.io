@@ -42,7 +42,21 @@ synchronized 依赖JVM。
     修饰静态方法：整个静态方法，作用于所有对象
     修饰类：括号括起来的部分，作用于所有对象
 
-详见代码
+详见代码 me.wenchao.javapro.concurrency.sync.SyncBlockCode2
+
+https://www.cnblogs.com/beiyetengqing/p/6213437.html
+
+.. code:: java
+
+    class Foo implements Runnable {
+           private byte[] lock = new byte[0]; // 特殊的instance变量    
+           Public void methodA() {      
+             synchronized(lock) { //… }
+           }
+           //…..
+    }
+
+注：零长度的byte数组对象创建起来将比任何对象都经济――查看编译后的字节码：生成零长度的byte[]对象只需3条操作码，而Object lock = new Object()则需要7行操作码。
 
 lock 依赖特殊的CPU指令，代码实现 ， ReentrantLock
 

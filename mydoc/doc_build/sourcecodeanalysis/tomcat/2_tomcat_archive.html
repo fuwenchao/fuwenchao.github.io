@@ -1,0 +1,147 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>tomcat 总体架构 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tomcat">
+<h1>tomcat 总体架构<a class="headerlink" href="#tomcat" title="Permalink to this headline">¶</a></h1>
+<p>首先看两张图</p>
+<a class="reference internal image-reference" href="../../_images/arch_1.jpg"><img alt="alternate text" class="align-left" src="../../_images/arch_1.jpg" style="width: 450.0px; height: 500.0px;" /></a>
+<a class="reference internal image-reference" href="../../_images/arch_2.png"><img alt="alternate text" class="align-left" src="../../_images/arch_2.png" style="width: 450.0px; height: 500.0px;" /></a>
+<p>一个Server可以包含多个Service，
+而一个Service可以包含多个Connector和一个Engine，
+一个Engine可以包含多个Host，
+一个Host可以包含多个Context，
+一个Context可以包含多个Wapper。</p>
+<p>从功能的角度将Tomcat源代码分成5个子模块，它们分别是：</p>
+<blockquote>
+<div><ul class="simple">
+<li>Jsper子模块：这个子模块负责jsp页面的解析、jsp属性的验证，同时也负责将jsp页面动态转换为java代码并编译成class文件。在Tomcat源代码中，凡是属于org.apache.jasper包及其子包中的源代码都属于这个子模块；</li>
+<li>Servlet和Jsp规范的实现模块：这个子模块的源代码属于javax.servlet包及其子包，如我们非常熟悉的javax.servlet.Servlet接口、javax.servet.http.HttpServlet类及javax.servlet.jsp.HttpJspPage就位于这个子模块中；</li>
+<li>Catalina子模块：这个子模块包含了所有以org.apache.catalina开头的java源代码。该子模块的任务是规范了Tomcat的总体架构，定义了Server、Service、Host、Connector、Context、Session及Cluster等关键组件及这些组件的实现，这个子模块大量运用了Composite设计模式。同时也规范了Catalina的启动及停止等事件的执行流程。从代码阅读的角度看，这个子模块应该是我们阅读和学习的重点。</li>
+<li>Coyote 子模块：如果说上面三个子模块实现了Tomcat应用服务器的话，那么这个子模块就是Web服务器的实现。所谓连接器(Connector)就是一个连接客户和应用服务器的桥梁，它接收用户的请求，并把用户请求包装成标准的Http请求(包含协议名称，请求头Head，请求方法是Get还是Post等等)。同时，这个子模块还按照标准的Http协议，负责给客户端发送响应页面，比如在请求页面未发现时，connector就会给客户端浏览器发送标准的Http 404错误响应页面。</li>
+<li>Resource子模块：这个子模块包含一些资源文件，如Server.xml及Web.xml配置文件。严格说来，这个子模块不包含java源代码，但是它还是Tomcat编译运行所必需的。</li>
+</ul>
+</div></blockquote>
+<p>通过上图我们可以看出Tomcat中主要涉及Server,Service,Connector,Engine,Host,Context,Wapper组件。这几大组件在第一节介绍的conf/server.xml文件当中有体现，这也是为嘛，server.xml文件是Tomcat的主要配置文件的原因。默认情况下，server.xml文件的内容如下：</p>
+<div class="section" id="server">
+<h2>Server<a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h2>
+<p>Server(服务器)是Tomcat构成的顶级构成元素，所有一切均包含在Server中，Server的实现类StandardServer可以包含一个到多个Services。在Tomcat当中Server接口的默认实现是</p>
+<blockquote>
+<div>org.apache.catalina.core.StandardServer</div></blockquote>
+<img alt="../../_images/server_1.png" src="../../_images/server_1.png" />
+<p>StandardServer的主要功能点如下：</p>
+<ul class="simple">
+<li>管理Service。包括添加，查找等</li>
+<li>实现Lifecycle，主要管理多个Service的声明周期</li>
+<li>主线程开启await()监听端口，接收shutdown命令。此处是重点。</li>
+</ul>
+</div>
+<div class="section" id="service">
+<h2>Service<a class="headerlink" href="#service" title="Permalink to this headline">¶</a></h2>
+<p>多个 Connector 和一个 Container 就形成了一个 Service.</p>
+<p>Service 的概念大家都很熟悉了，有了 Service 就可以对外提供服务了，但是 Service 还要一个生存的环境，必须要有人能够给她生命、掌握其生死大权，那就非 Server 莫属了，所以整个 Tomcat 的生命周期由 Server 控制。Service 只是在 Connector 和 Container 外面多包一层，把它们组装在一起，向外面提供服务，一个 Service 可以设置多个 Connector，但是只能有一个 Container 容器。Tomcat中Service的默认实现是</p>
+<blockquote>
+<div>org.apache.catalina.core.StandardService</div></blockquote>
+<p>其中StardardService还保持了其管理者Server的引用，另外而需要说明的一点就是，</p>
+<blockquote>
+<div>org.apache.catalina.startup.Catalina</div></blockquote>
+<p>也是Service的一个实现。StandardService和Catalina的继承关系图如下：</p>
+<img alt="../../_images/service_1.png" src="../../_images/service_1.png" />
+<img alt="../../_images/service_2.png" src="../../_images/service_2.png" />
+<p>StandardService的主要功能点如下：</p>
+<ul class="simple">
+<li>管理多个Connecter</li>
+<li>管理一个容器Container</li>
+<li>实现Lifecycle，主要管理多个Connector和一个Container的生命周期</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">tomcat 总体架构</a><ul>
+<li><a class="reference internal" href="#server">Server</a></li>
+<li><a class="reference internal" href="#service">Service</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/sourcecodeanalysis/tomcat/2_tomcat_archive.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/sourcecodeanalysis/tomcat/2_tomcat_archive.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

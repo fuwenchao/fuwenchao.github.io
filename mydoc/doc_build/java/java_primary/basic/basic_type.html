@@ -1,0 +1,125 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>java基本数据类型的字面量 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="java">
+<h1>java基本数据类型的字面量<a class="headerlink" href="#java" title="Permalink to this headline">¶</a></h1>
+<p>java的基本数据类型一共有8种。其中：（每种类型后面列出了java中的该类型的字面量）</p>
+<p><strong>四种整型：</strong></p>
+<ul class="simple">
+<li>int  4字节； 12  +12  -12  077 0xFF  0b101(JDK7中支持的二进制表示)  字面范围：0x800000000 –&gt; 0x7FFFFFFF</li>
+<li>short  2字节； 2个字节内的int字面量可以认为是short类型的字面量，可以给short变量赋值  字面范围：（short）0x8000 –&gt;  0x7FFF</li>
+<li>long 8字节；    int字面量形式后加字母L 字面范围：0x8000000000000000L  –&gt; 0x7FFFFFFFFFFFFFFFL</li>
+<li>byte 1字节;      1个字节内的int字面量可以认为是byte类型的字面量，可以给byte变量赋值  字面范围：(byte)0x80 –&gt; 0x7F</li>
+</ul>
+<p>Java中没有所谓的无符号整型数。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="k">class</span> <span class="nc">Test</span>
+<span class="p">{</span>
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">short</span> <span class="n">shortNum</span> <span class="o">=</span> <span class="p">(</span><span class="n">short</span><span class="p">)</span><span class="mh">0x8000</span><span class="p">;</span>
+        <span class="nb">int</span>  <span class="n">intNum</span> <span class="o">=</span> <span class="mh">0x80000000</span><span class="p">;</span>
+        <span class="n">long</span> <span class="n">longNum</span> <span class="o">=</span> <span class="mh">0x7FFFFFFFFFFFFFFF</span><span class="n">L</span><span class="p">;</span>
+        <span class="n">byte</span> <span class="n">byet_num</span> <span class="o">=</span> <span class="p">(</span><span class="n">byte</span><span class="p">)</span><span class="mh">0x80</span><span class="p">;</span>
+
+
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">shortNum</span><span class="p">);</span><span class="o">//-</span><span class="mi">32768</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">intNum</span><span class="p">);</span><span class="o">//-</span><span class="mi">2147483648</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">longNum</span><span class="p">);</span><span class="o">//</span><span class="mi">9223372036854775807</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">byet_num</span><span class="p">);</span><span class="o">//-</span><span class="mi">128</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>如果short和byte在代码中不用强转，则会报错，那是因为字面量的值超出了变量所能表示的范围。通过强转，可以把int的字面量（四个字节）截取后两个（short）或一个(byte)字节来赋值，作为当前变量的值。然后根据补码的计算规则确定当前的值的大小。上面赋的是两个最小值。</p>
+<p><strong>两种浮点型：</strong></p>
+<ul class="simple">
+<li>float     4字节     整型和小数后加字母F或f的数，也可以是科学计数法表示的数加F或f。float能表示的最大最小值可以借助Float类的MAX_VALUE和MIN_VALUE这两个域来获取。</li>
+<li>double  8字节 　 整型或小数后加字母D或d的数，也可以是科学计数法表示的数加D或d，或是单纯的小数。double变量能表示的最大最小值同样也可以借助Double类。</li>
+</ul>
+<p><strong>一种用于表示Unicode编码的字符单元的字符类型：</strong></p>
+<p>char  2字节　　单引号里的单个字符。</p>
+<p><strong>一种用于表示真值的类型：</strong></p>
+<p>boolean  1/8字节（1位/1bit）  true和false。</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_primary/basic/basic_type.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_primary/basic/basic_type.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

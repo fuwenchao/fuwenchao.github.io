@@ -1,0 +1,232 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>SpringBoot 整合JPA &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="springboot-jpa">
+<h1>SpringBoot 整合JPA<a class="headerlink" href="#springboot-jpa" title="Permalink to this headline">¶</a></h1>
+<p>JPA全称Java Persistence API.JPA通过JDK 5.0注解或XML描述对象－关系表的映射关系，并将运行期的实体对象持久化到数据库中。</p>
+<p>JPA 的目标之一是制定一个可以由很多供应商实现的API，并且开发人员可以编码来实现该API，而不是使用私有供应商特有的API。</p>
+<p>JPA是需要Provider来实现其功能的，Hibernate就是JPA Provider中很强的一个，应该说无人能出其右。从功能上来说，JPA就是Hibernate功能的一个子集。</p>
+<div class="section" id="id1">
+<h2>添加相关依赖<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">jpa</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">mysql</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">mysql</span><span class="o">-</span><span class="n">connector</span><span class="o">-</span><span class="n">java</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">web</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+
+
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">test</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">scope</span><span class="o">&gt;</span><span class="n">test</span><span class="o">&lt;/</span><span class="n">scope</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>配置数据源<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>在application.yml文件配置：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">spring</span><span class="p">:</span>
+  <span class="n">profiles</span><span class="p">:</span>
+    <span class="n">active</span><span class="p">:</span> <span class="n">prod</span>
+  <span class="n">datasource</span><span class="p">:</span>
+    <span class="n">driver</span><span class="o">-</span><span class="n">class</span><span class="o">-</span><span class="n">name</span><span class="p">:</span> <span class="n">com</span><span class="o">.</span><span class="n">mysql</span><span class="o">.</span><span class="n">jdbc</span><span class="o">.</span><span class="n">Driver</span>
+    <span class="n">url</span><span class="p">:</span> <span class="n">jdbc</span><span class="p">:</span><span class="n">mysql</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">3306</span><span class="o">/</span><span class="n">wenchao</span>
+    <span class="n">username</span><span class="p">:</span> <span class="n">root</span>
+    <span class="n">password</span><span class="p">:</span> <span class="mi">900525</span><span class="n">f</span>
+  <span class="n">jpa</span><span class="p">:</span>
+    <span class="n">hibernate</span><span class="p">:</span>
+      <span class="n">ddl</span><span class="o">-</span><span class="n">auto</span><span class="p">:</span> <span class="n">update</span>
+    <span class="n">show</span><span class="o">-</span><span class="n">sql</span><span class="p">:</span> <span class="n">true</span>
+</pre></div>
+</div>
+<p>注意，如果通过jpa在数据库中建表，将jpa.hibernate,ddl-auto改为create，建完表之后，要改为update,要不然每次重启工程会删除表并新建。</p>
+<blockquote>
+<div><ul class="simple">
+<li>create： 每次加载hibernate时都会删除上一次的生成的表，然后根据你的model类再重新来生成新表，哪怕两次没有任何改变也要这样执行，这就是导致数据库表数据丢失的一个重要原因。</li>
+<li>create-drop ：每次加载hibernate时根据model类生成表，但是sessionFactory一关闭,表就自动删除。</li>
+<li>update：最常用的属性，第一次加载hibernate时根据model类会自动建立起表的结构（前提是先建立好数据库），以后加载hibernate时根据 model类自动更新表结构，即使表结构改变了但表中的行仍然存在不会删除以前的行。要注意的是当部署到服务器后，表结构是不会被马上建立起来的，是要等 应用第一次运行起来后才会。</li>
+<li>validate ：每次加载hibernate时，验证创建数据库表结构，只会和数据库中的表进行比较，不会创建新表，但是会插入新值。</li>
+</ul>
+</div></blockquote>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>spring.datasource.url=jdbc:mysql://localhost:3306/test
+spring.datasource.username=root
+spring.datasource.password=root
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+
+spring.jpa.properties.hibernate.hbm2ddl.auto=update
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5InnoDBDialect
+spring.jpa.show-sql= true
+
+- dialect 主要是指定生成表名的存储引擎为InneoDB
+- show-sql 是否打印出自动生产的SQL，方便调试的时候查看
+</pre></div>
+</div>
+<p><strong>创建实体类</strong></p>
+<p>通过&#64;Entity 表明是一个映射的实体类， &#64;Id表明id， &#64;GeneratedValue 字段自动生成</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Entity</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">Account</span> <span class="p">{</span>
+    <span class="nd">@Id</span>
+    <span class="nd">@GeneratedValue</span>
+    <span class="n">private</span> <span class="nb">int</span> <span class="nb">id</span> <span class="p">;</span>
+    <span class="n">private</span> <span class="n">String</span> <span class="n">name</span> <span class="p">;</span>
+    <span class="n">private</span> <span class="n">double</span> <span class="n">money</span><span class="p">;</span>
+
+<span class="o">...</span>  <span class="n">省略getter</span> <span class="n">setter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Dao层</strong></p>
+<p>数据访问层，通过编写一个继承自 JpaRepository 的接口就能完成数据访问,其中包含了几本的单表查询的方法，非常的方便。值得注意的是，这个Account 对象名，而不是具体的表名，另外Interger是主键的类型，一般为Integer或者Long</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="n">interface</span> <span class="n">AccountDao</span>  <span class="n">extends</span> <span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Account</span><span class="p">,</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Web层</strong></p>
+<p>在这个栗子中我简略了service层的书写，在实际开发中，不可省略。新写一个controller，写几个restful api来测试数据的访问。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s2">&quot;/account&quot;</span><span class="p">)</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">AccountController</span> <span class="p">{</span>
+
+    <span class="nd">@Autowired</span>
+    <span class="n">AccountDao</span> <span class="n">accountDao</span><span class="p">;</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;/list&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="n">GET</span><span class="p">)</span>
+    <span class="n">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Account</span><span class="o">&gt;</span> <span class="n">getAccounts</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">accountDao</span><span class="o">.</span><span class="n">findAll</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;/</span><span class="si">{id}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="n">GET</span><span class="p">)</span>
+    <span class="n">public</span> <span class="n">Account</span> <span class="n">getAccountById</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="nb">int</span> <span class="nb">id</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">accountDao</span><span class="o">.</span><span class="n">findOne</span><span class="p">(</span><span class="nb">id</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;/</span><span class="si">{id}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="n">PUT</span><span class="p">)</span>
+    <span class="n">public</span> <span class="n">String</span> <span class="n">updateAccount</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="nb">int</span> <span class="nb">id</span><span class="p">,</span> <span class="nd">@RequestParam</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">required</span> <span class="o">=</span> <span class="n">true</span><span class="p">)</span> <span class="n">String</span> <span class="n">name</span><span class="p">,</span>
+                                <span class="nd">@RequestParam</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;money&quot;</span><span class="p">,</span> <span class="n">required</span> <span class="o">=</span> <span class="n">true</span><span class="p">)</span> <span class="n">double</span> <span class="n">money</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">Account</span> <span class="n">account</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Account</span><span class="p">();</span>
+        <span class="n">account</span><span class="o">.</span><span class="n">setMoney</span><span class="p">(</span><span class="n">money</span><span class="p">);</span>
+        <span class="n">account</span><span class="o">.</span><span class="n">setName</span><span class="p">(</span><span class="n">name</span><span class="p">);</span>
+        <span class="n">account</span><span class="o">.</span><span class="n">setId</span><span class="p">(</span><span class="nb">id</span><span class="p">);</span>
+        <span class="n">Account</span> <span class="n">account1</span> <span class="o">=</span> <span class="n">accountDao</span><span class="o">.</span><span class="n">saveAndFlush</span><span class="p">(</span><span class="n">account</span><span class="p">);</span>
+
+        <span class="k">return</span> <span class="n">account1</span><span class="o">.</span><span class="n">toString</span><span class="p">();</span>
+
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+    <span class="n">public</span> <span class="n">String</span> <span class="n">postAccount</span><span class="p">(</span><span class="nd">@RequestParam</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="n">String</span> <span class="n">name</span><span class="p">,</span>
+                              <span class="nd">@RequestParam</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;money&quot;</span><span class="p">)</span> <span class="n">double</span> <span class="n">money</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">Account</span> <span class="n">account</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Account</span><span class="p">();</span>
+        <span class="n">account</span><span class="o">.</span><span class="n">setMoney</span><span class="p">(</span><span class="n">money</span><span class="p">);</span>
+        <span class="n">account</span><span class="o">.</span><span class="n">setName</span><span class="p">(</span><span class="n">name</span><span class="p">);</span>
+        <span class="n">Account</span> <span class="n">account1</span> <span class="o">=</span> <span class="n">accountDao</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">account</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">account1</span><span class="o">.</span><span class="n">toString</span><span class="p">();</span>
+
+    <span class="p">}</span>
+
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">SpringBoot 整合JPA</a><ul>
+<li><a class="reference internal" href="#id1">添加相关依赖</a></li>
+<li><a class="reference internal" href="#id2">配置数据源</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springboot/5_springboot_jpa.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springboot/5_springboot_jpa.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -97,6 +97,50 @@ java 两种锁
 
 sync能做的ReentrantLock都能做，反之否，看独有功能。
 
+
+另一个区别，看代码
+
+me.wenchao.javapro.concurrency.sync.diff.MainApp
+
+解释：
+
+::
+
+    Lock(显示锁) 对象级别的锁，更简单的说吧Lock定义为多线程类的私有属性是不起作用的，Lock应该定义为所有线程的共享变量。
+
+    Sync(内部锁) 类级别的锁
+
+    **重要** 注意，代码块是类级别的(this 是对象级别，常量是类级别)，方法是对象级别的
+
+
+比如：
+
+.. code:: java
+
+
+        // 对象级别
+        synchronized (this){
+            doStuff();
+        }
+
+        // 对象级别
+        public synchronized void doStuff() {
+            super.doStuff();
+        }
+
+        // 类级别
+        synchronized ("A"){
+            doStuff();
+        }
+
+Lock支持更细粒度的锁控制（读锁和写锁分离）；是无阻塞锁；公平锁；代码级别
+
+sync 阻塞锁（获取不到锁的时候线程处于等待状态（Lock），而Sync处于阻塞状态）；非公平锁；JVM级别
+
+
+
+
+
 ReentrantReadWriteLock 有任何读操作时都不能获取写锁，悲观读
 
 StampedLock 控制锁有三种模式

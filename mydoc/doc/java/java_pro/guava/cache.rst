@@ -426,6 +426,79 @@ LoadingCache 示例
        }    
     }
 
+
+
+
+一个自己的案例: 将反射获取的 Field 和 Method 放入缓存
+
+.. code:: java
+
+    // 定义缓存
+    private static LoadingCache<Class<?>, Map<String, java.lang.reflect.Field>> cache = CacheBuilder.newBuilder()
+            .refreshAfterWrite(3, TimeUnit.HOURS)
+            .expireAfterAccess(3, TimeUnit.HOURS)
+            .maximumSize(1000)
+            .build(new CacheLoader<Class<?>, Map<String, java.lang.reflect.Field>>() {
+                @Override
+                public Map<String, java.lang.reflect.Field> load(Class<?> aClass) throws Exception {
+                    return getJsonFieldMapping(aClass);
+                }
+
+                private Map<String, java.lang.reflect.Field> getJsonFieldMapping(Class<?> clz) {
+                    java.lang.reflect.Field[] declaredFields = clz.getDeclaredFields();
+                    Map<String, java.lang.reflect.Field> jsonFieldMapping = new HashMap<String, java.lang.reflect.Field>();
+
+                    // put the upperName - Filed in the HashMap
+                    for (java.lang.reflect.Field declaredField : declaredFields) {
+                        boolean isAnnoExist = declaredField.isAnnotationPresent(JSONField.class);
+                        JSONField jsonField = declaredField.getAnnotation(JSONField.class);
+                        String fieldName = isAnnoExist ? jsonField.name() : declaredField.getName();
+                        jsonFieldMapping.put(fieldName, declaredField); // fieldName like CI_CTHIS_YEAR_BAL
+
+                    }
+                    return jsonFieldMapping;
+                }
+            });
+
+    // 定义类方法的Method缓存
+    private static LoadingCache<Class<?>, Map<String, java.lang.reflect.Method>> cacheMethod = CacheBuilder.newBuilder()
+            .refreshAfterWrite(3, TimeUnit.HOURS)
+            .expireAfterAccess(3, TimeUnit.HOURS)
+            .maximumSize(1000)
+            .build(new CacheLoader<Class<?>, Map<String, java.lang.reflect.Method>>() {
+                @Override
+                public Map<String, java.lang.reflect.Method> load(Class<?> aClass) throws Exception {
+                    return getJsonFieldMapping(aClass);
+                }
+
+                private Map<String, java.lang.reflect.Method> getJsonFieldMapping(Class<?> clz) {
+                    Map<String, java.lang.reflect.Method> jsonMethodMapping = new HashMap<String, Method>();
+                    java.lang.reflect.Field[] declaredFields = clz.getDeclaredFields();
+                    // put the upperName - Method in the HashMap
+                    for (java.lang.reflect.Field declaredField : declaredFields) {
+                        String rawFieldName = declaredField.getName();
+                        boolean isAnnoExist = declaredField.isAnnotationPresent(JSONField.class);
+                        if (!isAnnoExist) {
+                            continue; // 没有注解的话跳过
+                        }
+                        JSONField jsonField = declaredField.getAnnotation(JSONField.class);
+                        String jsonFieldName = jsonField.name();
+                        String setMethodName = "set" + Character.toUpperCase(rawFieldName.charAt(0)) + rawFieldName.substring(1);
+                        Method method = null;
+                        try {
+                            method = clz.getMethod(setMethodName, declaredField.getType());
+                        } catch (NoSuchMethodException e) {
+                            continue; // 没有找到方法的话跳过
+                        }
+                        if (method != null) {
+                            jsonMethodMapping.put(jsonFieldName, method);
+                        }
+                    }
+                    return jsonMethodMapping;
+                }
+            });
+
+
 ------
 
 参考

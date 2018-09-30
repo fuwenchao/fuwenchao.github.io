@@ -1,0 +1,317 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>springboot集成spring cache &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="springbootspring-cache">
+<h1>springboot集成spring cache<a class="headerlink" href="#springbootspring-cache" title="Permalink to this headline">¶</a></h1>
+<p>本文介绍如何在springboot中使用默认的spring cache，</p>
+<div class="section" id="id1">
+<h2>声明式缓存<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Spring 定义 CacheManager 和 Cache 接口用来统一不同的缓存技术。例如 JCache、 EhCache、 Hazelcast、 Guava、 Redis 等。在使用 Spring 集成 Cache 的时候，我们需要注册实现的 CacheManager 的 Bean</p>
+<p>Spring Boot 为我们自动配置了 JcacheCacheConfiguration、 EhCacheCacheConfiguration、HazelcastCacheConfiguration、GuavaCacheConfiguration、RedisCacheConfiguration、SimpleCacheConfiguration 等。</p>
+<img alt="../../_images/cache.png" src="../../_images/cache.png" />
+<p><strong>默认使用 ConcurrenMapCacheManager</strong></p>
+<p>在我们不使用其他第三方缓存依赖的时候，springboot自动采用ConcurrenMapCacheManager作为缓存管理器。
+环境依赖</p>
+<p>在pom文件引入spring-boot-starter-cache环境依赖：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+            <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="n">springframework</span><span class="o">.</span><span class="n">boot</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+            <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">spring</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">starter</span><span class="o">-</span><span class="n">cache</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>创建一个book数据访问层</p>
+<p>先创建一个实体类</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">package</span> <span class="n">hello</span><span class="p">;</span>
+
+<span class="n">public</span> <span class="k">class</span> <span class="nc">Book</span> <span class="p">{</span>
+
+    <span class="n">private</span> <span class="n">String</span> <span class="n">isbn</span><span class="p">;</span>
+    <span class="n">private</span> <span class="n">String</span> <span class="n">title</span><span class="p">;</span>
+
+    <span class="n">public</span> <span class="n">Book</span><span class="p">(</span><span class="n">String</span> <span class="n">isbn</span><span class="p">,</span> <span class="n">String</span> <span class="n">title</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">isbn</span> <span class="o">=</span> <span class="n">isbn</span><span class="p">;</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="n">String</span> <span class="n">getIsbn</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">isbn</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="n">void</span> <span class="n">setIsbn</span><span class="p">(</span><span class="n">String</span> <span class="n">isbn</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">isbn</span> <span class="o">=</span> <span class="n">isbn</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="n">String</span> <span class="n">getTitle</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">title</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">public</span> <span class="n">void</span> <span class="n">setTitle</span><span class="p">(</span><span class="n">String</span> <span class="n">title</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="n">public</span> <span class="n">String</span> <span class="n">toString</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s2">&quot;Book{&quot;</span> <span class="o">+</span> <span class="s2">&quot;isbn=&#39;&quot;</span> <span class="o">+</span> <span class="n">isbn</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s2">&quot;, title=&#39;&quot;</span> <span class="o">+</span> <span class="n">title</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>创建一个数据访问接口</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="n">interface</span> <span class="n">BookRepository</span> <span class="p">{</span>
+
+    <span class="n">Book</span> <span class="n">getByIsbn</span><span class="p">(</span><span class="n">String</span> <span class="n">isbn</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>这个你可以写一个很复杂的数据查询操作，比如操作mysql、nosql等等。为了演示这个栗子，我只做了一下线程的延迟操作，当作是查询数据库的时间。</p>
+<p>实现接口类：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">package</span> <span class="n">hello</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="p">;</span>
+
+<span class="nd">@Component</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">SimpleBookRepository</span> <span class="n">implements</span> <span class="n">BookRepository</span> <span class="p">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="n">public</span> <span class="n">Book</span> <span class="n">getByIsbn</span><span class="p">(</span><span class="n">String</span> <span class="n">isbn</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">simulateSlowService</span><span class="p">();</span>
+        <span class="k">return</span> <span class="n">new</span> <span class="n">Book</span><span class="p">(</span><span class="n">isbn</span><span class="p">,</span> <span class="s2">&quot;Some book&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="o">//</span> <span class="n">Don</span><span class="s1">&#39;t do this at home</span>
+    <span class="n">private</span> <span class="n">void</span> <span class="n">simulateSlowService</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">try</span> <span class="p">{</span>
+            <span class="n">long</span> <span class="n">time</span> <span class="o">=</span> <span class="mi">3000</span><span class="n">L</span><span class="p">;</span>
+            <span class="n">Thread</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">time</span><span class="p">);</span>
+        <span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">throw</span> <span class="n">new</span> <span class="n">IllegalStateException</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>测试类</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">package</span> <span class="n">hello</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">org.slf4j.Logger</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.slf4j.LoggerFactory</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.boot.CommandLineRunner</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.stereotype.Component</span><span class="p">;</span>
+
+<span class="nd">@Component</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">AppRunner</span> <span class="n">implements</span> <span class="n">CommandLineRunner</span> <span class="p">{</span>
+
+    <span class="n">private</span> <span class="n">static</span> <span class="n">final</span> <span class="n">Logger</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">LoggerFactory</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">AppRunner</span><span class="o">.</span><span class="n">class</span><span class="p">);</span>
+
+    <span class="n">private</span> <span class="n">final</span> <span class="n">BookRepository</span> <span class="n">bookRepository</span><span class="p">;</span>
+
+    <span class="n">public</span> <span class="n">AppRunner</span><span class="p">(</span><span class="n">BookRepository</span> <span class="n">bookRepository</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">bookRepository</span> <span class="o">=</span> <span class="n">bookRepository</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="n">public</span> <span class="n">void</span> <span class="n">run</span><span class="p">(</span><span class="n">String</span><span class="o">...</span> <span class="n">args</span><span class="p">)</span> <span class="n">throws</span> <span class="ne">Exception</span> <span class="p">{</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;.... Fetching books&quot;</span><span class="p">);</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;isbn-1234 --&gt;&quot;</span> <span class="o">+</span> <span class="n">bookRepository</span><span class="o">.</span><span class="n">getByIsbn</span><span class="p">(</span><span class="s2">&quot;isbn-1234&quot;</span><span class="p">));</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;isbn-4567 --&gt;&quot;</span> <span class="o">+</span> <span class="n">bookRepository</span><span class="o">.</span><span class="n">getByIsbn</span><span class="p">(</span><span class="s2">&quot;isbn-4567&quot;</span><span class="p">));</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;isbn-1234 --&gt;&quot;</span> <span class="o">+</span> <span class="n">bookRepository</span><span class="o">.</span><span class="n">getByIsbn</span><span class="p">(</span><span class="s2">&quot;isbn-1234&quot;</span><span class="p">));</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;isbn-4567 --&gt;&quot;</span> <span class="o">+</span> <span class="n">bookRepository</span><span class="o">.</span><span class="n">getByIsbn</span><span class="p">(</span><span class="s2">&quot;isbn-4567&quot;</span><span class="p">));</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;isbn-1234 --&gt;&quot;</span> <span class="o">+</span> <span class="n">bookRepository</span><span class="o">.</span><span class="n">getByIsbn</span><span class="p">(</span><span class="s2">&quot;isbn-1234&quot;</span><span class="p">));</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;isbn-1234 --&gt;&quot;</span> <span class="o">+</span> <span class="n">bookRepository</span><span class="o">.</span><span class="n">getByIsbn</span><span class="p">(</span><span class="s2">&quot;isbn-1234&quot;</span><span class="p">));</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>主类</strong></p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">package</span> <span class="n">hello</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">org.springframework.boot.SpringApplication</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.boot.autoconfigure.SpringBootApplication</span><span class="p">;</span>
+
+<span class="nd">@SpringBootApplication</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">Application</span> <span class="p">{</span>
+
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">SpringApplication</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">Application</span><span class="o">.</span><span class="n">class</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>启动程序，你会发现程序在控制台依次打印了：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>2014-06-05 12:15:35.783 … : …. Fetching books
+
+2014-06-05 12:15:40.783 … : isbn-1234 –&gt; &gt;Book{isbn=’isbn-1234’, title=’Some book’}
+
+2014-06-05 12:15:43.784 … : isbn-1234 –&gt;Book{isbn=’isbn-1234’, title=’Some book’}
+
+2014-06-05 12:15:46.786 … : isbn-1234 –&gt;Book{isbn=’isbn-1234’, title=’Some book’}
+</pre></div>
+</div>
+<p>你会发现程序依次3s打印一行日志。这时还没开启缓存技术。</p>
+<p><strong>开启缓存技术</strong></p>
+<p>在程序的入口中加入&#64; EnableCaching开启缓存技术：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@SpringBootApplication</span>
+<span class="nd">@EnableCaching</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">DemoApplication</span> <span class="p">{</span>
+
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">SpringApplication</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">DemoApplication</span><span class="o">.</span><span class="n">class</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>在需要缓存的地方加入&#64;Cacheable注解，比如在getByIsbn（）方法上加入&#64;Cacheable(“books”)，这个方法就开启了缓存策略，当缓存有这个数据的时候，会直接返回数据，不会等待去查询数据库。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Component</span>
+<span class="n">public</span> <span class="k">class</span> <span class="nc">SimpleBookRepository</span> <span class="n">implements</span> <span class="n">BookRepository</span> <span class="p">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="nd">@Cacheable</span><span class="p">(</span><span class="s2">&quot;books&quot;</span><span class="p">)</span>
+    <span class="n">public</span> <span class="n">Book</span> <span class="n">getByIsbn</span><span class="p">(</span><span class="n">String</span> <span class="n">isbn</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">simulateSlowService</span><span class="p">();</span>
+        <span class="k">return</span> <span class="n">new</span> <span class="n">Book</span><span class="p">(</span><span class="n">isbn</span><span class="p">,</span> <span class="s2">&quot;Some book&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="o">//</span> <span class="n">Don</span><span class="s1">&#39;t do this at home</span>
+    <span class="n">private</span> <span class="n">void</span> <span class="n">simulateSlowService</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">try</span> <span class="p">{</span>
+            <span class="n">long</span> <span class="n">time</span> <span class="o">=</span> <span class="mi">3000</span><span class="n">L</span><span class="p">;</span>
+            <span class="n">Thread</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">time</span><span class="p">);</span>
+        <span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">throw</span> <span class="n">new</span> <span class="n">IllegalStateException</span><span class="p">(</span><span class="n">e</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>这时再启动程序，你会发现程序打印：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>isbn-1234 –&gt;Book{isbn=’isbn-1234’, title=’Some book’}
+2017-04-23 18:17:09.479 INFO 8054 — [ main] forezp.AppRunner : isbn-4567 –&gt;Book{isbn=’isbn-4567’, title=’Some book’}
+2017-04-23 18:17:09.480 INFO 8054 — [ main] forezp.AppRunner : isbn-1234 –&gt;Book{isbn=’isbn-1234’, title=’Some book’}
+2017-04-23 18:17:09.480 INFO 8054 — [ main] forezp.AppRunner : isbn-4567 –&gt;Book{isbn=’isbn-4567’, title=’Some book’}
+2017-04-23 18:17:09.481 INFO 8054 — [ main] forezp.AppRunner : isbn-1234 –&gt;Book{isbn=’isbn-1234’, title=’Some book’}
+2017-04-23 18:17:09.481 INFO 8054 — [ main] forezp.AppRunner : isbn-1234 –&gt;Book{isbn=’isbn-1234’, title=’Some book’}
+</pre></div>
+</div>
+<p>只有打印前面2个数据，程序等了3s，之后的数据瞬间打印在控制台上了，这说明缓存起了作用。</p>
+<p>&#64;Cacheable 在方法执行前 Spring 先查看缓存中是否有数据，如果有数据，则直接返回缓存数据；若没有数据，调用方法并将方法返回值放进缓存。有两个重要的值， value，返回的内容将存储在 value 定义的缓存的名字对象中。key，如果不指定将使用默认的 KeyGenerator 生成。</p>
+<p>&#64;CachePut 与 &#64;Cacheable 类似，但是它无论什么情况，都会将方法的返回值放到缓存中, 主要用于数据新增和修改方法。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@CachePut</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;concurrenmapcache&quot;</span><span class="p">)</span>
+<span class="n">public</span> <span class="n">long</span> <span class="n">save</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">long</span> <span class="n">timestamp</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Timestamp</span><span class="p">(</span><span class="n">System</span><span class="o">.</span><span class="n">currentTimeMillis</span><span class="p">())</span><span class="o">.</span><span class="n">getTime</span><span class="p">();</span>
+    <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;进行缓存：&quot;</span> <span class="o">+</span> <span class="n">timestamp</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">timestamp</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>&#64;CacheEvict 将一条或多条数据从缓存中删除, 主要用于删除方法，用来从缓存中移除相应数据。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@CacheEvict</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;concurrenmapcache&quot;</span><span class="p">)</span>
+<span class="n">public</span> <span class="n">void</span> <span class="n">delete</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;删除缓存&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id2">
+<h2>参考<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://spring.io/guides/gs/caching/">官网cache</a></p>
+<p><a class="reference external" href="http://blog.720ui.com/2017/springboot_02_data_cache_concurrenmapcache/">Spring Boot 揭秘与实战（二） 数据缓存篇 - 快速入门</a></p>
+<p><a class="reference external" href="https://blog.csdn.net/forezp/article/details/71023614">SpringBoot非官方教程 | 第十三篇：springboot集成spring cache</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">springboot集成spring cache</a><ul>
+<li><a class="reference internal" href="#id1">声明式缓存</a></li>
+<li><a class="reference internal" href="#id2">参考</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/microservice/springboot/7_sprintboot_spring_cache.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/microservice/springboot/7_sprintboot_spring_cache.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,388 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>new String()究竟创建几个对象? &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="new-string">
+<h1>new String()究竟创建几个对象?<a class="headerlink" href="#new-string" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>由来<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>遇到一个Java面试题，是关于String的，自己对String还有点研究？下面是题目的描述：</p>
+<blockquote>
+<div>在Java中，new String(“hello”)这样的创建方式，到底创建了几个String对象？</div></blockquote>
+<p>题目下答案，各说纷纭，有说1个的，有说2个的。我觉得都对，但也都不对，因为要加上一定的条件，下面来分析下！</p>
+</div>
+<div class="section" id="id2">
+<h2>解答<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>分析</p>
+<p>题目中的String创建方式，是调用String的有参构造函数，而这个有参构造函数的源码则是这样的public String(String original)，这就是说，我们可以把代码转换为下面这种：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">temp</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">;</span>  <span class="o">//</span> <span class="n">在常量池中</span>
+
+<span class="n">String</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="n">temp</span><span class="p">);</span> <span class="o">//</span> <span class="n">在堆上</span>
+</pre></div>
+</div>
+<p>这段代码就创建了2个String对象，temp指向在常量池中的，str指向堆上的，而str内部的char value[]则指向常量池中的char value[]，所以这里的答案是2个对象。(这里不再详述内部过程，之前的文章有写，参考深入浅出Java String)</p>
+<p>那之前我为什么说答案是1个的也对呢，假如就只有这一句String str = new String(“hello”)代码，并且此时的常量池的没有”hello”这个String，那么答案是两个;如果此时常量池中，已经存在了”hello”，那么此时就只创建堆上str，而不会创建常量池中temp,(注意这里都是引用)，所以此时答案就是1个。</p>
+<p>当然，光说不练假把式，下面就来用例子验证一下：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">代码1</span>
+
+<span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="n">String</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">);</span>
+
+    <span class="n">String</span> <span class="n">after_str</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">;</span>
+
+    <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="nb">str</span> <span class="o">+</span> <span class="n">after_str</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>我们在println语句那里加个断点，debug下，如下图：</p>
+<img alt="../../../_images/b07_String.png" src="../../../_images/b07_String.png" />
+<p>可以看到在代码1中，str和after_str不是同一个对象，这个应该没有疑问把，一个在堆上，一个常量池中
+,但是我们注意到str.value和after_str.value的地址确是同一个，即是同一个char数组，所以可以理解为，当执行str那句代码时，创建了
+两个String对象，一个在常量池，一个在堆上，接下来到执行after_str这句时，这种方式创建的字符串都在常量池中，但是如果常量中如果有，就直接返回了，所以这里返回的是上一句在常量池那里创建的String,所以str这句代码创建的是2个对象。</p>
+<p>接下来再看一段代码：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span> <span class="n">代码2</span>
+
+<span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="n">String</span> <span class="n">before_str</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">;</span>
+
+    <span class="n">String</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">);</span>
+
+    <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="nb">str</span> <span class="o">+</span> <span class="n">before_str</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>同样在println打断点，如下图：</p>
+<img alt="../../../_images/b07_String2.png" src="../../../_images/b07_String2.png" />
+<p>在代码2中，str.value和before_str.value也是用的同一个char数组，但这里的代码可不是和代码1相同的，这里我们把”hello”提到前面创建，这也就是说明当执行str那句代码时，没有再在常量池中创建”hello”了，所以str这句则是创建了1个对象。</p>
+</div>
+<div class="section" id="id3">
+<h2>补充<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>这里突然想到，还要补充一下上面如果常量池中没有，则创建2个对象,很多人会误解这句话的含义，这个常量池，不是你没手动的创建，常量池中就没有东西，这个理解是错误的，大家一定要修正它。在你的程序启动时，就已经装载来很多class，这里面也有字符常量的创建，只是不是你自己创建的，你只是不知道而已。</p>
+<p>例如下面这段代码：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>// 代码3，JDK &gt;= 1.7
+
+public static void main(String[] args) {
+
+    String str1 = new StringBuilder(&quot;hel&quot;).append(&quot;lo&quot;).toString();
+
+    String str2 = new StringBuilder(&quot;ja&quot;).append(&quot;va&quot;).toString();
+
+
+
+    System.out.println(str1.intern() == str1); // true
+
+    System.out.println(str2.intern() == str2); // false
+
+}
+</pre></div>
+</div>
+<p>(关于intern在不同JDK的不同表现，之前也说过了，详情请看深入浅出Java String)</p>
+<p>代码3这里，str1的结果是很多人都能理解的，但是str2的结果为false就说明，常量池中已经有了”java”了，这里很多人不解，这个就是系统装入的字符常量，除了”java”，类似的还有”false”,”true”(在java.lang.String里)等等。但是这个”java”我始终没找到在那个类中，可能在native方法中把，知道的请告知下，谢谢！</p>
+<p>为什么会出现上面的运行结果，请在往下看</p>
+</div>
+<div class="section" id="string-intern">
+<h2>String.intern()方法与常量池存入时的疑惑！<a class="headerlink" href="#string-intern" title="Permalink to this headline">¶</a></h2>
+<p><strong>JDK 1.6 之前</strong></p>
+<p>String.intern()是一个Native方法，它的作用是：如果运行时常量池中已经包含一个等于此String对象内容的字符串，则返回常量池中该字符串的引用；如果没有，则在常量池中创建与此String内容相同的字符串，并返回常量池中创建的字符串的引用。</p>
+<p><strong>运行时常量池位置</strong></p>
+<p>运行时常量池在JDK1.6及之前版本的JVM中是方法区的一部分，而在HotSpot虚拟机中方法区放在了”永久代(Permanent Generation)”。所以运行时常量池也是在永久代的。
+但是JDK1.7及之后版本的JVM已经将运行时常量池从方法区中移了出来，<strong>在Java 堆（Heap）中开辟了一块区域存放运行时常量池。</strong></p>
+<p>本文主要解惑String对象（即文本字符串）何时放入常量池，不涉及上述三类符号引用常量和其他非String常量值。而且本文只讨论主流的HotSpot虚拟机。</p>
+<p><strong>String何时放入常量池</strong></p>
+<p>记住一句话：直接使用双引号声明出来的String对象会直接存储在常量池中。</p>
+<hr class="docutils" />
+<p>代码一</p>
+<blockquote>
+<div>String a = “计算机软件”;</div></blockquote>
+<p>分析：因为计算机软件五个字直接使用了双引号声明，故JVM会在运行时常量池中首先查找有没有该字符串，有则直接返回该字符串在常量池中的引用；没有则直接在常量池中创建该字符串，然后返回引用。此时，该句代码已经执行完毕，不会在java Heap（堆）中创建内容相同的字符串。该字符串只在常量池中创建了一个String对象。</p>
+<hr class="docutils" />
+<p>代码二</p>
+<blockquote>
+<div>String a = new String(“计算机软件”);</div></blockquote>
+<p>分析：该行代码生成了两个String对象（Stack（栈）中的对象引用不在讨论范围内）：第一步，因为计算机软件五个字直接使用了双引号声明，故JVM会在运行时常量池中首先查找有没有该字符串，有则进入第二步；没有则直接在常量池中创建该字符串，然后进入第二步。第二步：在常量池中创建了一个String对象之后，由于使用了new，JVM会在Heap（堆）中创建一个内容相同的String对象，然后返回堆中String对象的引用。该行代码分别在常量池和堆中生成了两个内容相同的String对象。</p>
+<hr class="docutils" />
+<p>代码三</p>
+<blockquote>
+<div>String a = “计算机” + “软件”;</div></blockquote>
+<p>分析：由于JVM存在编译期优化，对于两个直接双引号声明的String的+操作，JVM在编译期会直接优化为“计算机软件”一个字符串，故该行代码同代码一。</p>
+<hr class="docutils" />
+<p>代码四</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">b</span> <span class="o">=</span> <span class="s2">&quot;计算机&quot;</span><span class="p">;</span>
+<span class="n">String</span> <span class="n">a</span> <span class="o">=</span> <span class="n">b</span> <span class="o">+</span> <span class="s2">&quot;软件&quot;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>分析：由于b是一个String变量，编译期无法确定b的值，故不会优化为一个字符串。即使我们知道b的值，但JVM认为它是个变量，变量的值只能在运行期才能确定，故不会优化。运行期字符串的+连接符相当于new，故该行代码在Heap中创建了一个内容为“计算机软件”的String对象，并返回该对象的引用。至此，该代码执行完毕，因为没有直接双引号声明计算机软件这5个字的字符串，故常量池中不会生成计算机软件这5个字的字符串。但是会有“计算机”和“软件”这两个String对象，因为他们都用双引号声明了。</p>
+<hr class="docutils" />
+<p>代码五</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">final</span> <span class="n">b</span> <span class="o">=</span> <span class="s2">&quot;计算机&quot;</span><span class="p">;</span>
+<span class="n">String</span> <span class="n">a</span> <span class="o">=</span> <span class="n">b</span> <span class="o">+</span> <span class="s2">&quot;软件&quot;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>分析：该代码与代码四的唯一区别是将b声明为final类型，即为常量。故在编译期JVM能确定b的值，所以对+可以优化为“计算机软件”5个字的字符串。该代码的运行同代码三和代码一。</p>
+<hr class="docutils" />
+<p>代码六</p>
+<blockquote>
+<div>String a = new String(“计算机”) + “软件”;</div></blockquote>
+<p>分析：因为有new，该代码也无法编译期优化，故该行代码只是在Heap中生成了“计算机软件”字符串的String对象，在常量池中没有内容相同的对象生成。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id4">
+<h2>String.intern方法<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>当常量池中没有该字符串时，JDK7的intern（）方法的实现不再是在常量池中创建与此String内容相同的字符串，而改为在常量池中记录Java Heap中首次出现的该字符串的引用，并返回该引用。</p>
+<p>验证代码：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">str1</span> <span class="o">=</span> <span class="n">new</span> <span class="n">StringBuilder</span><span class="p">(</span><span class="s2">&quot;计算机&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;软件&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">toString</span><span class="p">();</span>
+<span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">((</span><span class="n">str1</span><span class="o">.</span><span class="n">intern</span><span class="p">()</span> <span class="o">==</span> <span class="n">str1</span><span class="p">));</span>
+<span class="o">//</span><span class="n">JDK1</span><span class="o">.</span><span class="mi">6</span><span class="p">:</span><span class="n">false</span>
+<span class="o">//</span><span class="n">JDK1</span><span class="o">.</span><span class="mi">7</span><span class="p">:</span><span class="n">true</span>
+
+<span class="o">//--------------------</span>
+
+<span class="n">String</span> <span class="n">b</span> <span class="o">=</span> <span class="s2">&quot;计算机&quot;</span><span class="p">;</span>
+<span class="n">String</span> <span class="n">a</span> <span class="o">=</span> <span class="n">b</span> <span class="o">+</span> <span class="s2">&quot;软件&quot;</span><span class="p">;</span>
+<span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">intern</span><span class="p">()</span> <span class="o">==</span> <span class="n">a</span><span class="p">);</span>
+<span class="o">//</span><span class="n">JDK1</span><span class="o">.</span><span class="mi">6</span><span class="p">:</span><span class="n">false</span>
+<span class="o">//</span><span class="n">JDK1</span><span class="o">.</span><span class="mi">7</span><span class="p">:</span><span class="n">true</span>
+</pre></div>
+</div>
+<p>测试代码:</p>
+<p>请运行以下的代码看看你分析的结果和真正的运行结果是否一样，JDK1.6和1.7都要跑一遍，如果你都分析对了，那就是理解了。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">//</span><span class="n">一次放开一个多行注释运行</span>
+       <span class="o">/*</span>
+        <span class="n">String</span> <span class="n">s</span> <span class="o">=</span> <span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">);</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">intern</span><span class="p">();</span>
+        <span class="n">String</span> <span class="n">s2</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span><span class="p">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">s</span> <span class="o">==</span> <span class="n">s2</span><span class="p">);</span>
+        <span class="n">String</span> <span class="n">s3</span> <span class="o">=</span> <span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">);</span>
+        <span class="n">s3</span><span class="o">.</span><span class="n">intern</span><span class="p">();</span>
+        <span class="n">String</span> <span class="n">s4</span> <span class="o">=</span> <span class="s2">&quot;11&quot;</span><span class="p">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">s3</span> <span class="o">==</span> <span class="n">s4</span><span class="p">);</span>
+        <span class="o">*/</span>
+       <span class="o">/*</span>
+        <span class="n">String</span> <span class="n">s</span> <span class="o">=</span> <span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">);</span>
+        <span class="n">String</span> <span class="n">s2</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span><span class="p">;</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">intern</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">s</span> <span class="o">==</span> <span class="n">s2</span><span class="p">);</span>
+        <span class="n">String</span> <span class="n">s3</span> <span class="o">=</span> <span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">);</span>
+        <span class="n">String</span> <span class="n">s4</span> <span class="o">=</span> <span class="s2">&quot;11&quot;</span><span class="p">;</span>
+        <span class="n">s3</span><span class="o">.</span><span class="n">intern</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="n">s3</span> <span class="o">==</span> <span class="n">s4</span><span class="p">);</span>
+        <span class="o">*/</span>
+  <span class="o">/*</span>
+ <span class="o">//+</span><span class="n">连接但编译器不优化</span>
+        <span class="n">String</span> <span class="n">s1</span><span class="o">=</span><span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;xy&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;z&quot;</span><span class="p">;</span>
+        <span class="n">String</span> <span class="n">s2</span><span class="o">=</span><span class="n">s1</span><span class="o">.</span><span class="n">intern</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span> <span class="n">s1</span><span class="o">==</span><span class="n">s1</span><span class="o">.</span><span class="n">intern</span><span class="p">()</span> <span class="p">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span> <span class="n">s1</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="n">s2</span> <span class="p">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span> <span class="n">s2</span><span class="o">==</span><span class="n">s1</span><span class="o">.</span><span class="n">intern</span><span class="p">()</span> <span class="p">);</span>
+        <span class="o">*/</span>
+      <span class="o">/*//</span> <span class="n">一般情况</span>
+        <span class="n">String</span> <span class="n">s1</span><span class="o">=</span><span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;xyz&quot;</span><span class="p">)</span> <span class="p">;</span>
+        <span class="n">String</span> <span class="n">s2</span><span class="o">=</span><span class="n">s1</span><span class="o">.</span><span class="n">intern</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span> <span class="n">s1</span><span class="o">==</span><span class="n">s1</span><span class="o">.</span><span class="n">intern</span><span class="p">()</span> <span class="p">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span> <span class="n">s1</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="n">s2</span> <span class="p">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span> <span class="n">s2</span><span class="o">==</span><span class="n">s1</span><span class="o">.</span><span class="n">intern</span><span class="p">()</span> <span class="p">);</span>
+        <span class="o">*/</span>
+
+       <span class="o">/*//</span><span class="n">编译器优化</span>
+        <span class="n">String</span> <span class="n">s1</span> <span class="o">=</span> <span class="s2">&quot;xy&quot;</span> <span class="o">+</span> <span class="s2">&quot;z&quot;</span><span class="p">;</span>
+        <span class="n">String</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">s1</span><span class="o">.</span><span class="n">intern</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span> <span class="n">s1</span><span class="o">==</span><span class="n">s1</span><span class="o">.</span><span class="n">intern</span><span class="p">()</span> <span class="p">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span> <span class="n">s1</span><span class="o">+</span><span class="s2">&quot; &quot;</span><span class="o">+</span><span class="n">s2</span> <span class="p">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span> <span class="n">s2</span><span class="o">==</span><span class="n">s1</span><span class="o">.</span><span class="n">intern</span><span class="p">()</span> <span class="p">);</span>
+
+        <span class="o">*/</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>再补充<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>Java中String是一个特殊的包装类数据有两种创建形式：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;abc&quot;</span><span class="p">;</span>
+<span class="n">String</span> <span class="n">s</span> <span class="o">=</span> <span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;abc&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>1.第一种先在栈中创建一个对String类的对象引用变量s，然后去查找”abc”是否被保存在字符串常量池中，如果没有则在栈中创建三个char型的值’a’、’b’、’c’，然后在堆中创建一个String对象object，它的值是刚才在栈中创建的三个char型值组成的数组{‘a’、’b’、’c’}，接着这个String对象object被存放进字符串常量池，最后将s指向这个对象的地址，如果”abc”已经被保存在字符串常量池中，则在字符串常量池中找到值为”abc”的对象object，然后将s指向这个对象的地址。</p>
+<p>第一种特点：JVM会自动根据栈中数据的实际情况来决定是否有必要创建新对象。</p>
+<p>2.第二种可以分解成两步1、String object = “abc”；2、String s = new String(object)；第一步参考第一种创建方式，而第二步由于”abc”已经被创建并保存到字符串常量池中，因此jvm只会在堆中新创建一个String对象，它的值共享栈中已有的三个char型值。</p>
+<p>第二种特点：一概在堆中创建新对象，而不管其字符串值是否相等，是否有必要创建新对象。</p>
+</div>
+<div class="section" id="id6">
+<h2>再再补充<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p>例1.字符串常量池的使用</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>String s0 = &quot;abc&quot;；
+String s1 = &quot;abc&quot;；
+System.out.println(s0==s1)； //true 可以看出s0和s1是指向同一个对象的。
+</pre></div>
+</div>
+<p>例2.String中==和equals的区别</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>String s0 =new String (&quot;abc&quot;)；
+String s1 =new String (&quot;abc&quot;)；
+System.out.println(s0==s1)； //false 可以看出用new的方式是生成不同的对象
+System.out.println(s0.equals(s1)); //true 可以看出equals比较的是两个String对象的内容(值)
+</pre></div>
+</div>
+<p>例3.编译期确定</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>String s0=&quot;helloworld&quot;；
+String s1=&quot;helloworld&quot;；
+String s2=&quot;hello&quot; + &quot;word&quot;；
+System.out.println( s0==s1 )； //true 可以看出s0跟s1是同一个对象
+System.out.println( s0==s2 )； //true 可以看出s0跟s2是同一个对象
+</pre></div>
+</div>
+<p>分析：因为例子中的 s0和s1中的”helloworld”都是字符串常量，它们在编译期就被确定了，所以s0==s1为true；而”hello”和”world”也都是字符串常量，当一个字符串由多个字符串常量连接而成时，它自己肯定也是字符串常量，所以s2也同样在编译期就被解析为一个字符串常量，所以s2也是常量池中”helloworld”的一个引用。所以我们得出s0==s1==s2；</p>
+<p>例4.编译期无法确定</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>String s0=&quot;helloworld&quot;；
+String s1=new String(&quot;helloworld&quot;)；
+String s2=&quot;hello&quot; + new String(&quot;world&quot;)；
+System.out.println( s0==s1 )； //false
+System.out.println( s0==s2 )； //false
+System.out.println( s1==s2 )； //false
+</pre></div>
+</div>
+<p>分析：用new String() 创建的字符串不是常量，不能在编译期就确定，所以new String() 创建的字符串不放入常量池中，它们有自己的地址空间。</p>
+<p>s0还是常量池中”helloworld”的引用，s1因为无法在编译期确定，所以是运行时创建的新对象”helloworld”的引用，s2因为有后半部分new String(”world”)所以也无法在编译期确定，所以也是一个新创建对象”helloworld”的引用；</p>
+<p>例5.编译期优化</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>String s0 = &quot;a1&quot;；
+String s1 = &quot;a&quot; + 1；
+System.out.println((s0 == s1))； //result = true
+String s2 = &quot;atrue&quot;；
+String s3= &quot;a&quot; + &quot;true&quot;；
+System.out.println((s2 == s3))； //result = true
+String s4 = &quot;a3.4&quot;；
+String s5 = &quot;a&quot; + 3.4；
+System.out.println((a == b))； //result = true
+</pre></div>
+</div>
+<p>分析：在程序编译期，JVM就将常量字符串的”+”连接优化为连接后的值，拿”a” + 1来说，经编译器优化后在class中就已经是a1。在编译期其字符串常量的值就确定下来，故上面程序最终的结果都为true。</p>
+<p>例6.编译期无法确定</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>String s0 = &quot;ab&quot;；
+String s1 = &quot;b&quot;；
+String s2 = &quot;a&quot; + s1；
+System.out.println((s0 == s2))； //result = false
+</pre></div>
+</div>
+<p>分析：JVM对于字符串引用，由于在字符串的”+”连接中，有字符串引用存在，而引用的值在程序编译期是无法确定的，即”a” + s1无法被编译器优化，只有在程序运行期来动态分配并将连接后的新地址赋给s2。所以上面程序的结果也就为false。</p>
+<p>例7.编译期确定</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>String s0 = &quot;ab&quot;；
+final String s1 = &quot;b&quot;；
+String s2 = &quot;a&quot; + s1；
+System.out.println((s0 == s2))； //result = true
+</pre></div>
+</div>
+<p>分析：和[6]中唯一不同的是s1字符串加了final修饰，对于final修饰的变量，它在编译时被解析为常量值的一个本地拷贝存储到自己的常量 池中或嵌入到它的字节码流中。所以此时的”a” + s1和”a” + “b”效果是一样的。故上面程序的结果为true。</p>
+<p>例8.编译期无法确定</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span>String s0 = &quot;ab&quot;；
+final String s1 = getS1()；
+String s2 = &quot;a&quot; + s1；
+System.out.println((s0 == s2))； //result = false
+private static String getS1() { return &quot;b&quot;； }
+</pre></div>
+</div>
+<p>分析：JVM对于字符串引用s1，它的值在编译期无法确定，只有在程序运行期调用方法后，将方法的返回值和”a”来动态连接并分配地址为s2，故上面 程序的结果为false。</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id7">
+<h2>参考<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://blog.csdn.net/Sun1956/article/details/53161560">https://blog.csdn.net/Sun1956/article/details/53161560</a></p>
+<p><a class="reference external" href="https://blog.csdn.net/u013066244/article/details/53575281">https://blog.csdn.net/u013066244/article/details/53575281</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">new String()究竟创建几个对象?</a><ul>
+<li><a class="reference internal" href="#id1">由来</a></li>
+<li><a class="reference internal" href="#id2">解答</a></li>
+<li><a class="reference internal" href="#id3">补充</a></li>
+<li><a class="reference internal" href="#string-intern">String.intern()方法与常量池存入时的疑惑！</a></li>
+<li><a class="reference internal" href="#id4">String.intern方法</a></li>
+<li><a class="reference internal" href="#id5">再补充</a></li>
+<li><a class="reference internal" href="#id6">再再补充</a></li>
+<li><a class="reference internal" href="#id7">参考</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_primary/core/b07_howmany_String_count.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_primary/core/b07_howmany_String_count.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

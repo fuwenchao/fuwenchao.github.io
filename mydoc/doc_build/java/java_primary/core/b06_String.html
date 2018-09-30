@@ -1,0 +1,251 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>String的使用 &#8212; stest  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="string">
+<h1>String的使用<a class="headerlink" href="#string" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>String的常用方法<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<img alt="../../../_images/String_fun.png" src="../../../_images/String_fun.png" />
+</div>
+<div class="section" id="id2">
+<h2>创建String对象<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<img alt="../../../_images/String_equals.png" src="../../../_images/String_equals.png" />
+<p>s1 == s2 ture</p>
+<p>s1 == s3 false</p>
+<p><strong>String str4 = new String(“imooc”)</strong></p>
+<p>str3 == str4 false</p>
+</div>
+<div class="section" id="id3">
+<h2>String的不可变性<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>一旦创建不可修改</p>
+<p>所谓的修改是创建了新的对象，所指向的内存空间不变</p>
+<img alt="../../../_images/String_immutable.png" src="../../../_images/String_immutable.png" />
+</div>
+<div class="section" id="id4">
+<h2>字节数组与字符串的转换<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>bytes[] byte = str.getBytes(“GBK”);</p>
+<p>String str = new String(byte,”GBK”);</p>
+</div>
+<div class="section" id="equals">
+<h2>== 和 equals 的区别<a class="headerlink" href="#equals" title="Permalink to this headline">¶</a></h2>
+<p>== 比较的是 地址</p>
+<p>equals 比较的是 值</p>
+</div>
+<div class="section" id="stringbuilder">
+<h2>StringBuilder<a class="headerlink" href="#stringbuilder" title="Permalink to this headline">¶</a></h2>
+<p>可变的</p>
+<p>当频繁操作字符串的时候，使用StringBuilder</p>
+</div>
+<div class="section" id="stringbuffer">
+<h2>StringBuffer<a class="headerlink" href="#stringbuffer" title="Permalink to this headline">¶</a></h2>
+<p>和 StringBuild基本相似</p>
+<p>StringBuffer 是线程安全的</p>
+<p>StringBuilder 性能略高</p>
+<p><strong>方法</strong></p>
+<p>delete</p>
+<p>substring</p>
+<p>append</p>
+<p>insert</p>
+</div>
+<div class="section" id="string-stringbuffer-stringbuilder">
+<h2>String,StringBuffer,StringBuilder效率与内存占用比较<a class="headerlink" href="#string-stringbuffer-stringbuilder" title="Permalink to this headline">¶</a></h2>
+<p>分别使用String，StringBuffer，StringBuilder进行10000次的字符串拼接操作，计算运行时间以及java程序运行时的内存占用。</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="k">class</span> <span class="nc">StringWasteMemoryTest</span> <span class="p">{</span>
+    <span class="n">public</span> <span class="n">static</span> <span class="n">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">long</span> <span class="n">beforeTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">currentTimeMillis</span><span class="p">();</span>
+         <span class="n">StringTest</span><span class="p">();</span>
+<span class="o">//</span>       <span class="n">StringBufferTest</span><span class="p">();</span>
+<span class="o">//</span>       <span class="n">StringBuilderTest</span><span class="p">();</span>
+        <span class="n">long</span> <span class="n">afterTime</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">currentTimeMillis</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;time: &quot;</span> <span class="o">+</span> <span class="p">(</span><span class="n">afterTime</span> <span class="o">-</span> <span class="n">beforeTime</span><span class="p">));</span>
+        <span class="n">long</span> <span class="n">memory</span> <span class="o">=</span> <span class="n">Runtime</span><span class="o">.</span><span class="n">getRuntime</span><span class="p">()</span><span class="o">.</span><span class="n">totalMemory</span><span class="p">()</span>
+                <span class="o">-</span> <span class="n">Runtime</span><span class="o">.</span><span class="n">getRuntime</span><span class="p">()</span><span class="o">.</span><span class="n">freeMemory</span><span class="p">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">println</span><span class="p">(</span><span class="s2">&quot;memory: &quot;</span> <span class="o">+</span> <span class="n">memory</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">private</span> <span class="n">static</span> <span class="n">void</span> <span class="n">StringTest</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="n">String</span> <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;qwertyuiopasdfghjklzxcvbnmqazwsxedcrfvtgbyhnujmiklopplokmnjiuhbvgytfcxdrzsewaq&quot;</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">private</span> <span class="n">static</span> <span class="n">void</span> <span class="n">StringBufferTest</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="n">StringBuffer</span> <span class="n">stringBuffer</span> <span class="o">=</span> <span class="n">new</span> <span class="n">StringBuffer</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">);</span>
+        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">stringBuffer</span> <span class="o">=</span> <span class="n">stringBuffer</span>
+                    <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;qwertyuiopasdfghjklzxcvbnmqazwsxedcrfvtgbyhnujmiklopplokmnjiuhbvgytfcxdrzsewaq&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">private</span> <span class="n">static</span> <span class="n">void</span> <span class="n">StringBuilderTest</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="n">StringBuilder</span> <span class="n">stringBuilder</span> <span class="o">=</span> <span class="n">new</span> <span class="n">StringBuilder</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">);</span>
+        <span class="k">for</span> <span class="p">(</span><span class="nb">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">stringBuilder</span> <span class="o">=</span> <span class="n">stringBuilder</span>
+                    <span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;qwertyuiopasdfghjklzxcvbnmqazwsxedcrfvtgbyhnujmiklopplokmnjiuhbvgytfcxdrzsewaq&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>运行结果如下：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">String</span><span class="p">:</span>
+    <span class="n">time</span><span class="p">:</span> <span class="mi">6296</span>
+    <span class="n">memory</span><span class="p">:</span> <span class="mi">178993040</span>
+
+<span class="n">StringBuffer</span><span class="p">:</span>
+    <span class="n">time</span><span class="p">:</span> <span class="mi">3</span>
+    <span class="n">memory</span><span class="p">:</span> <span class="mi">6834488</span>
+
+<span class="n">StringBuilder</span><span class="p">:</span>
+    <span class="n">time</span><span class="p">:</span> <span class="mi">4</span>
+    <span class="n">memory</span><span class="p">:</span> <span class="mi">6834400</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>String的存储方式<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>对于字符串来说，其对象的引用都是存储在栈中的，如果是编译期已经创建好（用双引号定义的）就存储在常量池中，如果是运行期（new出来的对象）则存储在堆中。对于equals相等的字符串，在常量池中只有一份，而在堆中有多份，举个例子：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">str1</span><span class="o">=</span><span class="s2">&quot;abc&quot;</span><span class="p">;</span>
+<span class="n">String</span> <span class="n">str2</span><span class="o">=</span><span class="s2">&quot;abc&quot;</span><span class="p">;</span>
+<span class="n">String</span> <span class="n">str3</span><span class="o">=</span><span class="s2">&quot;abc&quot;</span><span class="p">;</span>
+<span class="n">String</span> <span class="n">str4</span><span class="o">=</span><span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;abc&quot;</span><span class="p">);</span>
+<span class="n">String</span> <span class="n">str5</span><span class="o">=</span><span class="n">new</span> <span class="n">String</span><span class="p">(</span><span class="s2">&quot;abc&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="../../../_images/b14_String_memory.jpg" src="../../../_images/b14_String_memory.jpg" />
+<p>对于浅蓝色箭头，通过new操作产生一个字符串（”abc”）时，会先去常量池中查找是否有”abc”对象，如果没有则在常量池中创建一个此字符串对象，然后堆中再创建一个常量池中此”abc”对象的拷贝对象，所以，对于String str=new String(“abc”)，如果常量池中原来没有”abc”则产生两个对象，否则产生一个对象。</p>
+<p>而对于基础类型的变量和常量，变量和引用存储在栈中，常量存储在常量池中。例如：</p>
+<div class="code java highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">int</span> <span class="n">a1</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="n">a2</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="n">a3</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">public</span> <span class="n">static</span> <span class="n">final</span> <span class="nb">int</span> <span class="n">INT1</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">public</span> <span class="n">static</span> <span class="n">final</span> <span class="nb">int</span> <span class="n">INT1</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">public</span> <span class="n">static</span> <span class="n">final</span> <span class="nb">int</span> <span class="n">INT1</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+<img alt="../../../_images/b14_int_memory.jpg" src="../../../_images/b14_int_memory.jpg" />
+<p>另外，局部变量（形式参数）的数据存储在栈中，并且它随方法的消失而消失</p>
+</div>
+<div class="section" id="stringfinal">
+<h2>String中的final用法和理解<a class="headerlink" href="#stringfinal" title="Permalink to this headline">¶</a></h2>
+<p>　　final StringBuffer a = new StringBuffer(“111”);</p>
+<p>　　final StringBuffer b = new StringBuffer(“222”);</p>
+<p>　　a=b;//此句编译不通过</p>
+<p>　　final StringBuffer a = new StringBuffer(“111”);</p>
+<p>　　a.append(“222”);// 编译通过</p>
+<p>可见，final只对引用的”值”(即内存地址)有效，它迫使引用只能指向初始指向的那个对象，改变它的指向会导致编译期错误。至于它所指向的对象 的变化，final是不负责的。</p>
+</div>
+<div class="section" id="id6">
+<h2>总结<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p>栈中用来存放一些原始数据类型的局部变量数据和对象的引用(String,数组.对象等等)但不存放对象内容</p>
+<p>堆中存放使用new关键字创建的对象.</p>
+<p>字符串是一个特殊包装类,其引用是存放在栈里的,而对象内容必须根据创建方式不同定(常量池和堆).有的是编译期就已经创建好，存放在字符串常 量池中，而有的是运行时才被创建.使用new关键字，存放在堆中。</p>
+</div>
+<div class="section" id="id7">
+<h2>参考<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://blog.csdn.net/fan2012huan/article/details/50911220">由常量池 运行时常量池 String intern方法想到的（三）之String内存模型</a></p>
+<p><a class="reference external" href="https://blog.csdn.net/fan2012huan/article/details/50915077">由常量池 运行时常量池 String intern方法想到的（四）之深入理解intern</a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">String的使用</a><ul>
+<li><a class="reference internal" href="#id1">String的常用方法</a></li>
+<li><a class="reference internal" href="#id2">创建String对象</a></li>
+<li><a class="reference internal" href="#id3">String的不可变性</a></li>
+<li><a class="reference internal" href="#id4">字节数组与字符串的转换</a></li>
+<li><a class="reference internal" href="#equals">== 和 equals 的区别</a></li>
+<li><a class="reference internal" href="#stringbuilder">StringBuilder</a></li>
+<li><a class="reference internal" href="#stringbuffer">StringBuffer</a></li>
+<li><a class="reference internal" href="#string-stringbuffer-stringbuilder">String,StringBuffer,StringBuilder效率与内存占用比较</a></li>
+<li><a class="reference internal" href="#id5">String的存储方式</a></li>
+<li><a class="reference internal" href="#stringfinal">String中的final用法和理解</a></li>
+<li><a class="reference internal" href="#id6">总结</a></li>
+<li><a class="reference internal" href="#id7">参考</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/java/java_primary/core/b06_String.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, wenchaofu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../../_sources/java/java_primary/core/b06_String.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
