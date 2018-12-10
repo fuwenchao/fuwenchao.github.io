@@ -159,6 +159,39 @@ CSS outline 属性规定元素轮廓的样式、颜色和宽度。
 Margin(外边距)
 --------------------
 
+
+
 CSS Margin(外边距)属性定义元素周围的空间。
 
 CSS Margin属性接受任何长度单位、百分数值甚至负值。
+
+
+上 右 下 左
+
+Padding（内边距）
+---------------
+
+::
+
+    padding-top:25px;
+    padding-bottom:30px;
+    padding-right:50px;
+    padding-left:55px;
+
+
+=
+
+::
+
+    padding:25px 50px  30px 55px;
+
+上 右 下 左
+
+::
+
+    padding:25px 50px;
+
+25px 上下
+
+50px 左右
+

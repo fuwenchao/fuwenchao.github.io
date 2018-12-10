@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>增加时间测试</title>
+</head>
+<body>
+<input type="button" value="第一种方法" onclick="alert('我被调用了')">
+<p>第二种方式</p>
+<input type="button" value="第二种方法" onclick="han()">
+
+<p>第三种方式</p>
+<input type="button" value="第三种方法" id="btn">  
+
+<p>第四种方式</p>
+<input type="button" value="第四种方法" id="btn4">
+
+
+  <p>第五种方式</p>
+<input type="button" style="color: red;" value="第五种方法" id="btn5">  
+
+
+<script type="text/javascript">
+    function han(){
+        alert("被调用")
+    }
+
+
+document.getElementById("btn").onclick=han;
+
+
+document.getElementById("btn4").onclick=function(){
+    alert("called");
+}
+
+document.getElementById("btn5").addEventListener('click',han,false);
+
+var btn5_e = document.getElementById("btn5")
+alert(window.getComputedStyle(btn5_e).color)
+
+
+
+/*
+
+Util.addEventListener($('btn5'), 'click', han);
+
+function $(id) {
+    return typeof id === "string" ? document.getElementById(id) : id;
+}
+var Util = (function(document, util) {
+    util = util || {};
+
+    util.addEventListener = function(element, type, listener) {
+        if (element.addEventListener) {
+            element.addEventListener(type, listener, false);
+        } else {
+            element.attachEvent('on' + type, listener);
+        }
+    }
+    return util;
+})(document, Util);*/
+
+</script>
+
+
+</body>
+</html>
