@@ -8,7 +8,12 @@ sublime 使用指南
 
 2： windows 鼠标右键 + shift 或者 鼠标中键 （增加选择ctrl 减少选择 alt）
 
+3： ctrl + 鼠标左键 多行选中
+
+4： ctrl + alt + 上下键
+
 3： mac 鼠标右键 + option 或者 鼠标中键 （增加 cmd , 减少cmd + shift)
+
 
 
 ::
