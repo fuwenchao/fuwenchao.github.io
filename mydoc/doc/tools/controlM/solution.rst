@@ -1,6 +1,7 @@
 controlM 问题汇总
 ========================
 
+版权所有 @wenchaofu
 
 **1. controlM 连不通 infa**
 
@@ -10,7 +11,7 @@ controlM 问题汇总
 
 - 解决
 
-    1. 登录41 ctmag/ctmag
+    1. 登录41 ctmagt/ctmagt
     #. shut-ag
     #. start-ag
 

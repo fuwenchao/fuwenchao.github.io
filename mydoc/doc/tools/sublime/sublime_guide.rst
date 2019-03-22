@@ -211,7 +211,7 @@ menu->tools->build system-> new build system 这里打开一个文件，粘贴�
 
 
 
-..  _`happypeter`:http://happypeter.github.io/happysublime
+..  _`happypeter`: http://happypeter.github.io/happysublime
 
 
 

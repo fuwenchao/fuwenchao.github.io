@@ -35,4 +35,27 @@ ctmagcfg  --- etl1
 
 
 
+etl上升级controlM补丁包： Control-M for Informatica 8.0.00.000 -> 8.0.00.001
+
+etl:
+
+::
+
+    shut-ag
+    ./PAINF...BIN
+    start-ag
+
+    agt_homt/cm/INF/data 增加一条记录
+
+    exe/路径 执行 *contain*
+
+controlM服务器：
+
+::
+
+    刷新 ctmgetcm
+
+    
+
+
 
