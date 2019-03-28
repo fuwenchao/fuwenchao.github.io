@@ -68,6 +68,8 @@ NIO
 
 Server  --> (n) Service  ---> (n)Connector  + (1)Container
 
+Container  -> (1)Engine -> (n)Host -> (n)Context -> (n)Wrapper
+
 Connector: 负责网络连接，Request 和 Response 的转换
 
 Container：用于封装和管理Servlet
