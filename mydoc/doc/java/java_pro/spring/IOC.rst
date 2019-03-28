@@ -19,7 +19,8 @@ SpringMVC -> 单例模式获取
 -----------------------------
 
 
-::
+.. code:: java
+
 
   public class WebApplicationContextUtil {
     private static WebApplicationContext wac = null;
@@ -61,7 +62,8 @@ SpringMVC -> 单例模式获取
 
 Listener
 
-::
+.. code:: java
+
 
   public class IFMListener implements ServletContextListener {
       @Override
@@ -138,7 +140,8 @@ ContextLoader方式
 contextConfigLocation：即在web.xml里面指定的配置文件所在目录，如果不指定，Spring 会加载WEB_INF目录下，符合 *Context.xml 或 spring*.xml 规则的文件
 
 
-::
+.. code:: java
+
 
   WebApplicationContext wac = ContextLoader.getCurrentWebApplicationContext();
   BaseService xService = (BaseService)wac.getBean("cbdHaUwTreatmentService");
@@ -168,7 +171,8 @@ contextConfigLocation：即在web.xml里面指定的配置文件所在目录，�
 直接加载文件方式
 ---------------------
 
-：:
+.. code:: java
+
 
   ApplicationContext context = new ClassPathXmlApplicationContext("classpath:goframe/edms/spring/emds.config.xml");
   BaseService xService = (BaseService)context.getBean("cbdHaUwTreatmentService");
@@ -179,7 +183,8 @@ contextConfigLocation：即在web.xml里面指定的配置文件所在目录，�
 基于ServletContext上下文获取的方式
 ---------------------------------------
 
-::
+.. code:: java
+
 
   ServletContext sc = request.getSession().getServletContext();  
   ApplicationContext ac1 = WebApplicationContextUtils.getRequiredWebApplicationContext(sc);  
@@ -210,7 +215,8 @@ Spring初始化时，会通过该方法将ApplicationContext对象注入。
 
 
 
-::
+.. code:: java
+
 
   package com.wenchaofu.util;
 
@@ -254,7 +260,8 @@ ApplicationContext context =MySpringContext.getContext();
 
 参考代码
 
-::
+.. code:: java
+
 
   package com.fubo.utils.spring;
   import javax.servlet.http.HttpServletRequest;
