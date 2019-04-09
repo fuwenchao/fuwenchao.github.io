@@ -3,7 +3,8 @@ controlM 问题汇总
 
 版权所有 @wenchaofu
 
-**1. controlM 连不通 infa**
+1. controlM 连不通 infa
+----------------------------
 
 - 描述
 
@@ -60,3 +61,51 @@ controlM 问题汇总
 
     服务和节点  -> Domain_node1 -> web 服务中心
     
+
+2. controlM 接收不到返回信息
+----------------------------
+
+- 描述
+
+    在agent上的任务已经跑完,查看日志已经返回success,但是controlM中该任务还是黄色(executing)状态
+
+- 解决
+
+    修改agent与en的通讯端口
+
+::
+
+    1. 登录 agent
+    2. 切换用户 su - ctmagt
+    3. ctmagcfg 命令
+    4. 选择 7)      Advanced parameters
+    5. 选择 3)      Tracker Event Port 修改端口号
+
+
+
+3. EM重启
+--------------
+
+- 什么是EM?
+
+用于客户端的GUI作业开发,通过gateway与server连接,管理与控制所有的server与agent
+
+- 步骤
+
+1. 使用emuser登录jobsched1
+2. root_menu
+3. 1
+
+4. SERVER的重启
+---------------------
+
+调度作业,管理作业执行流程,
+
+- 步骤
+
+1. 使用ctmuser登录jobschd1
+2. ctm_menu
+
+
+
+.. image:: ./images/controlM_arch.png
