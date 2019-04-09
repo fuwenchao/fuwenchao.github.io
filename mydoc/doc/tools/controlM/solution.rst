@@ -109,3 +109,17 @@ controlM 问题汇总
 
 
 .. image:: ./images/controlM_arch.png
+
+5.限制并发数
+-----------------
+
+并发数限制的地方
+
+1. Quality Resource 的 INFA_RC , DB_XXX_RC
+2. INFA CONTAINER中的ETL连接连接配置的高级选项中
+3. controlM 中的HOSTs MANAGER,在tools->config manager->hosts manager中配置
+4. INFA WEB SERVICE 中连接并发数,在console中设置
+5. INFA进程并发数,console中设置
+
+逐级递增
+
