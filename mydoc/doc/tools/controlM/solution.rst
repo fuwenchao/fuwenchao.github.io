@@ -303,3 +303,180 @@ controlM的安装,HA安装
         
 
 
+IOALOG
+-----------
+
+
+OOM-1
+--------
+
+https://bmcsites.force.com/casemgmt/sc_KnowledgeArticle?sfdcid=kA214000000l7AoCAI&type=Solution
+
+Receive error "JVM OutOfMemory called" during export of database using the UTIL utility in Control-M/Enterprise Manager Server .
+
+::
+
+    1. Backup the $home/ctm_em/ini/EMSiteConfig.ini  of the Control-M/Enterprise Manager server
+    Edit the file $home/ctm_em/ini/EMSiteConfig.ini .
+
+    2. Find the below string in the first part of the file.( Add the line if not already present )
+
+        HeapUTIL=XXXX 0
+
+    3. Double the value of the 1st parameter of "HeapUTIL" until the problem is resolved, but make sure first 
+    there is enough Real Memory available on the machine, 
+    the value is expressed in Mbytes ( 1000 means 1000 Mbytes therefore 1 Gbyte )
+
+
+
+    For example:
+    AutoIncHeapSize=120
+    HeapGTW=160 0
+    HeapGSR=300 0
+    HeapFRC=300 0
+    HeapSLS=300 0
+    HeapBIM=300 0
+    HeapUTIL=1000 0
+
+
+OOM-2
+--------
+
+Gateway shows disconnected and the Control-M/Server CE process log 
+has the error message "Java.lang.OutOfMemoryError: GC overhead limit exceeded"
+
+https://communities.bmc.com/docs/DOC-64890
+
+::
+
+    a) Increase the memory of the machine and assign more memory to CE process.
+
+        For Windows:
+        - edit file p_ctmce.bat under <home>\ctm_server\exe and increase the memory assigned to java, 
+        by default it´s 512, increase it to 1024 or 2048
+
+        For UNIX:
+        - edit $CONTROLM_SERVER/exe*/p_ctmce and add the line "export CTMS_JVM_MAX_HEAP=1024" 
+        just above the line beginning with "exec $CONTROLM_SERVER..."
+     
+    b) Limit the Sysout/output file size that can be viewed from the Control-M/Enterprise Manager 
+        to a maximum of 1 mb ( The value is set in KyloBytes)
+
+        Version 7.0.0:
+        - Edit file config.dat located in <home>\ctm_server\data and add following keyword:
+
+        SYSOUT_LIMIT_SIZE 1024
+
+        Version 8.0.0 or 9.0.0:
+        - Edit file config.dat located in <home>\ctm_server\data and add following keyword:
+
+        OUTPUT_LIMIT_SIZE 1024
+
+    c) Decrease the timeout of the keep alive of the connection of the CE to GTW.
+
+        Update following variable in file config.dat located in <home>\ctm_server\data
+
+        CTM_PRM_KPA_ROUNDTRIP_TIMEOUT 300
+
+        The Control-M/Server will need to be recycled for the above changes to take effect.
+
+
+CA process does not startup
+------------------------------------
+
+Control-M/Server configuration agent (CA process) does not startup.  
+Messages similar to those below can be found in the CA log in the Control-M/Server's proclog directory. 
+
+https://communities.bmc.com/docs/DOC-67890
+
+CAUSE:
+
+::
+
+    The problem is that the waiting time has elapsed, before all the threads have come up.
+
+(1)Please perform the following steps and verify it solves the problem:   
+
+::
+
+    1. Stop the CA process, via the command  "shut_ca".   
+    2. Open the config.dat file, located under the Control-M/Server Home directory <CTMHOME>/data directory (If it is a HA - high availability environment, do this change at active node).   
+    3. Add the following line to the file:   
+    THREAD_STATE_RETRY_SLEEP 1000   
+    4. Save the file.   
+    5. Restart the CA process, using the command "start_ca" 
+      
+    6. if the CA process starts and stays running, the problem is resolved. 
+  
+
+(2)If the above steps do not resolve the problem, please perform the below to collect special debug information and open an issue with BMC Support:   
+
+::
+
+    1. Stop the CA process, via the command  "shut_ca"   
+    2. Make a backup copy of the config.dat file, located in the Control-M/Server's home directory <CTMHOME>/data 
+      
+    3. Open the config.dat file, located in the Control-M/Server's home directory <CTMHOME>/data   
+    4. Add the following lines:   
+        CTM_CONFIG_AGENT_DEBUG_LEVEL 4   
+        CTM_CONFIG_AGENT_MODULE_LEVEL 0   
+    5. Save the file.   
+    6. Re-start the CA process, via the command "start_ca" 
+      
+    7. Disable debug by modifying the config.dat file and removing the two lines added in step 4 above. 
+      
+        
+  
+  This will force the CA to run in special debug mode.  When the problem reoccurs, please open a new issue with BMC Support and provide the following information: 
+  
+  1. From The 'proclog' sub-directory of the Control-M/Server proclog directory, all files that start with CA.  
+  
+  2. The config.dat file from the Control-M/Server's home directory <CTMHOME>/data 
+  
+    
+  
+大量调度发起的解决方案
+--------------------------
+
+问题描述:
+
+::
+
+    因EDMS系统循环发起调度,导致大量调度循环发起(到2022年底),有40多万个作业待执行,导致7点时日切无法发起
+
+解决方法
+
+::
+    
+    整个日切分为三个阶段
+    1.  FORMATTING AJF
+    2.  DOWNLOADING
+    3.  CLEAN JOBS
+
+    第一阶段时的解决方法 详见 OOM-2 小节  
+    第二阶段的解决方法   详见 OOM-1 小节
+    第三阶段的解决方法
+        1. 增加超时时间设置 (system parameter -> new day参数的 ctm_db_timeout)
+        2. 增加数据库执行SQL的超时设置
+
+
+
+
+ctmkilljob
+-----------------
+
+
+http://www.scheduler-usage.com/viewtopic.php?t=262
+
+https://communities.bmc.com/thread/142784
+
+::
+
+    ctmkilljob -ORDERID $1 -JOBNAME $2 & (unix example) 
+
+    > > > ctmkilljob
+    > > > [ -ORDERID <uniqueOrderID>
+    > > > [ -NODEID <name> ]
+    > > > [ -MEMLIB <path> ]
+    > > > [ -MEMNAME <filename> ]
+    > > > [ -JOBNAME <name> ]
