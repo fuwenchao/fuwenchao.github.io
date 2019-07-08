@@ -107,3 +107,60 @@ table_exists_action选项：
 
     impdp user/password directory=dpdir dumpfile=xxx.dmp table_exists_action=replace logfile=xxx.log
     
+
+
+
+**oracle impdp导入dmp文件时更改用户及表空间方法**
+
+impdp默认导入expdp的dmp文件时，是需要建立相同名称的表空间及临时表空间的；而且会自动创建相同名称的用户名。
+
+但是有时候我们想更改这种默认设置，这个时候就要用到impdp的特殊参数remap_schema(更改用户名)及remap_tablespace（更改存储表空间）；
+
+假设我们有一个example.dmp文件，原来用户为olduser,存储空间为example，example_temp;
+
+我们需要更改用户名及存储表空间导入到新的库中，只需要按照如下步骤进行：
+
+1、建立新的表空间(假设名称：newtablespace)及临时表空间（假设名称：newtablespace_temp)，语句如下
+
+--表空间
+
+create tablespace newtablespace
+logging  
+datafile 'D:\app\Administrator\oradata\newtablespace.dbf' 
+size 50m  
+autoextend on  
+next 50m maxsize 20480m
+extent management local;  
+--临时表空间
+create temporary tablespace newtablespace_temp 
+tempfile 'D:\app\Administrator\oradata\newtablespace_temp.dbf' 
+size 50m  
+autoextend on  
+next 50m maxsize 20480m  
+extent management local;
+
+--注：具体参数及参数值根据实际情况调整。
+
+2、建立用户（此步骤可省略）
+
+create user newuser identified by admin  
+default tablespace newtablespace
+temporary tablespace newtablespace_temp;
+
+3、导入
+
+在oracle服务器cmd执行如下命令：
+
+impdp system/admin@DNACLIENT directory=DATA_PUMP_DIR dumpfile=example.DMP REMAP_SCHEMA=olduser:newuser  remap_tablespace=EXAMPLE:newtablespace,EXAMPLE_TEMP:newtablespace_temp
+
+注：
+
+1、此处directory使用了系统自带的，如果需要自定义，请使用 create directory命令创建;
+
+2、remap_tablespace多个表空间转换用逗号隔开。
+
+完成以上步骤，通过plsql利用newuser登录数据库，可以查看到newuser下的所有导入的表已转入newtablespace表空间了。
+
+ 
+
+mark一下，供以后查看。
