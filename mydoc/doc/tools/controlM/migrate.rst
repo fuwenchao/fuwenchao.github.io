@@ -63,3 +63,36 @@ control-M 迁移步骤
 
 19. test
 
+
+
+升级遇到问题
+----------------
+
+1. ctmudly.py 115 行 print打印中文报错,其实任务已经发起来,直接注释掉改行不影响
+
+2. 任务不返回状态
+
+  ag_diag_comm 测试失败,即 agent 到 server 的通讯失败
+
+    1. 检查 ctmagcfg 配置的授权
+    2. 发现agent没有配置ctmserver 的域名 /etc/hosts
+
+3. em HA 不可用
+
+  防火墙未开通端口
+
+    1. 增加端口限制 HostPort 分别增加 23344-23360 23361-23366,具体步骤见链接
+
+      https://bmcsites.force.com/casemgmt/sc_KnowledgeArticle?sfdcid=kA214000000dCqoCAE&type=Solution
+
+    2. 防火墙开通限制端口
+
+4. 修改返回状态的参数
+
+  multitracker 为 Y
+
+5. ctmudly 报错
+
+  原因是 ctmudly name 新版本有长度限制,超过10位自动截断,所以修改 ctmudly 命令的 name 值
+
+
